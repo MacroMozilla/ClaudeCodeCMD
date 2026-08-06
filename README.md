@@ -4,8 +4,11 @@
 
 **网站：https://macromozilla.github.io/ClaudeCodeCMD/**
 
-> 合并到 `master` 后由 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) 自动部署 —— 它会在 Pages 没开的时候顺手开好，不用手动去 Settings 点。
-> 不想要 Actions 的话删掉那个文件，改成 Settings → Pages → Source 选 `master` 根目录，站点行为完全一样。
+> ⚠️ **需要开一次 Pages 才会上线**（只用点一次，之后推送即生效）：
+> 仓库 **Settings → Pages → Source** 选 **Deploy from a branch**，分支 `master`，目录 `/ (root)`，Save。
+>
+> 这一步只能仓库 Owner 手动做 —— GitHub 不允许任何 token（包括 Actions 自带的 `GITHUB_TOKEN`）首次创建 Pages 站点，
+> 试过会得到 `Resource not accessible by integration`。开好之前，下面和 [`commands/`](commands/) 里的内容已经可以直接用。
 
 `Not affiliated with or endorsed by Anthropic.`
 

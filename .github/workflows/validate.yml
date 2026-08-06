@@ -1,0 +1,122 @@
+name: Validate commands.json
+
+# 内容和代码分离的代价：commands.json 一旦语法错或引用不上，整站白屏。
+# 这个 workflow 只做校验，不部署 —— 部署由 Pages 的分支直发负责（§7：推送即上线，不需要 Actions）。
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Schema, references, and read-only guarantees
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          d = json.load(open('commands.json', encoding='utf-8'))
+          ids   = {c['id'] for c in d['commands']}
+          aps   = {a['id'] for a in d['antipatterns']}
+          risks = {r['id'] for r in d['taxonomy']['risk']}
+          secs  = {s['id'] for s in d['sections']}
+          errs  = []
+
+          for c in d['commands']:
+              t = c['id']
+              for k in ('id','name','summary','risk','category','section','prompt','commandFile'):
+                  if not c.get(k): errs.append(f"{t}: 缺字段 {k}")
+              if c['risk'] not in risks:  errs.append(f"{t}: 风险等级 {c['risk']} 未定义")
+              if c['section'] not in secs: errs.append(f"{t}: 分区 {c['section']} 未定义")
+              if not 2 <= len(c['whenToUse']) <= 3:    errs.append(f"{t}: whenToUse 应 2-3 条")
+              if not 2 <= len(c['whenNotToUse']) <= 3: errs.append(f"{t}: whenNotToUse 应 2-3 条")
+              if not 1 <= len(c['pitfalls']) <= 2:     errs.append(f"{t}: pitfalls 应 1-2 条")
+              for side in ('before','after'):
+                  for p in c['pairs'][side]:
+                      if p['id'] not in ids: errs.append(f"{t}: 配对指向不存在的 {p['id']}")
+              for a in c.get('constraintsCovered', []):
+                  if a not in aps: errs.append(f"{t}: constraintsCovered 指向不存在的 {a}")
+              fm = c['commandFile']['frontmatter']
+              if not fm.get('description'): errs.append(f"{t}: commandFile 缺 description")
+              # ⑥ 第 5 条要在文件层面兜住：allowed-tools 是免批准，disallowed-tools 才是限制
+              if c['risk'] == 'readonly' and 'disallowed-tools' not in fm:
+                  errs.append(f"{t}: 只读命令必须有 disallowed-tools（allowed-tools 挡不住写文件）")
+              if c['risk'] != 'readonly' and 'disallowed-tools' in fm:
+                  errs.append(f"{t}: 非只读命令不该有 disallowed-tools")
+              if '$ARGUMENTS' in c['prompt'] and 'argument-hint' not in fm:
+                  errs.append(f"{t}: 提示词用了 $ARGUMENTS 但没写 argument-hint")
+
+          for a in d['antipatterns']:
+              for r in a['related']:
+                  if r not in ids: errs.append(f"{a['id']}: related 指向不存在的 {r}")
+          for s in d['flow']['steps']:
+              for cid in s['commands']:
+                  if cid not in ids: errs.append(f"flow 第 {s['n']} 步指向不存在的 {cid}")
+          for s in d['flow']['shortcuts']:
+              if s['id'] not in ids: errs.append(f"flow 快捷入口指向不存在的 {s['id']}")
+          if d['flow']['rail']['id'] not in ids:
+              errs.append("flow 节拍器指向不存在的命令")
+
+          uncovered = aps - {a for c in d['commands'] for a in c.get('constraintsCovered', [])}
+          if uncovered: errs.append(f"这些反模式没有任何提示词覆盖: {sorted(uncovered)}")
+
+          if errs:
+              print('\n'.join('  ✗ ' + e for e in errs)); sys.exit(1)
+          print(f"OK — {len(d['commands'])} 条命令 / {len(d['antipatterns'])} 条反模式，引用全部可解析")
+          PY
+
+      - name: commands/*.md still match commands.json
+        run: |
+          python3 - <<'PY'
+          import json, sys, pathlib
+          d = json.load(open('commands.json', encoding='utf-8'))
+          stale = []
+          for c in d['commands']:
+              fm = c['commandFile']['frontmatter']
+              lines = ['---']
+              for k, v in fm.items():
+                  lines.append(f"{k}: {'true' if v is True else 'false' if v is False else v}")
+              lines += ['---', '', c['prompt'], '']
+              p = pathlib.Path('commands') / f"{c['name']}.md"
+              if not p.exists() or p.read_text(encoding='utf-8') != "\n".join(lines):
+                  stale.append(str(p))
+          if stale:
+              print('这些文件和 commands.json 对不上，重新生成后再推：')
+              print('\n'.join('  ✗ ' + s for s in stale)); sys.exit(1)
+          print(f"OK — {len(d['commands'])} 个命令文件与 JSON 一致")
+          PY
+
+      - name: Page renders and every card is present
+        run: |
+          npm i --silent --no-fund --no-audit playwright >/dev/null 2>&1
+          # runner 上没有预装浏览器，装包不等于装 chromium
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          python3 -m http.server 8899 >/dev/null 2>&1 &
+          sleep 2
+          node -e "
+          const { chromium } = require('playwright');
+          (async () => {
+            const b = await chromium.launch();
+            const p = await b.newPage();
+            const errs = [];
+            p.on('pageerror', e => errs.push(e.message));
+            p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+            await p.goto('http://127.0.0.1:8899/', { waitUntil: 'networkidle' });
+            const expected = require('./commands.json').commands.length;
+            const got = await p.locator('.card').count();
+            const overflow = await p.evaluate(() =>
+              document.documentElement.scrollWidth - document.documentElement.clientWidth);
+            await b.close();
+            if (errs.length)      { console.error('页面报错:', errs.join(' | ')); process.exit(1); }
+            if (got !== expected) { console.error(\`应渲染 \${expected} 张卡片，实际 \${got}\`); process.exit(1); }
+            if (overflow > 0)     { console.error('出现横向溢出:', overflow, 'px'); process.exit(1); }
+            console.log(\`OK — \${got} 张卡片渲染正常，无报错，无横向溢出\`);
+          })();
+          "
