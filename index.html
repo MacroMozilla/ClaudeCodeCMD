@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClaudeCodeCMD · Claude Code 命令速查</title>
+<meta name="description" content="Claude Code 命令速查表。每条都写清楚什么时候用、什么时候别用、有什么坑。点一下复制，粘进 Claude Code 就能跑。">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="ClaudeCodeCMD">
+<meta property="og:description" content="Claude Code 命令速查 · 复制即用">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌘</text></svg>">
+</head>
+<body>
+
+<a class="skip-link" href="#main">跳到正文</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <h1 id="site-title">ClaudeCodeCMD</h1>
+      <p id="site-tagline" class="tagline"></p>
+    </div>
+
+    <div class="controls">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path>
+        </svg>
+        <input type="search" id="search" autocomplete="off" spellcheck="false" aria-label="搜索命令">
+        <button type="button" id="search-clear" class="search-clear" aria-label="清空搜索" hidden>&times;</button>
+      </div>
+      <nav id="filters" class="filters" aria-label="按分类筛选"></nav>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <p id="empty-state" class="empty-state" hidden></p>
+
+  <!-- ① 推荐执行顺序 -->
+  <section id="sec-flow" class="section" data-section="flow">
+    <div class="section-head">
+      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
+      <p class="sec-subtitle"></p>
+    </div>
+    <p id="flow-lead" class="flow-lead"></p>
+    <ol id="flow-steps" class="flow"></ol>
+    <div id="flow-shortcuts" class="shortcuts"></div>
+  </section>
+
+  <!-- ② 代码修改类 -->
+  <section id="sec-modify" class="section" data-section="modify">
+    <div class="section-head">
+      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
+      <p class="sec-subtitle"></p>
+    </div>
+    <div class="cards"></div>
+  </section>
+
+  <!-- ③ 只读 / 审查类 -->
+  <section id="sec-review" class="section" data-section="review">
+    <div class="section-head">
+      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
+      <p class="sec-subtitle"></p>
+    </div>
+    <div class="cards"></div>
+  </section>
+
+  <!-- ④ 组合流程 -->
+  <section id="sec-combo" class="section" data-section="combo">
+    <div class="section-head">
+      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
+      <p class="sec-subtitle"></p>
+    </div>
+    <div class="cards"></div>
+  </section>
+
+  <!-- ⑤ 内置命令速查 -->
+  <section id="sec-builtin" class="section" data-section="builtin">
+    <div class="section-head">
+      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
+      <p class="sec-subtitle"></p>
+    </div>
+    <div id="builtin-body"></div>
+  </section>
+
+  <!-- ⑥ 不建议这么做 -->
+  <section id="sec-antipatterns" class="section" data-section="antipatterns">
+    <div class="section-head">
+      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
+      <p class="sec-subtitle"></p>
+    </div>
+    <ol id="antipatterns" class="antipatterns"></ol>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p id="sources"></p>
+    <p id="disclaimer" class="disclaimer"></p>
+    <p class="meta-line">
+      <a href="https://github.com/MacroMozilla/ClaudeCodeCMD">GitHub</a> ·
+      <a href="https://github.com/MacroMozilla/ClaudeCodeCMD/blob/master/LICENSE">MIT</a> ·
+      <span id="version"></span>
+    </p>
+  </div>
+</footer>
+
+<a href="#" id="to-top" class="to-top" hidden>↑</a>
+
+<noscript>
+  <div class="wrap noscript">
+    这个页面靠 JavaScript 渲染 <code>commands.json</code>。不想开 JS 的话，
+    <a href="https://github.com/MacroMozilla/ClaudeCodeCMD#readme">README</a>
+    里有同样内容的纯文本版，提示词可以直接复制。
+  </div>
+</noscript>
+
+<script src="app.js"></script>
+</body>
+</html>
