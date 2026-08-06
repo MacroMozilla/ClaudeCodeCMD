@@ -96,6 +96,8 @@ jobs:
       - name: Page renders and every card is present
         run: |
           npm i --silent --no-fund --no-audit playwright >/dev/null 2>&1
+          # runner 上没有预装浏览器，装包不等于装 chromium
+          npx playwright install --with-deps chromium >/dev/null 2>&1
           python3 -m http.server 8899 >/dev/null 2>&1 &
           sleep 2
           node -e "
