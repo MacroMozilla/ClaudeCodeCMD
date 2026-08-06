@@ -26,15 +26,24 @@ jobs:
           ids   = {c['id'] for c in d['commands']}
           aps   = {a['id'] for a in d['antipatterns']}
           risks = {r['id'] for r in d['taxonomy']['risk']}
-          secs  = {s['id'] for s in d['sections']}
+          cats  = {c['id'] for c in d['taxonomy']['category']}
           errs  = []
+
+          # 每条命令必须恰好属于一个分组，分组里也不能出现不存在的命令
+          grouped = [cid for g in d['groups'] for cid in g['commands']]
+          for cid in grouped:
+              if cid not in ids: errs.append(f"分组引用了不存在的命令 {cid}")
+          for cid in ids:
+              n = grouped.count(cid)
+              if n == 0: errs.append(f"{cid}: 没有被分到任何组，页面上不会显示")
+              elif n > 1: errs.append(f"{cid}: 被分到了 {n} 个组")
 
           for c in d['commands']:
               t = c['id']
-              for k in ('id','name','summary','risk','category','section','prompt','commandFile'):
+              for k in ('id','name','summary','risk','category','prompt','commandFile'):
                   if not c.get(k): errs.append(f"{t}: 缺字段 {k}")
-              if c['risk'] not in risks:  errs.append(f"{t}: 风险等级 {c['risk']} 未定义")
-              if c['section'] not in secs: errs.append(f"{t}: 分区 {c['section']} 未定义")
+              if c['risk'] not in risks: errs.append(f"{t}: 风险等级 {c['risk']} 未定义")
+              if c['category'] not in cats: errs.append(f"{t}: 分类 {c['category']} 未定义")
               if not 2 <= len(c['whenToUse']) <= 3:    errs.append(f"{t}: whenToUse 应 2-3 条")
               if not 2 <= len(c['whenNotToUse']) <= 3: errs.append(f"{t}: whenNotToUse 应 2-3 条")
               if not 1 <= len(c['pitfalls']) <= 2:     errs.append(f"{t}: pitfalls 应 1-2 条")
@@ -93,7 +102,7 @@ jobs:
           print(f"OK — {len(d['commands'])} 个命令文件与 JSON 一致")
           PY
 
-      - name: Page renders and every card is present
+      - name: Page renders and every command row is present
         run: |
           npm i --silent --no-fund --no-audit playwright >/dev/null 2>&1
           # runner 上没有预装浏览器，装包不等于装 chromium
@@ -110,13 +119,13 @@ jobs:
             p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
             await p.goto('http://127.0.0.1:8899/', { waitUntil: 'networkidle' });
             const expected = require('./commands.json').commands.length;
-            const got = await p.locator('.card').count();
+            const got = await p.locator('tr.cmd-row').count();
             const overflow = await p.evaluate(() =>
               document.documentElement.scrollWidth - document.documentElement.clientWidth);
             await b.close();
             if (errs.length)      { console.error('页面报错:', errs.join(' | ')); process.exit(1); }
-            if (got !== expected) { console.error(\`应渲染 \${expected} 张卡片，实际 \${got}\`); process.exit(1); }
+            if (got !== expected) { console.error(\`应渲染 \${expected} 行，实际 \${got}\`); process.exit(1); }
             if (overflow > 0)     { console.error('出现横向溢出:', overflow, 'px'); process.exit(1); }
-            console.log(\`OK — \${got} 张卡片渲染正常，无报错，无横向溢出\`);
+            console.log(\`OK — \${got} 行渲染正常，无报错，无横向溢出\`);
           })();
           "

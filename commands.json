@@ -366,7 +366,6 @@
     {
       "id": "fix-issues",
       "name": "fix-issues",
-      "section": "modify",
       "category": "modify",
       "risk": "high",
       "summary": "按已有的问题清单逐条修，一条一个 commit。",
@@ -420,7 +419,6 @@
     {
       "id": "remove-dead-code",
       "name": "remove-dead-code",
-      "section": "modify",
       "category": "modify",
       "risk": "high",
       "summary": "删掉真正没人用的代码 —— 删之前必须先证明它是死的。",
@@ -478,7 +476,6 @@
     {
       "id": "refactor",
       "name": "refactor",
-      "section": "modify",
       "category": "modify",
       "risk": "high",
       "summary": "调整代码结构，对外行为一点不变。",
@@ -546,7 +543,6 @@
     {
       "id": "simplify",
       "name": "simplify",
-      "section": "modify",
       "category": "modify",
       "risk": "high",
       "summary": "精简局部逻辑，不改变对外行为。",
@@ -610,7 +606,6 @@
     {
       "id": "improve-error-handling",
       "name": "improve-error-handling",
-      "section": "modify",
       "category": "modify",
       "risk": "medium",
       "summary": "把吞掉的、糊弄过去的错误处理补成能排查的。",
@@ -663,7 +658,6 @@
     {
       "id": "optimize",
       "name": "optimize",
-      "section": "modify",
       "category": "modify",
       "risk": "high",
       "summary": "只优化 profile 指出来的地方，改完要拿数字说话。",
@@ -729,7 +723,6 @@
     {
       "id": "audit-dependencies",
       "name": "audit-dependencies",
-      "section": "modify",
       "category": "modify",
       "risk": "medium",
       "summary": "盘一遍依赖：有漏洞的、没人用的、版本落后的，先出报告再动手。",
@@ -776,7 +769,6 @@
     {
       "id": "standardize",
       "name": "standardize",
-      "section": "modify",
       "category": "modify",
       "risk": "low",
       "summary": "统一格式、lint、类型和命名，纯机械改动。",
@@ -820,7 +812,6 @@
     {
       "id": "add-tests",
       "name": "add-tests",
-      "section": "modify",
       "category": "modify",
       "risk": "low",
       "summary": "给现有行为补测试 —— 所有高风险命令的前置。",
@@ -872,7 +863,6 @@
     {
       "id": "document",
       "name": "document",
-      "section": "modify",
       "category": "modify",
       "risk": "low",
       "summary": "补文档和注释，写代码实际做的事，不是你希望它做的事。",
@@ -915,7 +905,6 @@
     {
       "id": "verify",
       "name": "verify",
-      "section": "review",
       "category": "review",
       "risk": "readonly",
       "summary": "跑构建、测试、类型检查，如实报结果 —— 每次改完都跑一次。",
@@ -968,7 +957,6 @@
     {
       "id": "code-review",
       "name": "code-review",
-      "section": "review",
       "category": "review",
       "risk": "readonly",
       "summary": "审查当前 diff，只出报告，一个字都不改。",
@@ -1026,7 +1014,6 @@
     {
       "id": "security-audit",
       "name": "security-audit",
-      "section": "review",
       "category": "review",
       "risk": "readonly",
       "summary": "按攻击面过一遍代码，只报不修，每条要给出可利用路径。",
@@ -1085,7 +1072,6 @@
     {
       "id": "explain-architecture",
       "name": "explain-architecture",
-      "section": "review",
       "category": "review",
       "risk": "readonly",
       "summary": "讲清楚这个代码库实际长什么样 —— 以代码为准，不是以 README 为准。",
@@ -1141,7 +1127,6 @@
     {
       "id": "check-against-spec",
       "name": "check-against-spec",
-      "section": "review",
       "category": "review",
       "risk": "readonly",
       "summary": "拿实现对着规格逐条核，两个方向都核。",
@@ -1193,7 +1178,6 @@
     {
       "id": "profile",
       "name": "profile",
-      "section": "review",
       "category": "review",
       "risk": "readonly",
       "summary": "真的跑起来测量，拿到热点数据 —— optimize 的硬性前置。",
@@ -1247,7 +1231,6 @@
     {
       "id": "harden",
       "name": "harden",
-      "section": "combo",
       "category": "combo",
       "risk": "high",
       "summary": "全流程编排：从摸架构到补文档，每个阶段停下等你确认。",
@@ -1303,7 +1286,6 @@
     {
       "id": "pre-commit",
       "name": "pre-commit",
-      "section": "combo",
       "category": "combo",
       "risk": "low",
       "summary": "提交前的轻量组合：先验一遍，再统一格式，分开提交。",
@@ -1344,7 +1326,6 @@
     {
       "id": "pre-release",
       "name": "pre-release",
-      "section": "combo",
       "category": "combo",
       "risk": "medium",
       "summary": "发版前：安全审查 + 全量验证 + 文档对齐，每步停下。",
