@@ -1,0 +1,288 @@
+{
+  "meta": {
+    "name": "ClaudeCodeCMD",
+    "tagline": "Claude Code 命令速查 · 复制即用",
+    "schemaVersion": "0.1.0",
+    "contentVersion": "0.1.0",
+    "updated": "2026-08-06",
+    "uiLanguage": "zh-CN",
+    "promptLanguage": "en",
+    "promptLanguageRationale": "提示词正文用英文：对模型的指令遵循更稳，且不影响 Claude 用中文回你。界面文案保持中文。",
+    "disclaimer": "Not affiliated with or endorsed by Anthropic.",
+    "status": "DRAFT — 本文件目前只含 3 条样例（simplify / code-review / harden），用于确认 schema 与文风。其余 16 条见 backlog。",
+    "sources": [
+      {
+        "title": "Claude Code — Commands reference",
+        "url": "https://code.claude.com/docs/en/commands",
+        "checkedOn": "2026-08-06"
+      },
+      {
+        "title": "Claude Code — Extend Claude with skills",
+        "url": "https://code.claude.com/docs/en/skills",
+        "checkedOn": "2026-08-06"
+      }
+    ]
+  },
+
+  "taxonomy": {
+    "risk": [
+      { "id": "readonly", "label": "只读", "desc": "不写任何文件", "tone": "neutral" },
+      { "id": "low", "label": "低风险", "desc": "只做增量或机械改动，几乎不会改坏行为", "tone": "safe" },
+      { "id": "medium", "label": "中风险", "desc": "会改行为，但改动面可控", "tone": "warn" },
+      { "id": "high", "label": "高风险", "desc": "会大范围改代码，没测试别跑", "tone": "danger" }
+    ],
+    "category": [
+      { "id": "modify", "label": "改代码", "section": "modify" },
+      { "id": "review", "label": "审查", "section": "review" },
+      { "id": "combo", "label": "组合", "section": "combo" },
+      { "id": "builtin", "label": "内置", "section": "builtin" }
+    ]
+  },
+
+  "sections": [
+    { "id": "flow", "index": "①", "title": "推荐执行顺序", "subtitle": "先跑什么、后跑什么", "kind": "diagram" },
+    { "id": "modify", "index": "②", "title": "代码修改类", "subtitle": "最常用，会动你的文件", "kind": "cards" },
+    { "id": "review", "index": "③", "title": "只读 / 审查类", "subtitle": "不写文件，和②配对使用", "kind": "cards" },
+    { "id": "combo", "index": "④", "title": "组合流程", "subtitle": "把多个命令串起来的编排命令", "kind": "cards" },
+    { "id": "builtin", "index": "⑤", "title": "Claude Code 内置命令速查", "subtitle": "参考性质，不用复制提示词", "kind": "table" },
+    { "id": "antipatterns", "index": "⑥", "title": "不建议这么做", "subtitle": "常见错误用法", "kind": "list" }
+  ],
+
+  "commands": [
+    {
+      "id": "simplify",
+      "name": "simplify",
+      "section": "modify",
+      "category": "modify",
+      "risk": "high",
+      "summary": "精简局部逻辑，不改变对外行为。",
+      "shadowsBuiltin": {
+        "command": "/simplify",
+        "kind": "bundled-skill",
+        "note": "Claude Code 自带 /simplify（bundled skill，四个 agent 并行看复用/精简/效率/抽象层次）。你在 .claude/skills/ 或 .claude/commands/ 里放同名文件会**覆盖**它。想两个都留着，把这条改名成 simplify-strict。",
+        "source": "https://code.claude.com/docs/en/commands"
+      },
+      "whenToUse": [
+        "一段逻辑你读第二遍还要回头看，但它其实是对的。",
+        "同一个判断分散在三四个 if 里，合并后语义不变。",
+        "刚写完一版能跑的实现，想在提交前把脚手架收干净。"
+      ],
+      "whenNotToUse": [
+        "这块代码没有测试 —— 先跑 add-tests，否则改坏了没人告诉你。",
+        "你其实想改的是结构（拆模块、挪边界）—— 那是 refactor，不是 simplify。",
+        "代码看着乱是因为有 bug —— 先 code-review 定位，别指望精简顺手把 bug 带走。"
+      ],
+      "pitfalls": [
+        "最常见的坑：它会删掉你有意保留的扩展点 —— 只有一个实现的接口、暂时没人调的 hook、留给下个需求的 strategy 分支，在它眼里都是「多余的间接层」。提示词里的「不许删疑似故意保留的抽象」那段就是为这个写的。",
+        "不加「接口不变」约束的话，它会顺手改导出函数的签名，然后你在别的包里才发现编译不过。"
+      ],
+      "pairs": {
+        "before": [
+          { "id": "add-tests", "reason": "没有测试就别跑，改坏了发现不了" },
+          { "id": "refactor", "reason": "结构要动的话先动结构，顺序反了会白干" }
+        ],
+        "after": [
+          { "id": "verify", "reason": "行为必须和跑之前一模一样，跑完立刻验" }
+        ]
+      },
+      "constraintsCovered": ["ap-1", "ap-2", "ap-3", "ap-6"],
+      "prompt": "Simplify the code in $ARGUMENTS. If no target is given, simplify only the files changed on this branch versus the default branch.\n\nScope — do exactly one thing:\n1. Reduce incidental complexity in the target: collapse redundant branches, remove needless indirection, inline a single-use helper that costs more than it saves, replace hand-rolled logic with a helper that already exists in this repo.\n2. Do NOT fix bugs, do NOT add features, do NOT optimize for speed, do NOT reformat or re-sort code you are not otherwise changing, and do NOT rename anything on the public surface. If you spot a bug, write it down and keep going — report it at the end, do not fix it here.\n\nHard constraints:\n- Behavior must not change. Every observable output, side effect, thrown error type, log line something depends on, and public signature stays exactly as it is.\n- The public interface must not change: exported functions, classes, and types, their parameter lists, defaults, and return shapes. If a simplification would require an interface change, stop and report it as a proposal instead of doing it.\n- Do not delete an abstraction that merely looks unused. Plugin hooks, adapter and strategy seams, feature flags, protected or overridable members, an interface with one implementation today, and anything referenced from config, docs, generated code, or another package are all presumed deliberate. If you cannot prove it is dead with a repo-wide search, leave it and list it under \"left alone\".\n- Before changing anything, check that the target is covered by tests. Run them and record the pass/fail baseline. If there is no meaningful coverage, STOP and say so — ask whether to add tests first or to proceed unprotected. Do not proceed silently.\n- Keep comments that explain why. Delete only a comment that restates code you just deleted.\n\nWorking order:\n1. Report the test baseline.\n2. List the simplifications you intend to make, grouped by kind, before editing anything.\n3. Apply them. Put each kind in its own commit so any one can be reverted alone. Never mix simplification with another kind of change.\n4. Re-run the same tests. The result must match the baseline exactly. If it does not, revert and report.\n\nFinish with: what you changed and why, what you deliberately left alone and the reason, and anything you suspect is dead but could not prove.",
+      "commandFile": {
+        "path": ".claude/commands/simplify.md",
+        "frontmatter": {
+          "description": "精简局部逻辑，行为和对外接口保持不变。改动前要求有测试基线。",
+          "argument-hint": "[path]",
+          "disable-model-invocation": true
+        },
+        "frontmatterNotes": [
+          "disable-model-invocation: true —— 这条会改文件，只应该你手动敲 /simplify 触发，不该让 Claude 自己决定什么时候跑。"
+        ]
+      }
+    },
+
+    {
+      "id": "code-review",
+      "name": "code-review",
+      "section": "review",
+      "category": "review",
+      "risk": "readonly",
+      "summary": "审查当前 diff，只出报告，一个字都不改。",
+      "shadowsBuiltin": {
+        "command": "/code-review",
+        "kind": "bundled-skill",
+        "note": "Claude Code 自带 /code-review（bundled skill，支持 low/medium/high/xhigh/max/ultra 分档、--fix、--comment）。同名自定义命令会**覆盖**它。除非你就是想要一个更严格的只读版本，否则先用自带的。",
+        "source": "https://code.claude.com/docs/en/commands"
+      },
+      "whenToUse": [
+        "写完一版准备提交，想在自己看之前先拿到一张排好序的问题清单。",
+        "接手别人的分支，需要快速知道哪里危险。",
+        "作为 fix-issues 的前置 —— 先有清单，再挑着修。"
+      ],
+      "whenNotToUse": [
+        "你其实想让它顺手把问题改掉 —— 那直接跑 fix-issues，别指望审查阶段偷偷帮你改。",
+        "diff 超过一两千行 —— 拆开分批审，一次性审完的结论没法用。",
+        "你要找的是安全漏洞 —— 用 security-audit，这条只做浅层覆盖。"
+      ],
+      "pitfalls": [
+        "**`allowed-tools` 不是限制，是免批准。** 官方文档写得很清楚：它只是让列出的工具在这一轮不用问你，`\"It does not restrict which tools are available: every tool remains callable\"`。想真的禁止它写文件，要用 `disallowed-tools`。网上很多「只读命令」模板这里是反的。",
+        "不写死「不许改文件」，它十有八九会边审边顺手修 —— 于是你失去了挑哪些问题值得修的机会，diff 也混成一坨。"
+      ],
+      "pairs": {
+        "before": [],
+        "after": [
+          { "id": "fix-issues", "reason": "拿到清单后挑着修" },
+          { "id": "add-tests", "reason": "审出来的行为缺口先补测试再动手" }
+        ]
+      },
+      "constraintsCovered": ["ap-1", "ap-5"],
+      "prompt": "Review the current diff. Report findings only — this is a read-only pass.\n\nTarget: $ARGUMENTS. If empty, review the diff between this branch and the default branch (`git diff $(git merge-base HEAD origin/HEAD)...HEAD`).\n\nHard constraints:\n- Do NOT edit, create, or delete any file. Do NOT run a formatter, a codemod, or any tool with a --fix flag. Do NOT commit. If you find yourself about to change a file, stop and write the finding down instead. Deciding which findings are worth acting on is my job; a review that quietly fixes things takes that decision away and merges unrelated changes into one diff.\n- Read-only commands are fine: git diff, git log, grep, tests, type checks, and linters in report mode.\n- Review only what the diff touches, plus whatever you must read to judge it. Do not audit the whole repo.\n- Do not invent problems to fill a quota. If the diff is clean, say it is clean.\n\nLook for these, in priority order:\n1. Correctness — logic that yields a wrong result: off-by-one, inverted condition, wrong variable, unhandled null or undefined, race, resource leak, transaction left open.\n2. Contract breakage — a caller elsewhere in the repo that this change breaks. Actually grep for the callers; do not assume there are none.\n3. Error handling — swallowed exceptions, errors logged and then continued past, a failure that surfaces to the caller as success.\n4. Security-adjacent — injection, unvalidated input crossing a trust boundary, secrets in code or logs. Shallow pass only; a real audit is a separate job.\n5. Test gaps — behavior added or changed with no test that would fail if it regressed.\n6. Clarity and cleanup — last, and clearly marked optional.\n\nFor every finding give:\n- file:line\n- Severity: blocker / should-fix / nit\n- The concrete failure: which input or state produces which wrong outcome. If you cannot state that concretely, it is a nit, not a bug — label it honestly.\n- A suggested fix in one or two sentences, described and not applied.\n\nList blockers first. End with a one-line verdict: safe to merge / fix blockers first / needs a closer look at <area>.",
+      "commandFile": {
+        "path": ".claude/commands/code-review.md",
+        "frontmatter": {
+          "description": "只读审查当前 diff，按严重程度输出清单，不改任何文件。",
+          "argument-hint": "[path|PR]",
+          "disallowed-tools": "Edit Write NotebookEdit"
+        },
+        "frontmatterNotes": [
+          "`disallowed-tools` 才是真正把写文件的能力从工具池里拿掉的那个字段 —— 只读命令靠它兜底，不要用 `allowed-tools`。",
+          "限制在下一条消息发出时自动解除，所以不影响你审完接着让它改。"
+        ]
+      }
+    },
+
+    {
+      "id": "harden",
+      "name": "harden",
+      "section": "combo",
+      "category": "combo",
+      "risk": "high",
+      "summary": "全流程编排：从摸架构到补文档，每个阶段停下等你确认。",
+      "shadowsBuiltin": null,
+      "whenToUse": [
+        "接手一个没人维护过的项目，想系统性过一遍。",
+        "发版前留出了一整块时间，准备认真收拾一轮技术债。",
+        "你知道要做十件事，但记不住正确顺序 —— 顺序本身就是这条命令的价值。"
+      ],
+      "whenNotToUse": [
+        "你只想修一个具体问题 —— 直接跑对应的单条命令，别启动全流程。",
+        "没有能跑起来的测试 —— 阶段 0 会直接把你拦下来，先解决测试再来。",
+        "你没空全程盯着 —— 它每个阶段都会停下等确认，无人值守跑不动。"
+      ],
+      "pitfalls": [
+        "阶段顺序不是随便排的：**先重构后优化**（反过来优化成果会被重构作废），**先测量后优化**（不然优化的是错的地方）。你要是让它跳步，这两条约束就失效了。",
+        "它会想把两个阶段合成一轮做完 —— 尤其「审查 + 修」看起来特别顺。别答应，那正好踩中最常见的两个坑。"
+      ],
+      "pairs": {
+        "before": [
+          { "id": "explain-architecture", "reason": "不熟的代码库先摸清结构再启动" }
+        ],
+        "after": [
+          { "id": "pre-release", "reason": "全流程跑完，发版前再走一遍轻量检查" }
+        ]
+      },
+      "constraintsCovered": ["ap-1", "ap-2", "ap-4", "ap-5", "ap-6", "ap-7"],
+      "prompt": "Run a full hardening pass on this codebase. You are an orchestrator: you sequence the stages below and stop for my confirmation between every one.\n\nHard constraints:\n- STOP after each stage. Print what the stage found or changed, then wait for me to say continue. Do not chain two stages in one turn, no matter how small the second one looks. \"Review and then fix\" in one pass is exactly the mistake this command exists to prevent.\n- One stage means one concern and its own commit or commits. Never mix a review with a fix, or a restructuring with an optimization, in the same commit. I need to be able to revert any single stage on its own.\n- The stage order is not negotiable, and two orderings in particular. Restructuring after optimizing throws the optimization away, so restructure first. Optimizing before measuring optimizes the wrong thing, so measure first.\n- Run the verify step after every stage that touched code, not once at the end. It is the metronome, not the finish line.\n- If a stage's verify fails, stop the whole run and fix that before going on. Do not carry a red build into the next stage.\n\nStages:\n0. Baseline. Report the test command, the current pass/fail count, coverage if available, and the commit you are starting from. If the tests do not run at all, stop here and say so.\n1. Map. Read-only architecture pass: what the modules are, which way dependencies flow, where the seams are. No edits.\n2. Cover. Add tests for the areas stages 4 through 8 will touch, starting with whatever has no coverage today. Tests only, no production-code changes. Verify.\n3. Review. Read-only: correctness bugs, error handling, security. Produce a ranked list. No edits. Then ask me which findings to act on — do not act on all of them by default.\n4. Fix. Only the findings I picked, one commit per finding or per tight group. Verify.\n5. Prune. Remove genuinely dead code. Prove each removal with a repo-wide search first, and skip anything reachable from config, docs, generated code, or another package. Verify.\n6. Restructure. Refactor for structure. Public interfaces stay put unless I approve each change individually. Verify.\n7. Simplify. Reduce incidental complexity. Behavior and interfaces unchanged. Verify.\n8. Measure, then optimize. Profile first and show me the numbers. Optimize only what the profile flags, and only where the measured win justifies the complexity it adds. Re-measure afterward and show the before/after. Do not skip the measuring half.\n9. Normalize. Lint, type-check, naming and layout consistency. Mechanical changes only. Verify.\n10. Document. Update docs and comments to match what the code now does.\n\nStart at stage 0 and stop.",
+      "commandFile": {
+        "path": ".claude/commands/harden.md",
+        "frontmatter": {
+          "description": "全流程加固编排：基线→摸架构→补测试→审查→修→删死代码→重构→精简→测量后优化→规范化→文档，每阶段停下等确认。",
+          "disable-model-invocation": true
+        },
+        "frontmatterNotes": [
+          "必须 disable-model-invocation: true —— 这是个会连续改一整个代码库的编排命令，绝不能让 Claude 自己判断时机启动。"
+        ]
+      }
+    }
+  ],
+
+  "builtins": {
+    "status": "empty",
+    "reason": "待用本地 `/help` 输出填充。不凭记忆编造列表。",
+    "todo": [
+      "跑 `claude --version` 记下版本号，跑 `/help` 把输出贴过来。",
+      "填充后本区必须显示：基于 Claude Code vX.X.X 整理 + 整理日期。",
+      "页面上写明「以你本地 /help 输出为准」，附官方文档链接。",
+      "注明这不是完整列表。"
+    ],
+    "officialDocs": "https://code.claude.com/docs/en/commands",
+    "items": []
+  },
+
+  "antipatterns": [
+    {
+      "id": "ap-1",
+      "title": "一条命令里叠加多个动作",
+      "example": "「review 并且 refactor 并且 optimize」",
+      "why": "diff 太大没法审，出了问题也分不清是哪一步干的。",
+      "instead": "一条命令一个动作，中间用 verify 断开。",
+      "related": ["code-review", "simplify", "harden"]
+    },
+    {
+      "id": "ap-2",
+      "title": "没有测试就直接 simplify / refactor",
+      "example": null,
+      "why": "改坏了发现不了 —— 这两条命令都以「行为不变」为前提，而验证行为不变的唯一手段就是测试。",
+      "instead": "先 add-tests 拿到基线，再动手。",
+      "related": ["add-tests", "simplify", "refactor"]
+    },
+    {
+      "id": "ap-3",
+      "title": "simplify 不加「接口不变」约束",
+      "example": null,
+      "why": "有意保留的扩展点被当成多余的间接层删掉：只有一个实现的接口、还没人调的 hook、留给下个需求的分支。",
+      "instead": "提示词里写死「公开接口不变」+「不许删疑似故意保留的抽象，删之前先全仓搜索证明它是死的」。",
+      "related": ["simplify"]
+    },
+    {
+      "id": "ap-4",
+      "title": "先优化后重构",
+      "example": null,
+      "why": "优化成果被重构作废 —— 你精心调过的那段代码，重构时整个被挪走重写了。",
+      "instead": "永远是 refactor → profile → optimize。结构先定下来，再测量，再针对性优化。",
+      "related": ["refactor", "profile", "optimize", "harden"]
+    },
+    {
+      "id": "ap-5",
+      "title": "审查阶段允许改文件",
+      "example": null,
+      "why": "失去挑选修哪些问题的机会，而且审查的改动和后续的改动混在同一个 diff 里。",
+      "instead": "审查命令的 frontmatter 加 `disallowed-tools: Edit Write NotebookEdit`，提示词里也写死「只报告不修改」。注意不是 `allowed-tools` —— 那个字段是免批准，不是限制。",
+      "related": ["code-review", "security-audit", "harden"]
+    },
+    {
+      "id": "ap-6",
+      "title": "全程一个 commit",
+      "example": null,
+      "why": "没法按类别回滚。精简改坏了一处，你只能连着修的三个 bug 一起 revert。",
+      "instead": "一类改动一个 commit，提示词里明确要求。",
+      "related": ["simplify", "harden"]
+    },
+    {
+      "id": "ap-7",
+      "title": "verify 只在最后跑一次",
+      "example": null,
+      "why": "它是节拍器，不是终点。攒了五个阶段才验一次，红了你也不知道是哪个阶段红的。",
+      "instead": "每个动过代码的阶段之后都跑一次。",
+      "related": ["verify", "harden"]
+    }
+  ],
+
+  "backlog": [
+    { "id": "fix-issues", "name": "fix-issues", "section": "modify", "risk": "high", "pairs": { "before": ["code-review"], "after": ["verify"] }, "status": "todo" },
+    { "id": "remove-dead-code", "name": "remove-dead-code", "section": "modify", "risk": "high", "pairs": { "before": ["code-review"], "after": ["refactor", "verify"] }, "status": "todo" },
+    { "id": "refactor", "name": "refactor", "section": "modify", "risk": "high", "pairs": { "before": ["add-tests"], "after": ["verify"] }, "status": "todo" },
+    { "id": "improve-error-handling", "name": "improve-error-handling", "section": "modify", "risk": "medium", "pairs": { "before": ["code-review"], "after": ["verify"] }, "status": "todo" },
+    { "id": "optimize", "name": "optimize", "section": "modify", "risk": "high", "pairs": { "before": ["profile"], "after": ["verify"] }, "requiredBefore": ["profile"], "status": "todo" },
+    { "id": "audit-dependencies", "name": "audit-dependencies", "section": "modify", "risk": "medium", "pairs": { "before": [], "after": ["verify"] }, "status": "todo" },
+    { "id": "standardize", "name": "standardize", "section": "modify", "risk": "low", "pairs": { "before": [], "after": ["verify"] }, "status": "todo" },
+    { "id": "add-tests", "name": "add-tests", "section": "modify", "risk": "low", "pairs": { "before": [], "after": ["verify"] }, "note": "所有高风险命令的前置", "status": "todo" },
+    { "id": "document", "name": "document", "section": "modify", "risk": "low", "pairs": { "before": [], "after": [] }, "status": "todo" },
+    { "id": "verify", "name": "verify", "section": "review", "risk": "readonly", "pairs": { "before": [], "after": [] }, "note": "穿插在每次改动之后", "shadowsBuiltin": "/verify (bundled skill)", "status": "todo" },
+    { "id": "security-audit", "name": "security-audit", "section": "review", "risk": "readonly", "pairs": { "before": [], "after": ["fix-issues"] }, "note": "注意与内置 /security-review 区分", "status": "todo" },
+    { "id": "explain-architecture", "name": "explain-architecture", "section": "review", "risk": "readonly", "pairs": { "before": [], "after": [] }, "note": "所有改造的前置", "status": "todo" },
+    { "id": "check-against-spec", "name": "check-against-spec", "section": "review", "risk": "readonly", "pairs": { "before": [], "after": [] }, "status": "todo" },
+    { "id": "profile", "name": "profile", "section": "review", "risk": "readonly", "pairs": { "before": [], "after": ["optimize"] }, "status": "todo" },
+    { "id": "pre-commit", "name": "pre-commit", "section": "combo", "risk": "low", "note": "verify + standardize", "status": "todo" },
+    { "id": "pre-release", "name": "pre-release", "section": "combo", "risk": "medium", "note": "security-audit + final-verify + document", "status": "todo" }
+  ]
+}
