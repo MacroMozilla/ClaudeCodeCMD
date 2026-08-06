@@ -383,3 +383,34 @@ table.builtins td:first-child { font-family: var(--mono); white-space: nowrap; }
   tr.detail-row { display: table-row !important; }
   pre.prompt { max-height: none; }
 }
+
+/* ── 复制按钮说明 + ⑤ 内置命令分组 ─────────────────── */
+
+.copy-help {
+  margin: 0 0 .35rem; font-size: .74rem; color: var(--fg-muted);
+  padding: .3rem .6rem; background: var(--bg-sunken);
+  border: 1px solid var(--border); border-radius: 5px;
+}
+.copy-help strong { color: var(--fg); }
+.copy-help code { font-size: .95em; }
+
+.detail-actions { display: flex; gap: 1.1rem; flex-wrap: wrap; align-items: flex-start; }
+.action-col { display: flex; flex-direction: column; gap: .2rem; }
+.action-hint { font-size: .72rem; color: var(--fg-muted); max-width: 22rem; }
+
+.builtin-lead { margin: .6rem 0 .2rem; font-size: .82rem; color: var(--fg-muted); }
+.builtin-group { margin-top: .9rem; }
+.bg-head {
+  display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap;
+  padding-bottom: .2rem; border-bottom: 1px solid var(--border-strong); font-size: .82rem;
+}
+.bg-why { color: var(--fg-muted); font-size: .76rem; font-weight: 400; }
+.bi-args { color: var(--fg-faint); font-weight: 400; margin-left: .3rem; font-size: .92em; }
+.kind-tag {
+  margin-left: .4rem; padding: .02rem .3rem; border-radius: 3px;
+  font-family: var(--sans); font-size: .66rem; font-weight: 600;
+  background: var(--risk-readonly-bg); color: var(--risk-readonly-fg);
+}
+.kind-tag.wf { background: var(--risk-medium-bg); color: var(--risk-medium-fg); }
+.builtin-based { color: var(--fg-muted); font-size: .76rem; }
+table.builtins td:first-child { width: 17rem; }
