@@ -160,9 +160,11 @@
         '<td class="c-pairs">' + pairsMini(cmd) + "</td>" +
         '<td class="c-copy">' +
           '<button type="button" class="mini-btn" data-copy="prompt" data-for="' + esc(cmd.id) +
-            '" data-label="' + esc(ui.copyPromptShort) + '">' + esc(ui.copyPromptShort) + "</button>" +
+            '" title="' + esc(ui.copyPromptHint) + '" data-label="' + esc(ui.copyPromptShort) + '">' +
+            esc(ui.copyPromptShort) + "</button>" +
           '<button type="button" class="mini-btn" data-copy="file" data-for="' + esc(cmd.id) +
-            '" data-label="' + esc(ui.copyFileShort) + '">' + esc(ui.copyFileShort) + "</button>" +
+            '" title="' + esc(ui.copyFileHint) + '" data-label="' + esc(ui.copyFileShort) + '">' +
+            esc(ui.copyFileShort) + "</button>" +
         "</td>" +
       "</tr>"
     );
@@ -211,10 +213,16 @@
       '<p class="file-path">' + esc(ui.saveAs) + " <code>" + esc(cmd.commandFile.path) + "</code></p>" +
       notes +
       '<div class="detail-actions">' +
-        '<button type="button" class="btn primary" data-copy="prompt" data-for="' + esc(cmd.id) +
-          '" data-label="' + esc(ui.copyPrompt) + '">' + esc(ui.copyPrompt) + "</button>" +
-        '<button type="button" class="btn" data-copy="file" data-for="' + esc(cmd.id) +
-          '" data-label="' + esc(ui.copyFile) + '">' + esc(ui.copyFile) + "</button>" +
+        '<div class="action-col">' +
+          '<button type="button" class="btn primary" data-copy="prompt" data-for="' + esc(cmd.id) +
+            '" data-label="' + esc(ui.copyPrompt) + '">' + esc(ui.copyPrompt) + "</button>" +
+          '<span class="action-hint">' + esc(ui.copyPromptHint) + "</span>" +
+        "</div>" +
+        '<div class="action-col">' +
+          '<button type="button" class="btn" data-copy="file" data-for="' + esc(cmd.id) +
+            '" data-label="' + esc(ui.copyFile) + '">' + esc(ui.copyFile) + "</button>" +
+          '<span class="action-hint">' + esc(ui.copyFileHint) + "</span>" +
+        "</div>" +
       "</div></div>");
 
     return el('<tr class="detail-row" data-detail="' + esc(cmd.id) + '"><td colspan="' + COLS.length + '">' +
@@ -261,15 +269,38 @@
   function renderBuiltins() {
     var b = DATA.builtins, ui = DATA.ui, host = $("#builtin-body");
     var authority = '<p class="builtin-authority">⚠️ ' + ui.builtinAuthority +
-      ' <a href="' + esc(b.officialDocs) + '" rel="noopener">' + esc(ui.builtinDocsLink) + "</a></p>";
+      ' <a href="' + esc(b.officialDocs) + '" rel="noopener">' + esc(ui.builtinDocsLink) + "</a><br>" +
+      '<span class="builtin-based">' + esc(ui.builtinBasedOn) + "：" + esc(b.basedOn) + "。" +
+      esc(b.caveat) + "</span></p>";
+
     if (!b.items || !b.items.length) {
       host.appendChild(el('<div class="builtin-empty">' + inline(ui.builtinEmpty) + authority + "</div>"));
       return;
     }
-    host.appendChild(el('<div class="table-scroll"><table class="builtins"><tbody>' +
-      b.items.map(function (it) {
-        return "<tr><td>" + esc(it.command) + "</td><td>" + inline(it.purpose) + "</td></tr>";
-      }).join("") + "</tbody></table></div>" + authority));
+
+    host.appendChild(el('<p class="builtin-lead">' + inline(b.reason) + "</p>"));
+
+    (b.groups || [{ title: "", why: "" }]).forEach(function (g) {
+      var rows = b.items.filter(function (it) { return it.group === g.title; });
+      if (!rows.length) return;
+      host.appendChild(el(
+        '<div class="builtin-group">' +
+          '<div class="bg-head"><b>' + esc(g.title) + "</b>" +
+            '<span class="bg-why">' + esc(g.why) + "</span></div>" +
+          '<div class="table-scroll"><table class="builtins"><tbody>' +
+            rows.map(function (it) {
+              var tag = it.kind === "skill" ? '<span class="kind-tag">' + esc(ui.builtinKindSkill) + "</span>"
+                      : it.kind === "workflow" ? '<span class="kind-tag wf">' + esc(ui.builtinKindWorkflow) + "</span>"
+                      : "";
+              return "<tr><td>" + esc(it.command) +
+                (it.args ? '<span class="bi-args">' + esc(it.args) + "</span>" : "") + tag +
+                "</td><td>" + inline(it.purpose) + "</td></tr>";
+            }).join("") +
+          "</tbody></table></div>" +
+        "</div>"
+      ));
+    });
+    host.appendChild(el(authority));
   }
 
   function renderAntipatterns() {
@@ -378,6 +409,8 @@
       if (t) t.textContent = s.title;
       if (b) b.textContent = s.subtitle;
     });
+
+    $("#copy-help").innerHTML = inline(DATA.ui.copyHelp);
 
     $("#sources").innerHTML = esc(DATA.ui.sourcesLabel) + "：" + m.sources.map(function (s) {
       return '<a href="' + esc(s.url) + '" rel="noopener">' + esc(s.title) + "</a>（" +
