@@ -815,6 +815,16 @@ commands/*.md   ← 由 commands.json 生成的成品命令文件
 
 改文案 = 改 `commands.json` 推一下，Pages 直接生效，没有构建步骤。`app.js` 里不含任何具体命令内容。
 
+**改完之后要做一件事：把 `commands.json` 里的 `meta.contentVersion` 加一位。**
+`index.html` 引用 JS/CSS 时带 `?v=<contentVersion>`：
+
+```html
+<link rel="stylesheet" href="style.css?v=1.2.0">
+<script src="app.js?v=1.2.0"></script>
+```
+
+因为 GitHub Pages 对静态资源发 `cache-control: max-age=600`，不换 URL 的话浏览器会继续用缓存里的旧 JS/CSS —— 页面看起来「没更新」。版本号变了 URL 就变，浏览器必然重新拉。CI 会检查 `?v=` 和 `contentVersion` 是否一致，忘了改会直接失败。
+
 本地预览要起 HTTP 服务：`python3 -m http.server 8000`
 
 ---
