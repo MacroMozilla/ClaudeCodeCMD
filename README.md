@@ -4,7 +4,8 @@
 
 **网站：https://macromozilla.github.io/ClaudeCodeCMD/**
 
-> ⚠️ 需要仓库 Owner 到 **Settings → Pages → Source** 选 `master` 根目录才会生效。开之前，下面和 [`commands/`](commands/) 里的内容就已经能直接用了。
+> 合并到 `master` 后由 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) 自动部署 —— 它会在 Pages 没开的时候顺手开好，不用手动去 Settings 点。
+> 不想要 Actions 的话删掉那个文件，改成 Settings → Pages → Source 选 `master` 根目录，站点行为完全一样。
 
 `Not affiliated with or endorsed by Anthropic.`
 
