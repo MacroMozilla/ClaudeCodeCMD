@@ -292,9 +292,22 @@
               var tag = it.kind === "skill" ? '<span class="kind-tag">' + esc(ui.builtinKindSkill) + "</span>"
                       : it.kind === "workflow" ? '<span class="kind-tag wf">' + esc(ui.builtinKindWorkflow) + "</span>"
                       : "";
+              var extra = "";
+              if (it.aliases && it.aliases.length) {
+                extra += ' <span class="bi-alias">' + esc(ui.aliasLabel) + " " +
+                         it.aliases.map(esc).join(" ") + "</span>";
+              }
+              if (it.formerName) {
+                extra += ' <span class="bi-alias former">' + esc(ui.formerLabel) + " " +
+                         esc(it.formerName) + "</span>";
+              }
+              if (it.source && it.source !== "table") {
+                extra += ' <span class="bi-alias offtable" title="' + esc(it.source) + '">' +
+                         esc(ui.offTableLabel) + "</span>";
+              }
               return "<tr><td>" + esc(it.command) +
                 (it.args ? '<span class="bi-args">' + esc(it.args) + "</span>" : "") + tag +
-                "</td><td>" + inline(it.purpose) + "</td></tr>";
+                "</td><td>" + inline(it.purpose) + extra + "</td></tr>";
             }).join("") +
           "</tbody></table></div>" +
         "</div>"

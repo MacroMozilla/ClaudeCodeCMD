@@ -414,3 +414,16 @@ table.builtins td:first-child { font-family: var(--mono); white-space: nowrap; }
 .kind-tag.wf { background: var(--risk-medium-bg); color: var(--risk-medium-fg); }
 .builtin-based { color: var(--fg-muted); font-size: .76rem; }
 table.builtins td:first-child { width: 17rem; }
+
+.bi-alias {
+  margin-left: .45rem; padding: .02rem .32rem; border-radius: 3px;
+  font-family: var(--mono); font-size: .72rem;
+  background: var(--bg-sunken); border: 1px solid var(--border); color: var(--fg-muted);
+  white-space: nowrap;
+}
+.bi-alias.former { opacity: .75; }
+.bi-alias.offtable {
+  background: var(--risk-medium-bg); color: var(--risk-medium-fg);
+  border-color: color-mix(in srgb, var(--risk-medium-fg) 30%, transparent);
+  font-family: var(--sans); font-weight: 600;
+}
