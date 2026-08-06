@@ -3,7 +3,7 @@
     "name": "ClaudeCodeCMD",
     "tagline": "Claude Code 命令速查 · 复制即用",
     "schemaVersion": "0.1.0",
-    "contentVersion": "1.2.0",
+    "contentVersion": "1.3.0",
     "updated": "2026-08-06",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",
@@ -63,7 +63,9 @@
     "copyHelp": "两个复制按钮的区别：**提示词** = 只有正文，粘进对话框立刻用；**装成 /命令** = 正文 + frontmatter，存成 `.md` 文件后变成你自己的 `/命令`，以后反复用。",
     "builtinKindSkill": "skill",
     "builtinKindWorkflow": "workflow",
-    "builtinBasedOn": "整理依据"
+    "builtinBasedOn": "整理依据",
+    "aliasLabel": "别名",
+    "formerLabel": "旧名"
   },
   "taxonomy": {
     "risk": [
@@ -1379,7 +1381,7 @@
   ],
   "builtins": {
     "status": "filled",
-    "reason": "按官方命令文档整理，共 104 条（内置 90 · bundled skill 13 · workflow 1）。",
+    "reason": "按官方命令文档整理，共 104 条（内置 90 · bundled skill 13 · workflow 1），另含 19 个别名，可直接敲的名字共 123 个。",
     "officialDocs": "https://code.claude.com/docs/en/commands",
     "items": [
       {
@@ -1387,7 +1389,11 @@
         "args": "[name]",
         "purpose": "清空上下文，开一段新对话",
         "kind": "builtin",
-        "group": "会话与上下文"
+        "group": "会话与上下文",
+        "aliases": [
+          "/reset",
+          "/new"
+        ]
       },
       {
         "command": "/compact",
@@ -1415,7 +1421,10 @@
         "args": "[session]",
         "purpose": "按 ID 或名字恢复之前的对话，或打开会话选择器",
         "kind": "builtin",
-        "group": "会话与上下文"
+        "group": "会话与上下文",
+        "aliases": [
+          "/continue"
+        ]
       },
       {
         "command": "/rename",
@@ -1462,14 +1471,21 @@
         "command": "/rewind",
         "purpose": "把对话和/或代码回滚到之前某个检查点",
         "kind": "builtin",
-        "group": "会话与上下文"
+        "group": "会话与上下文",
+        "aliases": [
+          "/checkpoint",
+          "/undo"
+        ]
       },
       {
         "command": "/background",
         "args": "[prompt]",
         "purpose": "把当前会话转成后台 agent，腾出这个终端",
         "kind": "builtin",
-        "group": "会话与上下文"
+        "group": "会话与上下文",
+        "aliases": [
+          "/bg"
+        ]
       },
       {
         "command": "/stop",
@@ -1481,7 +1497,10 @@
         "command": "/tasks",
         "purpose": "查看和管理本会话的后台任务，含已完成的子 agent",
         "kind": "builtin",
-        "group": "会话与上下文"
+        "group": "会话与上下文",
+        "aliases": [
+          "/bashes"
+        ]
       },
       {
         "command": "/subtask",
@@ -1520,19 +1539,28 @@
         "command": "/teleport",
         "purpose": "把一个 Claude Code on the web 会话拉到这个终端里继续",
         "kind": "builtin",
-        "group": "会话与上下文"
+        "group": "会话与上下文",
+        "aliases": [
+          "/tp"
+        ]
       },
       {
         "command": "/desktop",
         "purpose": "把当前会话转到 Claude Code 桌面版继续",
         "kind": "builtin",
-        "group": "会话与上下文"
+        "group": "会话与上下文",
+        "aliases": [
+          "/app"
+        ]
       },
       {
         "command": "/remote-control",
         "purpose": "让这个会话可以从 claude.ai 远程控制",
         "kind": "builtin",
-        "group": "会话与上下文"
+        "group": "会话与上下文",
+        "aliases": [
+          "/rc"
+        ]
       },
       {
         "command": "/code-review",
@@ -1672,27 +1700,39 @@
         "args": "[interval] [prompt]",
         "purpose": "让一个提示词按间隔反复跑；不给间隔则由 Claude 自己掌握节奏",
         "kind": "skill",
-        "group": "模型与运行方式"
+        "group": "模型与运行方式",
+        "aliases": [
+          "/proactive"
+        ]
       },
       {
         "command": "/schedule",
         "args": "[description]",
         "purpose": "创建/更新/列出/立即运行 Routine（跑在 Anthropic 云端的定时任务）",
         "kind": "builtin",
-        "group": "模型与运行方式"
+        "group": "模型与运行方式",
+        "aliases": [
+          "/routines"
+        ]
       },
       {
         "command": "/config",
         "args": "[key=value ...]",
         "purpose": "打开设置界面，调主题、模型、输出风格等",
         "kind": "builtin",
-        "group": "配置与权限"
+        "group": "配置与权限",
+        "aliases": [
+          "/settings"
+        ]
       },
       {
         "command": "/permissions",
         "purpose": "管理工具权限的 allow / ask / deny 规则",
         "kind": "builtin",
-        "group": "配置与权限"
+        "group": "配置与权限",
+        "aliases": [
+          "/allowed-tools"
+        ]
       },
       {
         "command": "/memory",
@@ -1883,7 +1923,8 @@
         "command": "/usage-credits",
         "purpose": "配置用量额度，或在触顶时向管理员申请",
         "kind": "builtin",
-        "group": "账号与用量"
+        "group": "账号与用量",
+        "formerName": "/extra-usage"
       },
       {
         "command": "/upgrade",
@@ -1907,7 +1948,10 @@
         "command": "/doctor",
         "purpose": "跑一次安装体检，能诊断也能修：PATH、重复安装、无用 skill、慢 hook、CLAUDE.md 瘦身",
         "kind": "skill",
-        "group": "安装与诊断"
+        "group": "安装与诊断",
+        "aliases": [
+          "/checkup"
+        ]
       },
       {
         "command": "/status",
@@ -1926,7 +1970,10 @@
         "args": "[report]",
         "purpose": "报 bug 或分享你的对话",
         "kind": "builtin",
-        "group": "安装与诊断"
+        "group": "安装与诊断",
+        "aliases": [
+          "/share"
+        ]
       },
       {
         "command": "/feedback",
@@ -2011,13 +2058,20 @@
         "command": "/mobile",
         "purpose": "显示下载 Claude 手机 App 的二维码",
         "kind": "builtin",
-        "group": "安装与诊断"
+        "group": "安装与诊断",
+        "aliases": [
+          "/ios",
+          "/android"
+        ]
       },
       {
         "command": "/exit",
         "purpose": "退出 CLI",
         "kind": "builtin",
-        "group": "安装与诊断"
+        "group": "安装与诊断",
+        "aliases": [
+          "/quit"
+        ]
       },
       {
         "command": "/radio",
