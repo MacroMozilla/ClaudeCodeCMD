@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ClaudeCodeCMD · Claude Code 命令速查</title>
-<meta name="description" content="Claude Code 命令速查表。每条都写清楚什么时候用、什么时候别用、有什么坑。点一下复制，粘进 Claude Code 就能跑。">
+<meta name="description" content="Claude Code 命令速查表。一屏看完 19 条命令，点命令名展开细节，一键复制。每条都写清楚什么时候用、什么时候别用、有什么坑。">
 <meta name="color-scheme" content="light dark">
 <meta property="og:title" content="ClaudeCodeCMD">
 <meta property="og:description" content="Claude Code 命令速查 · 复制即用">
@@ -21,79 +21,62 @@
     <div class="brand">
       <h1 id="site-title">ClaudeCodeCMD</h1>
       <p id="site-tagline" class="tagline"></p>
+      <div class="controls">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path>
+          </svg>
+          <input type="search" id="search" autocomplete="off" spellcheck="false" aria-label="搜索命令">
+          <button type="button" id="search-clear" class="search-clear" aria-label="清空搜索" hidden>&times;</button>
+        </div>
+        <nav id="filters" class="filters" aria-label="按分类筛选"></nav>
+      </div>
     </div>
 
-    <div class="controls">
-      <div class="search-box">
-        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path>
-        </svg>
-        <input type="search" id="search" autocomplete="off" spellcheck="false" aria-label="搜索命令">
-        <button type="button" id="search-clear" class="search-clear" aria-label="清空搜索" hidden>&times;</button>
-      </div>
-      <nav id="filters" class="filters" aria-label="按分类筛选"></nav>
-    </div>
+    <!-- ① 推荐执行顺序：压成一条横带 -->
+    <nav id="flow-strip" class="flow-strip" aria-label="推荐执行顺序"></nav>
   </div>
 </header>
 
 <main id="main" class="wrap">
-  <p id="empty-state" class="empty-state" hidden></p>
 
-  <!-- ① 推荐执行顺序 -->
-  <section id="sec-flow" class="section" data-section="flow">
-    <div class="section-head">
-      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
-      <p class="sec-subtitle"></p>
-    </div>
-    <p id="flow-lead" class="flow-lead"></p>
-    <ol id="flow-steps" class="flow"></ol>
-    <div id="flow-shortcuts" class="shortcuts"></div>
+  <!-- ② 全部命令：一张大表 -->
+  <section id="sec-table" class="section" data-section="table">
+    <table class="cmd-table">
+      <colgroup>
+        <col class="w-command"><col class="w-risk"><col class="w-summary">
+        <col class="w-pairs"><col class="w-copy">
+      </colgroup>
+      <thead>
+        <tr id="table-head"></tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <p id="empty-state" class="empty-state" hidden></p>
   </section>
 
-  <!-- ② 代码修改类 -->
-  <section id="sec-modify" class="section" data-section="modify">
-    <div class="section-head">
-      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
-      <p class="sec-subtitle"></p>
-    </div>
-    <div class="cards"></div>
+  <!-- ③ 内置命令 -->
+  <section id="sec-builtin" class="section section-minor" data-section="builtin">
+    <details>
+      <summary class="minor-summary">
+        <span class="sec-index"></span> <span class="sec-title"></span>
+        <span class="sec-subtitle"></span>
+      </summary>
+      <div id="builtin-body"></div>
+    </details>
   </section>
 
-  <!-- ③ 只读 / 审查类 -->
-  <section id="sec-review" class="section" data-section="review">
-    <div class="section-head">
-      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
-      <p class="sec-subtitle"></p>
-    </div>
-    <div class="cards"></div>
+  <!-- ④ 不建议这么做 -->
+  <section id="sec-antipatterns" class="section section-minor" data-section="antipatterns">
+    <details>
+      <summary class="minor-summary">
+        <span class="sec-index"></span> <span class="sec-title"></span>
+        <span class="sec-subtitle"></span>
+      </summary>
+      <ol id="antipatterns" class="antipatterns"></ol>
+    </details>
   </section>
 
-  <!-- ④ 组合流程 -->
-  <section id="sec-combo" class="section" data-section="combo">
-    <div class="section-head">
-      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
-      <p class="sec-subtitle"></p>
-    </div>
-    <div class="cards"></div>
-  </section>
-
-  <!-- ⑤ 内置命令速查 -->
-  <section id="sec-builtin" class="section" data-section="builtin">
-    <div class="section-head">
-      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
-      <p class="sec-subtitle"></p>
-    </div>
-    <div id="builtin-body"></div>
-  </section>
-
-  <!-- ⑥ 不建议这么做 -->
-  <section id="sec-antipatterns" class="section" data-section="antipatterns">
-    <div class="section-head">
-      <h2><span class="sec-index"></span> <span class="sec-title"></span></h2>
-      <p class="sec-subtitle"></p>
-    </div>
-    <ol id="antipatterns" class="antipatterns"></ol>
-  </section>
 </main>
 
 <footer class="site-footer">
@@ -108,13 +91,11 @@
   </div>
 </footer>
 
-<a href="#" id="to-top" class="to-top" hidden>↑</a>
-
 <noscript>
   <div class="wrap noscript">
     这个页面靠 JavaScript 渲染 <code>commands.json</code>。不想开 JS 的话，
     <a href="https://github.com/MacroMozilla/ClaudeCodeCMD#readme">README</a>
-    里有同样内容的纯文本版，提示词可以直接复制。
+    里有同样内容的纯文本版。
   </div>
 </noscript>
 

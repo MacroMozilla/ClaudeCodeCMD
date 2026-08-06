@@ -3,7 +3,7 @@
     "name": "ClaudeCodeCMD",
     "tagline": "Claude Code 命令速查 · 复制即用",
     "schemaVersion": "0.1.0",
-    "contentVersion": "1.0.0",
+    "contentVersion": "1.1.0",
     "updated": "2026-08-06",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",
@@ -49,7 +49,15 @@
     "antipatternInstead": "该怎么做",
     "backToTop": "回到顶部",
     "sourcesLabel": "内容核对来源",
-    "checkedOn": "核对于"
+    "checkedOn": "核对于",
+    "expandHint": "点命令名展开",
+    "colCommand": "命令",
+    "colRisk": "风险",
+    "colSummary": "一句话",
+    "colPairs": "配对",
+    "colCopy": "复制",
+    "copyPromptShort": "提示词",
+    "copyFileShort": "命令文件"
   },
   "taxonomy": {
     "risk": [
@@ -106,43 +114,106 @@
       "id": "flow",
       "index": "①",
       "title": "推荐执行顺序",
-      "subtitle": "先跑什么、后跑什么",
-      "kind": "diagram"
+      "subtitle": "点任一步跳到对应命令",
+      "kind": "strip"
     },
     {
-      "id": "modify",
+      "id": "table",
       "index": "②",
-      "title": "代码修改类",
-      "subtitle": "最常用，会动你的文件",
-      "kind": "cards"
-    },
-    {
-      "id": "review",
-      "index": "③",
-      "title": "只读 / 审查类",
-      "subtitle": "不写文件，和②配对使用",
-      "kind": "cards"
-    },
-    {
-      "id": "combo",
-      "index": "④",
-      "title": "组合流程",
-      "subtitle": "把多个命令串起来的编排命令",
-      "kind": "cards"
+      "title": "全部命令",
+      "subtitle": "点命令名展开细节 · 能配起来用的排在同一组",
+      "kind": "table"
     },
     {
       "id": "builtin",
-      "index": "⑤",
-      "title": "Claude Code 内置命令速查",
-      "subtitle": "参考性质，不用复制提示词",
+      "index": "③",
+      "title": "Claude Code 内置命令",
+      "subtitle": "参考性质",
       "kind": "table"
     },
     {
       "id": "antipatterns",
-      "index": "⑥",
+      "index": "④",
       "title": "不建议这么做",
       "subtitle": "常见错误用法",
       "kind": "list"
+    }
+  ],
+  "groups": [
+    {
+      "id": "understand",
+      "n": 1,
+      "title": "先看懂",
+      "why": "动手之前先知道现在长什么样，不然一定会捅到不该捅的地方",
+      "commands": [
+        "explain-architecture",
+        "check-against-spec"
+      ]
+    },
+    {
+      "id": "safety-net",
+      "n": 2,
+      "title": "建安全网",
+      "why": "后面每一条高风险命令都以「行为不变」为前提，没测试你验证不了这件事",
+      "commands": [
+        "add-tests",
+        "verify"
+      ]
+    },
+    {
+      "id": "find-fix",
+      "n": 3,
+      "title": "查 → 修",
+      "why": "查的只读、修的才动手；分开跑你才有机会挑哪些值得修",
+      "commands": [
+        "code-review",
+        "security-audit",
+        "fix-issues",
+        "improve-error-handling"
+      ]
+    },
+    {
+      "id": "reshape",
+      "n": 4,
+      "title": "清理 → 重塑",
+      "why": "先删再搬再收：少搬点东西，结构定了再收拾局部",
+      "commands": [
+        "remove-dead-code",
+        "refactor",
+        "simplify"
+      ]
+    },
+    {
+      "id": "perf",
+      "n": 5,
+      "title": "测量 → 提速",
+      "why": "顺序不能反，没有 profile 数据 optimize 应该直接拒绝开工",
+      "commands": [
+        "profile",
+        "optimize"
+      ]
+    },
+    {
+      "id": "wrapup",
+      "n": 6,
+      "title": "收尾",
+      "why": "机械性的收口动作，单独提交，别和逻辑改动混在一起",
+      "commands": [
+        "standardize",
+        "document",
+        "audit-dependencies"
+      ]
+    },
+    {
+      "id": "combo",
+      "n": 7,
+      "title": "组合流程",
+      "why": "把上面几组串起来的编排命令，每阶段停下等确认",
+      "commands": [
+        "harden",
+        "pre-commit",
+        "pre-release"
+      ]
     }
   ],
   "flow": {

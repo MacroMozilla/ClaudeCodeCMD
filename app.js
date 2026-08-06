@@ -1,11 +1,11 @@
-/* ClaudeCodeCMD — 渲染 commands.json。
-   这个文件里不含任何具体命令内容：文案、标签、顺序全部来自 JSON。 */
+/* ClaudeCodeCMD — 渲染 commands.json 成一张大表。
+   这个文件里不含任何具体命令内容：文案、分组、顺序、标签全部来自 JSON。 */
 
 (function () {
   "use strict";
 
   var DATA = null;
-  var STATE = { filter: "all", query: "" };
+  var STATE = { filter: "all", query: "", open: null };
 
   // ── 工具 ────────────────────────────────────────────
 
@@ -15,7 +15,7 @@
       .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
 
-  /* 先转义再做行内标记，所以内容里的尖括号不会变成标签 */
+  /* 先转义再做行内标记，内容里的尖括号不会变成标签 */
   function inline(s) {
     return esc(s)
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
@@ -27,33 +27,21 @@
     t.innerHTML = html.trim();
     return t.content.firstElementChild;
   }
-
-  function $(sel, root) { return (root || document).querySelector(sel); }
-  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 
   function byId(id) {
-    for (var i = 0; i < DATA.commands.length; i++) {
-      if (DATA.commands[i].id === id) return DATA.commands[i];
-    }
+    for (var i = 0; i < DATA.commands.length; i++) if (DATA.commands[i].id === id) return DATA.commands[i];
     return null;
   }
-
   function riskMeta(id) {
     var r = DATA.taxonomy.risk;
     for (var i = 0; i < r.length; i++) if (r[i].id === id) return r[i];
     return { id: id, label: id, desc: "" };
   }
 
-  function sectionMeta(id) {
-    var s = DATA.sections;
-    for (var i = 0; i < s.length; i++) if (s[i].id === id) return s[i];
-    return null;
-  }
-
-  /* 把 frontmatter + 提示词拼成可直接存盘的 .md */
   function commandFileText(cmd) {
-    var fm = cmd.commandFile.frontmatter;
-    var lines = ["---"];
+    var fm = cmd.commandFile.frontmatter, lines = ["---"];
     Object.keys(fm).forEach(function (k) {
       var v = fm[k];
       lines.push(k + ": " + (v === true ? "true" : v === false ? "false" : v));
@@ -65,17 +53,13 @@
   // ── 复制 ────────────────────────────────────────────
 
   function writeClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(text);
-    }
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
     return new Promise(function (resolve, reject) {
       var ta = document.createElement("textarea");
-      ta.value = text;
-      ta.setAttribute("readonly", "");
+      ta.value = text; ta.setAttribute("readonly", "");
       ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
       document.body.appendChild(ta);
-      ta.select();
-      ta.setSelectionRange(0, ta.value.length); // iOS
+      ta.select(); ta.setSelectionRange(0, ta.value.length);
       var ok = false;
       try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
       document.body.removeChild(ta);
@@ -86,18 +70,15 @@
   /* 按钮自己变「已复制 ✓」，两秒后恢复。不弹 toast，不跳转。 */
   function handleCopy(btn) {
     if (btn.dataset.busy === "1") return;
-    var cmd = byId(btn.closest("[data-cmd]").dataset.cmd);
+    var cmd = byId(btn.dataset.for);
     if (!cmd) return;
     var text = btn.dataset.copy === "file" ? commandFileText(cmd) : cmd.prompt;
     var original = btn.dataset.label;
-
     btn.dataset.busy = "1";
     writeClipboard(text).then(function () {
-      btn.textContent = DATA.ui.copied;
-      btn.classList.add("done");
+      btn.textContent = DATA.ui.copied; btn.classList.add("done");
     }).catch(function () {
-      btn.textContent = DATA.ui.copyFailed;
-      btn.classList.add("failed");
+      btn.textContent = DATA.ui.copyFailed; btn.classList.add("failed");
     }).then(function () {
       setTimeout(function () {
         btn.textContent = original;
@@ -107,167 +88,188 @@
     });
   }
 
-  // ── 渲染：① 流程 ───────────────────────────────────
+  // ── ① 流程横带 ─────────────────────────────────────
 
-  function renderFlow() {
-    var flow = DATA.flow;
-    $("#flow-lead").textContent = flow.lead;
+  function renderFlowStrip() {
+    var f = DATA.flow, host = $("#flow-strip"), html = [];
+    html.push('<span class="fs-lead">' + esc(DATA.sections.filter(function (s) {
+      return s.id === "flow";
+    })[0].title) + "</span>");
 
-    var pivotAfter = {};
-    flow.pivots.forEach(function (p) {
-      var at = Math.max(p.between[0], p.between[1]);
-      (pivotAfter[at] = pivotAfter[at] || []).push(p);
+    f.steps.forEach(function (s, i) {
+      if (i) html.push('<span class="fs-arrow">›</span>');
+      html.push('<a class="fs-step" href="#' + esc(s.commands[0]) + '" title="' + esc(s.why) + '">' +
+        '<span class="fs-n">' + esc(s.n) + "</span>" + esc(s.title) + "</a>");
     });
 
-    var ol = $("#flow-steps");
-    flow.steps.forEach(function (s) {
-      var chips = s.commands.map(function (id) {
-        var c = byId(id);
-        return c ? '<a class="chip" href="#' + esc(id) + '">' + esc(c.name) + "</a>" : "";
-      }).join("");
-
-      ol.appendChild(el(
-        '<li class="flow-step">' +
-          '<div class="flow-num">' + esc(s.n) + "</div>" +
-          '<div class="flow-step-title">' + esc(s.title) + "</div>" +
-          '<div class="flow-why">' + inline(s.why) + "</div>" +
-          '<div class="flow-cmds">' + chips + "</div>" +
-        "</li>"
-      ));
-
-      (pivotAfter[s.n] || []).forEach(function (p) {
-        ol.appendChild(el(
-          '<div class="flow-pivot"><b>' + esc(DATA.ui.flowPivotLabel) + "：" + esc(p.rule) +
-          "</b> <span>" + inline(p.why) + "</span></div>"
-        ));
-      });
-    });
-
-    var rail = byId(flow.rail.id);
-    ol.insertAdjacentElement("afterend", el(
-      '<p class="flow-rail">' +
-        (rail ? '<a class="chip" href="#' + esc(rail.id) + '">' + esc(rail.name) + "</a> " : "") +
-        "<b>" + esc(flow.rail.label) + "</b> " +
-        '<span class="flow-rail-note">' + inline(flow.rail.note) + "</span>" +
-      "</p>"
-    ));
-
-    var wrap = $("#flow-shortcuts");
-    wrap.appendChild(el('<div class="field-label">' + esc(DATA.ui.flowShortcutLabel) + "</div>"));
-    flow.shortcuts.forEach(function (s) {
-      var c = byId(s.id);
-      if (!c) return;
-      wrap.appendChild(el(
-        '<div class="shortcut">' +
-          '<a class="chip" href="#' + esc(s.id) + '">' + esc(c.name) + "</a>" +
-          "<b>" + esc(s.label) + "</b>" +
-          '<span class="shortcut-note">' + inline(s.note) + "</span>" +
-        "</div>"
-      ));
-    });
+    var rail = byId(f.rail.id);
+    html.push('<span class="fs-rail"><b>' + esc(f.rail.label) + "</b></span>");
+    if (rail) html.push('<a class="fs-step" href="#' + esc(rail.id) + '">' + esc(rail.name) + "</a>");
+    host.innerHTML = html.join("");
   }
 
-  // ── 渲染：命令卡片 ─────────────────────────────────
+  // ── ② 大表 ─────────────────────────────────────────
+
+  /* 没有单独的「写文件」列：风险等级已经区分只读/低/中/高，再列一次是重复信息 */
+  var COLS = [
+    { key: "command", cls: "c-command" },
+    { key: "risk",    cls: "c-risk" },
+    { key: "summary", cls: "c-summary" },
+    { key: "pairs",   cls: "c-pairs" },
+    { key: "copy",    cls: "c-copy" }
+  ];
+  var COL_LABEL = {
+    command: "colCommand", risk: "colRisk",
+    summary: "colSummary", pairs: "colPairs", copy: "colCopy"
+  };
+
+  function renderHead() {
+    $("#table-head").innerHTML = COLS.map(function (c) {
+      return '<th class="' + c.cls + '">' + esc(DATA.ui[COL_LABEL[c.key]]) + "</th>";
+    }).join("");
+  }
+
+  function pairsMini(cmd) {
+    var out = [];
+    (cmd.pairs.before || []).forEach(function (p) {
+      var t = byId(p.id);
+      if (t) out.push('<a class="pair-mini" href="#' + esc(p.id) + '" title="' + esc(p.reason) +
+        '"><span class="arr">←</span> ' + esc(t.name) + "</a>");
+    });
+    (cmd.pairs.after || []).forEach(function (p) {
+      var t = byId(p.id);
+      if (t) out.push('<a class="pair-mini" href="#' + esc(p.id) + '" title="' + esc(p.reason) +
+        '"><span class="arr">→</span> ' + esc(t.name) + "</a>");
+    });
+    return out.slice(0, 2).join(" ") + (out.length > 2 ? ' <span class="pair-mini">+' + (out.length - 2) + "</span>" : "");
+  }
+
+  function renderRow(cmd) {
+    var risk = riskMeta(cmd.risk), ui = DATA.ui;
+    var shadow = cmd.shadowsBuiltin
+      ? ' <span class="shadow-dot" title="' + esc(ui.shadowsLabel + " " + cmd.shadowsBuiltin.command) + '">🔁</span>'
+      : "";
+
+    return el(
+      '<tr class="cmd-row" id="' + esc(cmd.id) + '" data-cmd="' + esc(cmd.id) + '" data-cat="' + esc(cmd.category) + '">' +
+        '<td class="c-command"><button type="button" class="cmd-name" aria-expanded="false">' +
+          esc(cmd.name) + "</button>" + shadow + "</td>" +
+        '<td class="c-risk"><span class="badge risk-' + esc(cmd.risk) + '" title="' + esc(risk.desc) + '">' +
+          esc(risk.label) + "</span></td>" +
+        '<td class="c-summary" title="' + esc(cmd.summary) + '">' + inline(cmd.summary) + "</td>" +
+        '<td class="c-pairs">' + pairsMini(cmd) + "</td>" +
+        '<td class="c-copy">' +
+          '<button type="button" class="mini-btn" data-copy="prompt" data-for="' + esc(cmd.id) +
+            '" data-label="' + esc(ui.copyPromptShort) + '">' + esc(ui.copyPromptShort) + "</button>" +
+          '<button type="button" class="mini-btn" data-copy="file" data-for="' + esc(cmd.id) +
+            '" data-label="' + esc(ui.copyFileShort) + '">' + esc(ui.copyFileShort) + "</button>" +
+        "</td>" +
+      "</tr>"
+    );
+  }
 
   function fieldList(cls, label, items) {
     if (!items || !items.length) return "";
-    return '<div class="field ' + cls + '"><p class="field-label">' + esc(label) + "</p><ul>" +
-      items.map(function (x) { return "<li>" + inline(x) + "</li>"; }).join("") +
-      "</ul></div>";
+    return '<div class="' + cls + '"><p class="field-label">' + esc(label) + "</p><ul>" +
+      items.map(function (x) { return "<li>" + inline(x) + "</li>"; }).join("") + "</ul></div>";
   }
 
-  function pairRows(cmd) {
-    var rows = [];
-    [["before", DATA.ui.pairsBefore], ["after", DATA.ui.pairsAfter]].forEach(function (pair) {
-      (cmd.pairs[pair[0]] || []).forEach(function (p) {
+  function renderDetail(cmd) {
+    var ui = DATA.ui, parts = [];
+
+    if (cmd.shadowsBuiltin) {
+      parts.push('<div class="shadow-warn">🔁 ' + esc(ui.shadowsLabel) + " <code>" +
+        esc(cmd.shadowsBuiltin.command) + "</code> — " + inline(cmd.shadowsBuiltin.note) + "</div>");
+    }
+    parts.push(fieldList("f-use", ui.whenToUse, cmd.whenToUse));
+    parts.push(fieldList("f-dont", ui.whenNotToUse, cmd.whenNotToUse));
+    parts.push(fieldList("f-pit", ui.pitfalls, cmd.pitfalls));
+
+    var pr = [];
+    [["before", ui.pairsBefore], ["after", ui.pairsAfter]].forEach(function (d) {
+      (cmd.pairs[d[0]] || []).forEach(function (p) {
         var t = byId(p.id);
         if (!t) return;
-        rows.push(
-          '<div class="pair-row">' +
-            '<span class="pair-dir">' + esc(pair[1]) + "</span>" +
-            '<a class="chip" href="#' + esc(p.id) + '">' + esc(t.name) + "</a>" +
-            '<span class="pair-reason">' + inline(p.reason) + "</span>" +
-          "</div>"
-        );
+        pr.push('<span class="pair-item"><span class="pair-dir">' + esc(d[1]) + "</span>" +
+          '<a class="chip" href="#' + esc(p.id) + '">' + esc(t.name) + "</a>" +
+          '<span class="pair-reason">' + inline(p.reason) + "</span></span>");
       });
     });
-    return rows.length ? '<div class="pairs">' + rows.join("") + "</div>" : "";
-  }
-
-  function renderCard(cmd) {
-    var risk = riskMeta(cmd.risk);
-    var ui = DATA.ui;
-
-    var shadow = cmd.shadowsBuiltin
-      ? '<div class="shadow-warn">🔁 ' + esc(ui.shadowsLabel) + " <code>" +
-        esc(cmd.shadowsBuiltin.command) + "</code> — " + inline(cmd.shadowsBuiltin.note) + "</div>"
-      : "";
+    if (pr.length) {
+      parts.push('<div class="detail-full"><p class="field-label">' + esc(ui.colPairs) +
+        '</p><div class="detail-pairs">' + pr.join("") + "</div></div>");
+    }
 
     var notes = (cmd.commandFile.frontmatterNotes || []).length
       ? '<ul class="fm-notes">' + cmd.commandFile.frontmatterNotes.map(function (n) {
           return "<li>" + inline(n) + "</li>";
-        }).join("") + "</ul>"
-      : "";
+        }).join("") + "</ul>" : "";
 
-    return el(
-      '<article class="card" id="' + esc(cmd.id) + '" data-cmd="' + esc(cmd.id) + '">' +
-        '<div class="card-head">' +
-          '<h3 class="card-name">' + esc(cmd.name) + "</h3>" +
-          '<span class="badge risk-' + esc(cmd.risk) + '" title="' + esc(risk.desc) + '">' +
-            esc(risk.label) + "</span>" +
-          '<p class="card-summary">' + inline(cmd.summary) + "</p>" +
-        "</div>" +
-        '<div class="card-body">' +
-          shadow +
-          fieldList("use", ui.whenToUse, cmd.whenToUse) +
-          fieldList("dont", ui.whenNotToUse, cmd.whenNotToUse) +
-          fieldList("pit", ui.pitfalls, cmd.pitfalls) +
-          pairRows(cmd) +
-          '<details class="prompt-details">' +
-            '<summary class="prompt-summary">' + esc(ui.promptToggle) + "</summary>" +
-            '<pre class="prompt">' + esc(cmd.prompt) + "</pre>" +
-            '<p class="file-path">' + esc(ui.saveAs) + " <code>" +
-              esc(cmd.commandFile.path) + "</code></p>" +
-            notes +
-          "</details>" +
-          '<div class="card-actions">' +
-            '<button type="button" class="btn primary" data-copy="prompt" data-label="' +
-              esc(ui.copyPrompt) + '">' + esc(ui.copyPrompt) + "</button>" +
-            '<button type="button" class="btn" data-copy="file" data-label="' +
-              esc(ui.copyFile) + '">' + esc(ui.copyFile) + "</button>" +
-          "</div>" +
-        "</div>" +
-      "</article>"
-    );
+    parts.push('<div class="prompt-wrap">' +
+      '<p class="field-label">' + esc(ui.promptToggle) + "</p>" +
+      '<pre class="prompt">' + esc(cmd.prompt) + "</pre>" +
+      '<p class="file-path">' + esc(ui.saveAs) + " <code>" + esc(cmd.commandFile.path) + "</code></p>" +
+      notes +
+      '<div class="detail-actions">' +
+        '<button type="button" class="btn primary" data-copy="prompt" data-for="' + esc(cmd.id) +
+          '" data-label="' + esc(ui.copyPrompt) + '">' + esc(ui.copyPrompt) + "</button>" +
+        '<button type="button" class="btn" data-copy="file" data-for="' + esc(cmd.id) +
+          '" data-label="' + esc(ui.copyFile) + '">' + esc(ui.copyFile) + "</button>" +
+      "</div></div>");
+
+    return el('<tr class="detail-row" data-detail="' + esc(cmd.id) + '"><td colspan="' + COLS.length + '">' +
+      '<div class="detail">' + parts.join("") + "</div></td></tr>");
   }
 
-  function renderCards() {
-    ["modify", "review", "combo"].forEach(function (sec) {
-      var host = $("#sec-" + sec + " .cards");
-      DATA.commands.filter(function (c) { return c.section === sec; })
-                   .forEach(function (c) { host.appendChild(renderCard(c)); });
+  function renderTable() {
+    var body = $("#table-body");
+    DATA.groups.forEach(function (grp) {
+      body.appendChild(el(
+        '<tr class="group-row" data-group="' + esc(grp.id) + '"><td colspan="' + COLS.length + '">' +
+          '<span class="group-title"><span class="group-n">' + esc(grp.n) + "</span>" + esc(grp.title) + "</span>" +
+          '<span class="group-why">' + inline(grp.why) + "</span>" +
+        "</td></tr>"
+      ));
+      grp.commands.forEach(function (id) {
+        var c = byId(id);
+        if (c) body.appendChild(renderRow(c));
+      });
     });
   }
 
-  // ── 渲染：⑤ 内置 / ⑥ 反模式 ────────────────────────
+  /* 手风琴：一次只展开一条，保持「一屏看完」 */
+  function toggle(id) {
+    var open = STATE.open;
+    if (open) {
+      var prevRow = document.getElementById(open);
+      var prevDetail = $('tr[data-detail="' + open + '"]');
+      if (prevRow) { prevRow.classList.remove("open"); $(".cmd-name", prevRow).setAttribute("aria-expanded", "false"); }
+      if (prevDetail) prevDetail.remove();
+      STATE.open = null;
+      if (open === id) return;
+    }
+    var row = document.getElementById(id), cmd = byId(id);
+    if (!row || !cmd) return;
+    row.classList.add("open");
+    $(".cmd-name", row).setAttribute("aria-expanded", "true");
+    row.insertAdjacentElement("afterend", renderDetail(cmd));
+    STATE.open = id;
+  }
+
+  // ── ③④ ─────────────────────────────────────────────
 
   function renderBuiltins() {
-    var b = DATA.builtins, ui = DATA.ui;
-    var host = $("#builtin-body");
-    var authority =
-      '<p class="builtin-authority">⚠️ ' + ui.builtinAuthority +
+    var b = DATA.builtins, ui = DATA.ui, host = $("#builtin-body");
+    var authority = '<p class="builtin-authority">⚠️ ' + ui.builtinAuthority +
       ' <a href="' + esc(b.officialDocs) + '" rel="noopener">' + esc(ui.builtinDocsLink) + "</a></p>";
-
     if (!b.items || !b.items.length) {
       host.appendChild(el('<div class="builtin-empty">' + inline(ui.builtinEmpty) + authority + "</div>"));
       return;
     }
-    var rows = b.items.map(function (it) {
-      return "<tr><td>" + esc(it.command) + "</td><td>" + inline(it.purpose) + "</td></tr>";
-    }).join("");
-    host.appendChild(el(
-      '<div class="table-scroll"><table class="builtins"><tbody>' + rows + "</tbody></table></div>" + authority
-    ));
+    host.appendChild(el('<div class="table-scroll"><table class="builtins"><tbody>' +
+      b.items.map(function (it) {
+        return "<tr><td>" + esc(it.command) + "</td><td>" + inline(it.purpose) + "</td></tr>";
+      }).join("") + "</tbody></table></div>" + authority));
   }
 
   function renderAntipatterns() {
@@ -281,11 +283,9 @@
         '<li class="antipattern">' +
           '<div class="ap-title">' + inline(a.title) +
             (a.example ? ' <span class="ap-example">' + inline(a.example) + "</span>" : "") + "</div>" +
-          '<div class="ap-line"><span class="k">' + esc(ui.antipatternWhy) +
-            '</span><span class="v">' + inline(a.why) + "</span></div>" +
-          '<div class="ap-line"><span class="k">' + esc(ui.antipatternInstead) +
-            '</span><span class="v">' + inline(a.instead) + "</span></div>" +
-          '<div class="ap-related">' + related + "</div>" +
+          '<div class="ap-line"><span class="k">' + esc(ui.antipatternWhy) + "</span>" + inline(a.why) + "</div>" +
+          '<div class="ap-line"><span class="k">' + esc(ui.antipatternInstead) + "</span>" + inline(a.instead) +
+            '<span class="ap-related">' + related + "</span></div>" +
         "</li>"
       ));
     });
@@ -302,92 +302,64 @@
     return cmd._hay;
   }
 
-  function matches(cmd) {
-    if (STATE.filter !== "all" && cmd.category !== STATE.filter) return false;
-    if (!STATE.query) return true;
-    return haystack(cmd).indexOf(STATE.query) !== -1;
-  }
-
   function apply() {
-    var active = STATE.filter !== "all" || STATE.query !== "";
-    var total = 0;
-
+    var shown = 0;
     DATA.commands.forEach(function (c) {
-      var ok = matches(c);
-      var node = document.getElementById(c.id);
-      if (node) node.hidden = !ok;
-      if (ok) total++;
+      var ok = (STATE.filter === "all" || c.category === STATE.filter) &&
+               (!STATE.query || haystack(c).indexOf(STATE.query) !== -1);
+      var row = document.getElementById(c.id);
+      if (row) row.hidden = !ok;
+      if (!ok && STATE.open === c.id) toggle(c.id);
+      if (ok) shown++;
     });
 
-    ["modify", "review", "combo"].forEach(function (sec) {
-      var node = $("#sec-" + sec);
-      node.hidden = !$$(".card:not([hidden])", node).length;
+    // 组里一条都不剩就把组标题也收起来
+    DATA.groups.forEach(function (grp) {
+      var any = grp.commands.some(function (id) {
+        var r = document.getElementById(id);
+        return r && !r.hidden;
+      });
+      var gr = $('tr[data-group="' + grp.id + '"]');
+      if (gr) gr.hidden = !any;
     });
 
-    // 这三区不是命令，筛选/搜索时收起来，免得干扰结果
-    ["flow", "builtin", "antipatterns"].forEach(function (sec) {
-      var node = $("#sec-" + sec);
-      if (sec === "builtin") {
-        node.hidden = active && !(STATE.filter === "builtin" && !STATE.query);
-      } else {
-        node.hidden = active;
-      }
-    });
-
-    var empty = $("#empty-state");
-    var nothing = total === 0 && !(STATE.filter === "builtin" && !STATE.query);
-    empty.hidden = !nothing;
-    if (nothing) empty.textContent = DATA.ui.noResults;
-
+    $("#empty-state").hidden = shown !== 0;
+    if (shown === 0) $("#empty-state").textContent = DATA.ui.noResults;
     $("#search-clear").hidden = STATE.query === "";
   }
 
   function renderFilters() {
-    var host = $("#filters"), ui = DATA.ui;
-    var counts = { all: DATA.commands.length };
+    var host = $("#filters"), ui = DATA.ui, counts = { all: DATA.commands.length };
     DATA.commands.forEach(function (c) { counts[c.category] = (counts[c.category] || 0) + 1; });
 
-    var opts = [{ id: "all", label: ui.filterAll }].concat(DATA.taxonomy.category);
-    opts.forEach(function (o) {
-      var n = counts[o.id] || 0;
-      var b = el(
-        '<button type="button" class="filter" data-filter="' + esc(o.id) + '" aria-pressed="' +
-        (o.id === "all") + '">' + esc(o.label) + '<span class="n">' + n + "</span></button>"
-      );
-      host.appendChild(b);
+    [{ id: "all", label: ui.filterAll }].concat(DATA.taxonomy.category).forEach(function (o) {
+      if (o.id !== "all" && !counts[o.id]) return; // 没有条目的分类不显示按钮
+      host.appendChild(el('<button type="button" class="filter" data-filter="' + esc(o.id) +
+        '" aria-pressed="' + (o.id === "all") + '">' + esc(o.label) +
+        '<span class="n">' + (counts[o.id] || 0) + "</span></button>"));
     });
 
     host.addEventListener("click", function (e) {
       var btn = e.target.closest(".filter");
       if (!btn) return;
       STATE.filter = btn.dataset.filter;
-      $$(".filter", host).forEach(function (b) {
-        b.setAttribute("aria-pressed", String(b === btn));
-      });
+      $$(".filter", host).forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); });
       apply();
-      // 不跳页：只把视口带回内容区顶部
-      var main = $("#main");
-      if (main.getBoundingClientRect().top < 0) main.scrollIntoView({ block: "start" });
     });
   }
 
   // ── 杂项 ────────────────────────────────────────────
 
-  function flash(id) {
-    var node = document.getElementById(id);
-    if (!node || !node.classList.contains("card")) return;
-    if (node.hidden) { // 目标被筛掉了就先解除筛选
+  function jumpTo(id) {
+    var row = document.getElementById(id);
+    if (!row) return;
+    if (row.hidden) { // 目标被筛掉了就先解除筛选
       STATE.filter = "all"; STATE.query = ""; $("#search").value = "";
-      $$(".filter").forEach(function (b) {
-        b.setAttribute("aria-pressed", String(b.dataset.filter === "all"));
-      });
+      $$(".filter").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.filter === "all")); });
       apply();
     }
-    node.classList.remove("flash");
-    void node.offsetWidth;
-    node.classList.add("flash");
-    var d = node.querySelector("details");
-    if (d) d.open = false;
+    if (STATE.open !== id) toggle(id);
+    row.scrollIntoView({ block: "center" });
   }
 
   function renderChrome() {
@@ -401,33 +373,38 @@
     DATA.sections.forEach(function (s) {
       var node = $("#sec-" + s.id);
       if (!node) return;
-      $(".sec-index", node).textContent = s.index;
-      $(".sec-title", node).textContent = s.title;
-      $(".sec-subtitle", node).textContent = s.subtitle;
+      var i = $(".sec-index", node), t = $(".sec-title", node), b = $(".sec-subtitle", node);
+      if (i) i.textContent = s.index;
+      if (t) t.textContent = s.title;
+      if (b) b.textContent = s.subtitle;
     });
 
-    $("#sources").innerHTML = esc(DATA.ui.sourcesLabel) + "：" +
-      m.sources.map(function (s) {
-        return '<a href="' + esc(s.url) + '" rel="noopener">' + esc(s.title) + "</a>（" +
-               esc(DATA.ui.checkedOn) + " " + esc(s.checkedOn) + "）";
-      }).join(" · ");
+    $("#sources").innerHTML = esc(DATA.ui.sourcesLabel) + "：" + m.sources.map(function (s) {
+      return '<a href="' + esc(s.url) + '" rel="noopener">' + esc(s.title) + "</a>（" +
+             esc(DATA.ui.checkedOn) + " " + esc(s.checkedOn) + "）";
+    }).join(" · ");
   }
 
   function wireEvents() {
     document.addEventListener("click", function (e) {
-      var btn = e.target.closest("button[data-copy]");
-      if (btn) { handleCopy(btn); return; }
-      var chip = e.target.closest("a.chip");
-      if (chip) setTimeout(function () { flash(chip.getAttribute("href").slice(1)); }, 0);
+      var copyBtn = e.target.closest("[data-copy]");
+      if (copyBtn) { e.stopPropagation(); handleCopy(copyBtn); return; }
+
+      var name = e.target.closest(".cmd-name");
+      if (name) { toggle(name.closest("[data-cmd]").dataset.cmd); return; }
+
+      var link = e.target.closest('a[href^="#"]');
+      if (link) {
+        e.preventDefault();
+        var id = decodeURIComponent(link.getAttribute("href").slice(1));
+        if (id) { history.replaceState(null, "", "#" + id); jumpTo(id); }
+      }
     });
 
     var search = $("#search"), t;
     search.addEventListener("input", function () {
       clearTimeout(t);
-      t = setTimeout(function () {
-        STATE.query = search.value.trim().toLowerCase();
-        apply();
-      }, 120);
+      t = setTimeout(function () { STATE.query = search.value.trim().toLowerCase(); apply(); }, 120);
     });
     search.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { search.value = ""; STATE.query = ""; apply(); }
@@ -436,49 +413,30 @@
       search.value = ""; STATE.query = ""; apply(); search.focus();
     });
 
-    // "/" 聚焦搜索框
     document.addEventListener("keydown", function (e) {
       if (e.key === "/" && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) {
         e.preventDefault(); search.focus();
       }
-    });
-
-    var toTop = $("#to-top");
-    window.addEventListener("scroll", function () {
-      toTop.hidden = window.scrollY < 600;
-    }, { passive: true });
-    toTop.addEventListener("click", function (e) {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    window.addEventListener("hashchange", function () {
-      flash(decodeURIComponent(location.hash.slice(1)));
+      if (e.key === "Escape" && STATE.open) toggle(STATE.open);
     });
   }
 
   // ── 启动 ────────────────────────────────────────────
 
   fetch("commands.json", { cache: "no-cache" })
-    .then(function (r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    })
+    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function (json) {
       DATA = json;
       renderChrome();
       renderFilters();
-      renderFlow();
-      renderCards();
+      renderFlowStrip();
+      renderHead();
+      renderTable();
       renderBuiltins();
       renderAntipatterns();
       wireEvents();
       apply();
-      if (location.hash) {
-        var id = decodeURIComponent(location.hash.slice(1));
-        var node = document.getElementById(id);
-        if (node) { node.scrollIntoView({ block: "start" }); flash(id); }
-      }
+      if (location.hash) jumpTo(decodeURIComponent(location.hash.slice(1)));
     })
     .catch(function (err) {
       $("#main").prepend(el(
