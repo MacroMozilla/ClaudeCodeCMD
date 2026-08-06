@@ -422,3 +422,8 @@ table.builtins td:first-child { width: 17rem; }
   white-space: nowrap;
 }
 .bi-alias.former { opacity: .75; }
+.bi-alias.offtable {
+  background: var(--risk-medium-bg); color: var(--risk-medium-fg);
+  border-color: color-mix(in srgb, var(--risk-medium-fg) 30%, transparent);
+  font-family: var(--sans); font-weight: 600;
+}

@@ -4,7 +4,7 @@
 
 **https://macromozilla.github.io/ClaudeCodeCMD/**
 
-一屏看完 19 条自定义命令，点命令名展开细节，一键复制。外加 104 条 Claude Code 内置命令速查（含 19 个别名，可直接敲的名字共 123 个）。
+一屏看完 19 条自定义命令，点命令名展开细节，一键复制。外加 111 条 Claude Code 内置命令速查（含 19 个别名、2 个旧名，可直接敲的名字共 132 个）。
 
 `Not affiliated with or endorsed by Anthropic.`
 
@@ -592,15 +592,15 @@ mkdir -p .claude/commands && cp ClaudeCodeCMD/commands/*.md .claude/commands/
 
 ---
 
-## Claude Code 内置命令速查（104 条 + 19 个别名）
+## Claude Code 内置命令速查（111 条 + 19 个别名）
 
-按官方命令文档整理，共 104 条（内置 90 · bundled skill 13 · workflow 1），另含 19 个别名，可直接敲的名字共 123 个。
+共 111 条（内置 97 · bundled skill 13 · workflow 1），另含 19 个别名、2 个旧名。其中 7 条**不在官方「All commands」表里** —— 是翻遍 129 个文档页面才找到的。
 
-> **code.claude.com 官方命令文档，快照日 2026-08-06（文档中出现的最新版本号 v2.1.222）**
+> **整理依据：code.claude.com 全部 129 个文档页面（含 changelog），快照日 2026-08-06**
 >
-> ⚠️ 内置命令随 Claude Code 版本、套餐和平台变化，这份不保证和你本地一致。以你本地 /help 的输出为准。
+> ⚠️ 官方那张「All commands」表并不完整 —— /update、/todos、/env、/buddy 只在 changelog 里出现过。内置命令随版本、套餐和平台变化，以你本地 /help 输出为准。
 
-标 `skill` 的是 bundled skill（本质是一段提示词，Claude 也可能自己触发，且会被你的同名文件覆盖），标 `workflow` 的是多 agent 编排，其余是真正的内置命令。**别名和主名效果完全一样**，敲哪个都行。
+标 `skill` = bundled skill（本质是提示词，Claude 可能自己触发，会被你的同名文件覆盖），`workflow` = 多 agent 编排，**`表外`** = 官方「All commands」表里没有、在 changelog 或其它页面找到的。别名和主名效果一样，敲哪个都行。
 
 ### 会话与上下文
 
@@ -631,6 +631,7 @@ mkdir -p .claude/commands && cp ClaudeCodeCMD/commands/*.md .claude/commands/
 | `/teleport` | `/tp` | 把一个 Claude Code on the web 会话拉到这个终端里继续 |
 | `/desktop` | `/app` | 把当前会话转到 Claude Code 桌面版继续 |
 | `/remote-control` | `/rc` | 让这个会话可以从 claude.ai 远程控制 |
+| `/todos` **`表外`** | — | 打开待办列表浮层（changelog 里和 `/config` `/context` `/model` 并列为 command overlay）。 |
 
 ### 写代码与审查
 
@@ -690,6 +691,7 @@ mkdir -p .claude/commands && cp ClaudeCodeCMD/commands/*.md .claude/commands/
 | `/chrome` | — | 配置 Claude in Chrome |
 | `/add-dir` `<path>` | — | 给当前会话临时加一个可访问的工作目录 |
 | `/cd` `<path>` | — | 把当前会话切到另一个工作目录 |
+| `/env` **`表外`** | — | 设置环境变量，影响 Bash 与 PowerShell 工具执行的命令（v2.1.89 起也作用于 PowerShell）。 |
 
 ### 扩展：skill / plugin / MCP
 
@@ -707,6 +709,7 @@ mkdir -p .claude/commands && cp ClaudeCodeCMD/commands/*.md .claude/commands/
 | `/dataviz` `[request]` `skill` | — | 图表/仪表盘的设计指导：选图形、配色、校验色盲安全与对比度 |
 | `/design-sync` `[hint]` `skill` | — | 把仓库里的 React 设计系统同步到 Claude Design，让产出的设计用你的真实组件 |
 | `/design-login` | — | 为 /design-sync 授权 claude.ai 账号的设计系统访问 |
+| `/plugins` **`表外`** | — | 在 VS Code 扩展里打开「Manage plugins」图形界面。和 `/plugin` 不是一回事 —— 那个是在 CLI 里管插件。 |
 
 ### 账号与用量
 
@@ -739,7 +742,7 @@ mkdir -p .claude/commands && cp ClaudeCodeCMD/commands/*.md .claude/commands/
 | `/insights` | — | 分析你的使用记录，生成项目领域、交互模式、卡点报告 |
 | `/team-onboarding` | — | 根据你的使用历史生成一份团队上手指南 |
 | `/powerup` | — | 用带动画的小课程快速了解 Claude Code 的功能 |
-| `/fewer-permission-prompts` `skill` | — | 扫描历史里常用的只读命令，写进项目 settings.json 的白名单，减少批准弹窗 |
+| `/fewer-permission-prompts` `skill` | （旧名 `/less-permission-prompts`） | 扫描历史里常用的只读命令，写进项目 settings.json 的白名单，减少批准弹窗 |
 | `/heapdump` | — | 导出 JS 堆快照和内存分解，用于排查内存占用过高 |
 | `/install-github-app` | — | 为仓库安装 Claude GitHub App，可选配置 Actions 与 secrets |
 | `/install-slack-app` | — | 安装 Claude Slack 应用 |
@@ -749,6 +752,7 @@ mkdir -p .claude/commands && cp ClaudeCodeCMD/commands/*.md .claude/commands/
 | `/setup-vertex` | — | 交互式向导配置 Google Cloud Agent Platform 的认证、项目、区域和模型 |
 | `/mobile` | `/ios` `/android` | 显示下载 Claude 手机 App 的二维码 |
 | `/exit` | `/quit` | 退出 CLI |
+| `/update` **`表外`** | — | 更新 Claude Code 自身。**注意和 `/upgrade` 区分** —— 后者是打开网页升套餐。 |
 
 ### 杂项与已移除
 
@@ -761,6 +765,9 @@ mkdir -p .claude/commands && cp ClaudeCodeCMD/commands/*.md .claude/commands/
 | `/pr-comments` `[PR]` | — | 【已移除 v2.1.91】 |
 | `/vim` | — | 【已移除 v2.1.92】 |
 | `/ultraplan` `<prompt>` | — | 【已移除】 |
+| `/buddy` **`表外`** | — | 愚人节彩蛋：孵一只小生物看着你写代码。 |
+| `/output-style` **`表外`** | — | 【已废弃 v2.1.73，已移除 v2.1.91】改用 `/config` 或直接改 `outputStyle` 设置。 |
+| `/tag` **`表外`** | — | 【已移除 v2.1.92】原本用于给会话打标签。 |
 
 ---
 

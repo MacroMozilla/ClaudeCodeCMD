@@ -301,6 +301,10 @@
                 extra += ' <span class="bi-alias former">' + esc(ui.formerLabel) + " " +
                          esc(it.formerName) + "</span>";
               }
+              if (it.source && it.source !== "table") {
+                extra += ' <span class="bi-alias offtable" title="' + esc(it.source) + '">' +
+                         esc(ui.offTableLabel) + "</span>";
+              }
               return "<tr><td>" + esc(it.command) +
                 (it.args ? '<span class="bi-args">' + esc(it.args) + "</span>" : "") + tag +
                 "</td><td>" + inline(it.purpose) + extra + "</td></tr>";
