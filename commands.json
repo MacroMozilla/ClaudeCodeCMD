@@ -1,9 +1,9 @@
 {
   "meta": {
     "name": "ClaudeCodeCMD",
-    "tagline": "Claude Code 命令速查 · 复制即用",
+    "tagline": "Claude Code 内置命令速查 · 111 条全收录",
     "schemaVersion": "0.1.0",
-    "contentVersion": "1.4.0",
+    "contentVersion": "3.0.0",
     "updated": "2026-08-06",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",
@@ -24,1360 +24,36 @@
     ]
   },
   "ui": {
-    "searchPlaceholder": "搜命令名、说明、坑…",
+    "searchPlaceholder": "搜命令名、别名、说明…",
     "filterAll": "全部",
     "filterCount": "{n} 条",
     "noResults": "没找到匹配的命令。换个词试试，或者点「全部」。",
-    "whenToUse": "什么时候用",
-    "whenNotToUse": "什么时候别用",
-    "pitfalls": "坑",
-    "pairsBefore": "跑之前先跑",
-    "pairsAfter": "跑完接着跑",
-    "promptToggle": "提示词全文",
-    "copyPrompt": "复制提示词",
-    "copyFile": "复制为命令文件",
-    "copied": "已复制 ✓",
-    "copyFailed": "复制失败",
-    "shadowsLabel": "会覆盖自带的",
-    "saveAs": "存成",
-    "builtinEmpty": "这一区还没填。内置命令的可用性随 Claude Code 版本、套餐和平台变化，网上各种整理彼此矛盾，所以这里不凭记忆编 —— 等用本地 /help 的真实输出来填。",
     "builtinAuthority": "以你本地 <code>/help</code> 的输出为准。",
     "builtinDocsLink": "官方命令文档",
-    "flowPivotLabel": "顺序要点",
-    "flowShortcutLabel": "不想全走一遍？",
-    "antipatternWhy": "为什么不行",
-    "antipatternInstead": "该怎么做",
     "backToTop": "回到顶部",
     "sourcesLabel": "内容核对来源",
     "checkedOn": "核对于",
-    "expandHint": "点命令名展开",
     "colCommand": "命令",
-    "colRisk": "风险",
-    "colSummary": "一句话",
-    "colPairs": "配对",
-    "colCopy": "复制",
-    "copyPromptShort": "提示词",
-    "copyFileShort": "装成 /命令",
-    "copyPromptHint": "一次性用 —— 复制后直接粘进 Claude Code 对话框就能跑",
-    "copyFileHint": "长期用 —— 多一段 frontmatter，存成 .claude/commands/xxx.md 后，以后敲 /xxx 就能调用",
-    "copyHelp": "两个复制按钮的区别：**提示词** = 只有正文，粘进对话框立刻用；**装成 /命令** = 正文 + frontmatter，存成 `.md` 文件后变成你自己的 `/命令`，以后反复用。",
     "builtinKindSkill": "skill",
     "builtinKindWorkflow": "workflow",
     "builtinBasedOn": "整理依据",
     "aliasLabel": "别名",
     "formerLabel": "旧名",
-    "offTableLabel": "表外"
-  },
-  "taxonomy": {
-    "risk": [
-      {
-        "id": "readonly",
-        "label": "只读",
-        "desc": "不写任何文件",
-        "tone": "neutral"
-      },
-      {
-        "id": "low",
-        "label": "低风险",
-        "desc": "只做增量或机械改动，几乎不会改坏行为",
-        "tone": "safe"
-      },
-      {
-        "id": "medium",
-        "label": "中风险",
-        "desc": "会改行为，但改动面可控",
-        "tone": "warn"
-      },
-      {
-        "id": "high",
-        "label": "高风险",
-        "desc": "会大范围改代码，没测试别跑",
-        "tone": "danger"
-      }
-    ],
-    "category": [
-      {
-        "id": "modify",
-        "label": "改代码",
-        "section": "modify"
-      },
-      {
-        "id": "review",
-        "label": "审查",
-        "section": "review"
-      },
-      {
-        "id": "combo",
-        "label": "组合",
-        "section": "combo"
-      },
-      {
-        "id": "builtin",
-        "label": "内置",
-        "section": "builtin"
-      }
-    ]
+    "offTableLabel": "表外",
+    "colAlias": "别名",
+    "colKind": "类型",
+    "colPurpose": "说明",
+    "kindBuiltin": "内置",
+    "groupJumpLead": "跳到分组",
+    "builtinLead": "Claude Code **自带**的命令，敲一下就能用，不用装也不用复制。其中 **7 条不在官方「All commands」表里** —— 翻遍 129 个文档页面才找到的（打「表外」标）。"
   },
   "sections": [
     {
-      "id": "flow",
-      "index": "①",
-      "title": "推荐执行顺序",
-      "subtitle": "点任一步跳到对应命令",
-      "kind": "strip"
-    },
-    {
-      "id": "table",
-      "index": "②",
-      "title": "全部命令",
-      "subtitle": "点命令名展开细节 · 能配起来用的排在同一组",
-      "kind": "table"
-    },
-    {
       "id": "builtin",
-      "index": "③",
+      "index": "",
       "title": "Claude Code 内置命令",
-      "subtitle": "参考性质",
+      "subtitle": "111 条 + 19 个别名",
       "kind": "table"
-    },
-    {
-      "id": "antipatterns",
-      "index": "④",
-      "title": "不建议这么做",
-      "subtitle": "常见错误用法",
-      "kind": "list"
-    }
-  ],
-  "groups": [
-    {
-      "id": "understand",
-      "n": 1,
-      "title": "先看懂",
-      "why": "动手之前先知道现在长什么样，不然一定会捅到不该捅的地方",
-      "commands": [
-        "explain-architecture",
-        "check-against-spec"
-      ]
-    },
-    {
-      "id": "safety-net",
-      "n": 2,
-      "title": "建安全网",
-      "why": "后面每一条高风险命令都以「行为不变」为前提，没测试你验证不了这件事",
-      "commands": [
-        "add-tests",
-        "verify"
-      ]
-    },
-    {
-      "id": "find-fix",
-      "n": 3,
-      "title": "查 → 修",
-      "why": "查的只读、修的才动手；分开跑你才有机会挑哪些值得修",
-      "commands": [
-        "code-review",
-        "security-audit",
-        "fix-issues",
-        "improve-error-handling"
-      ]
-    },
-    {
-      "id": "reshape",
-      "n": 4,
-      "title": "清理 → 重塑",
-      "why": "先删再搬再收：少搬点东西，结构定了再收拾局部",
-      "commands": [
-        "remove-dead-code",
-        "refactor",
-        "simplify"
-      ]
-    },
-    {
-      "id": "perf",
-      "n": 5,
-      "title": "测量 → 提速",
-      "why": "顺序不能反，没有 profile 数据 optimize 应该直接拒绝开工",
-      "commands": [
-        "profile",
-        "optimize"
-      ]
-    },
-    {
-      "id": "wrapup",
-      "n": 6,
-      "title": "收尾",
-      "why": "机械性的收口动作，单独提交，别和逻辑改动混在一起",
-      "commands": [
-        "standardize",
-        "document",
-        "audit-dependencies"
-      ]
-    },
-    {
-      "id": "combo",
-      "n": 7,
-      "title": "组合流程",
-      "why": "把上面几组串起来的编排命令，每阶段停下等确认",
-      "commands": [
-        "harden",
-        "pre-commit",
-        "pre-release"
-      ]
-    }
-  ],
-  "flow": {
-    "lead": "不熟的代码库，从上往下按这个顺序走。顺序不是随便排的 —— 中间有两处调换了就会白干。",
-    "rail": {
-      "id": "verify",
-      "label": "每步之后 → verify",
-      "note": "它是节拍器，不是终点。攒几个阶段才验一次，红了你不知道是哪一步红的。"
-    },
-    "steps": [
-      {
-        "n": 1,
-        "title": "先看懂",
-        "commands": [
-          "explain-architecture"
-        ],
-        "why": "不知道边界在哪就动手，一定会捅到不该捅的地方"
-      },
-      {
-        "n": 2,
-        "title": "补测试",
-        "commands": [
-          "add-tests"
-        ],
-        "why": "后面每一条高风险命令都以「行为不变」为前提，没测试你验证不了这件事"
-      },
-      {
-        "n": 3,
-        "title": "只读审查",
-        "commands": [
-          "code-review",
-          "security-audit"
-        ],
-        "why": "先拿到排好序的清单，再决定修哪些 —— 这一步不许改文件"
-      },
-      {
-        "n": 4,
-        "title": "挑着修",
-        "commands": [
-          "fix-issues",
-          "improve-error-handling"
-        ],
-        "why": "只修你挑的那几条，一条一个 commit"
-      },
-      {
-        "n": 5,
-        "title": "清场",
-        "commands": [
-          "remove-dead-code"
-        ],
-        "why": "少搬点东西，重构会轻松很多；删之前必须证明它是死的"
-      },
-      {
-        "n": 6,
-        "title": "动结构",
-        "commands": [
-          "refactor"
-        ],
-        "why": "结构必须排在优化前面，否则优化成果会被重构作废"
-      },
-      {
-        "n": 7,
-        "title": "收局部",
-        "commands": [
-          "simplify"
-        ],
-        "why": "结构定了再收拾局部逻辑，接口保持不变"
-      },
-      {
-        "n": 8,
-        "title": "先测量",
-        "commands": [
-          "profile"
-        ],
-        "why": "凭直觉猜的热点十次有九次是错的"
-      },
-      {
-        "n": 9,
-        "title": "再优化",
-        "commands": [
-          "optimize"
-        ],
-        "why": "只动 profile 指出来的地方，改完拿数字说话"
-      },
-      {
-        "n": 10,
-        "title": "统一风格",
-        "commands": [
-          "standardize"
-        ],
-        "why": "纯机械改动，单独 commit"
-      },
-      {
-        "n": 11,
-        "title": "补文档",
-        "commands": [
-          "document"
-        ],
-        "why": "代码定型了再写，不然文档立刻过期"
-      }
-    ],
-    "pivots": [
-      {
-        "between": [
-          6,
-          9
-        ],
-        "rule": "先重构，后优化",
-        "why": "反过来的话，你精心调过的那段代码会在重构时被整个挪走重写。",
-        "antipattern": "ap-4"
-      },
-      {
-        "between": [
-          8,
-          9
-        ],
-        "rule": "先测量，后优化",
-        "why": "没有 profile 数据，optimize 应该直接拒绝开工。",
-        "antipattern": "ap-4"
-      },
-      {
-        "between": [
-          3,
-          4
-        ],
-        "rule": "审查和修分开",
-        "why": "审查阶段允许改文件，你就失去了挑哪些问题值得修的机会。",
-        "antipattern": "ap-5"
-      }
-    ],
-    "shortcuts": [
-      {
-        "id": "harden",
-        "label": "整套流程的编排版",
-        "note": "上面 1-11 步串起来，每阶段停下等确认"
-      },
-      {
-        "id": "pre-commit",
-        "label": "只是要提交",
-        "note": "验一遍 + 统一格式，两步就够"
-      },
-      {
-        "id": "pre-release",
-        "label": "只是要发版",
-        "note": "安全审查 + 全量验证 + 文档对齐"
-      }
-    ]
-  },
-  "commands": [
-    {
-      "id": "fix-issues",
-      "name": "fix-issues",
-      "category": "modify",
-      "risk": "high",
-      "summary": "按已有的问题清单逐条修，一条一个 commit。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "code-review 或 security-audit 已经出了清单，你挑好了要修哪几条。",
-        "有一份现成的 issue 列表 / CI 报错 / 测试失败列表要清掉。"
-      ],
-      "whenNotToUse": [
-        "还没有清单 —— 先跑 code-review，别让它边找边修。",
-        "问题的修法需要改架构 —— 那不是「修」，先单独讨论方案。",
-        "清单有二三十条 —— 分批，一次十条以内，不然 diff 没法审。"
-      ],
-      "pitfalls": [
-        "不指定「只修我列的这几条」，它会顺手把路上看到的其它问题一起改了，diff 立刻失控。",
-        "一个 commit 修完所有问题的话，其中一条改错了你只能整批回滚。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "code-review",
-            "reason": "先有排好序的清单，再挑着修"
-          },
-          {
-            "id": "add-tests",
-            "reason": "要改的地方没测试就先补"
-          }
-        ],
-        "after": [
-          {
-            "id": "verify",
-            "reason": "每修完一条就验一次"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-2",
-        "ap-6"
-      ],
-      "prompt": "Fix the issues listed in $ARGUMENTS. If no list is given, ask me for one — do not go looking for problems yourself, that is a separate job.\n\nHard constraints:\n- Fix ONLY the issues on the list. If you notice something else along the way, write it down and report it at the end. Do not fix it. An unrequested fix in this diff is a change I did not agree to review.\n- Do not refactor, rename, reformat, or reorganize while fixing. If a clean fix seems to require restructuring, stop and tell me — that is a refactor, and it belongs in its own pass.\n- One issue, one commit. Message names the issue. I need to revert any single fix without losing the others.\n- If a fix would change a public interface or observable behavior beyond the bug itself, stop and describe the options instead of picking one.\n\nFor each issue, in order:\n1. Reproduce it first, with a failing test if the area is testable. If you cannot reproduce it, say so and move on — do not fix a bug you have not seen.\n2. State the root cause in one sentence. If the real cause is somewhere other than where the issue points, say that before changing anything.\n3. Make the smallest change that fixes the cause, not the symptom.\n4. Run the tests. Commit.\n\nAt the end report: what you fixed, what you could not reproduce, what you deliberately left untouched, and anything new you noticed but did not act on.",
-      "commandFile": {
-        "path": ".claude/commands/fix-issues.md",
-        "frontmatter": {
-          "description": "按给定的问题清单逐条修复，一条一个 commit，不做清单之外的改动。",
-          "argument-hint": "[清单 | issue# | 文件路径]",
-          "disable-model-invocation": true
-        }
-      }
-    },
-    {
-      "id": "remove-dead-code",
-      "name": "remove-dead-code",
-      "category": "modify",
-      "risk": "high",
-      "summary": "删掉真正没人用的代码 —— 删之前必须先证明它是死的。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "重构前先清场，减少要搬的东西。",
-        "一次大改留下了明显的残骸：注释掉的旧实现、废弃的分支、没人调的工具函数。"
-      ],
-      "whenNotToUse": [
-        "这是个对外发布的库 —— 「没人调」只是这个仓库里没人调，你的用户在调。",
-        "代码里有反射、动态分发、字符串拼出来的调用 —— 静态搜索证明不了死活。",
-        "你只是觉得某段代码丑 —— 那是 simplify 的活，不是删。"
-      ],
-      "pitfalls": [
-        "最危险的一条命令。「搜不到引用」不等于「没人用」：配置文件、模板、生成代码、别的包、反射调用、测试夹具、文档示例里都可能在用。",
-        "它会把「暂时没接上的新功能」当死代码删掉 —— 写了一半的东西看起来和废弃的东西一模一样。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "code-review",
-            "reason": "先搞清楚哪些是真残骸"
-          },
-          {
-            "id": "add-tests",
-            "reason": "删错了要有东西报警"
-          }
-        ],
-        "after": [
-          {
-            "id": "refactor",
-            "reason": "清完场再动结构"
-          },
-          {
-            "id": "verify",
-            "reason": "删完立刻验"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-2",
-        "ap-3",
-        "ap-6"
-      ],
-      "prompt": "Remove dead code from $ARGUMENTS. If no target is given, limit the search to the directory I am working in — do not sweep the whole repo unasked.\n\nThe burden of proof is on deletion. For every candidate, you must show it is unreachable before you remove it.\n\nProof requires all of these:\n- A repo-wide search for the symbol name, including tests, fixtures, config files, templates, build scripts, CI files, documentation, and generated code.\n- A search for the name as a *string*, not just as an identifier. Reflection, dynamic import, dependency-injection containers, serialization, and feature-flag lookups reach code by name.\n- Confirmation that it is not part of a published interface. If this package is consumed outside this repo, an export with no internal callers is still live. Treat every export as live unless I tell you this is an application, not a library.\n\nDo NOT delete, and list under \"unproven\" instead, anything that is:\n- Reachable through reflection, dynamic dispatch, a plugin registry, or a name built at runtime.\n- An interface method, an abstract or overridable member, or a required part of a protocol — even with one implementation.\n- Behind a feature flag, or referenced from config, migrations, docs, or another package.\n- Recently added. New code that nothing calls yet is usually unfinished, not dead. Check the git history: if it landed recently, ask me before removing it.\n\nWorking order:\n1. Report the test baseline first. If tests do not run, stop.\n2. Present the candidates in two lists — \"proven dead, with the evidence\" and \"suspicious but unproven, with the reason\" — and wait for me to approve the first list before deleting anything.\n3. Delete only what I approved. Group by area, one commit per area.\n4. Re-run the tests. Build the project too — dead-code removal breaks compilation in ways tests miss.\n\nDo not simplify, reformat, or restructure the code you leave behind. Deletion only.",
-      "commandFile": {
-        "path": ".claude/commands/remove-dead-code.md",
-        "frontmatter": {
-          "description": "删除确实无人引用的代码，删除前必须给出全仓搜索证据并等待确认。",
-          "argument-hint": "[path]",
-          "disable-model-invocation": true
-        }
-      }
-    },
-    {
-      "id": "refactor",
-      "name": "refactor",
-      "category": "modify",
-      "risk": "high",
-      "summary": "调整代码结构，对外行为一点不变。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "要加的新功能被现在的结构挡着，先把结构挪顺。",
-        "一个文件/类什么都干，边界该拆开了。",
-        "同一个概念在三个地方有三种表示，要统一。"
-      ],
-      "whenNotToUse": [
-        "没有测试 —— 重构的定义就是「行为不变」，没测试你无法验证这一点。",
-        "你已经调过性能了 —— 顺序反了，重构会把优化成果作废。先重构再优化。",
-        "你其实想改行为 —— 那是改需求，不叫重构，分开做。"
-      ],
-      "pitfalls": [
-        "它很容易在搬代码的路上「顺便」修个 bug 或改个默认值 —— 于是行为变了，而 diff 里全是位置变动，你根本看不出来。",
-        "跨文件搬运时公开接口最容易悄悄漂移：参数顺序、可选性、导出名。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "add-tests",
-            "reason": "必须先有行为基线"
-          },
-          {
-            "id": "explain-architecture",
-            "reason": "先搞清楚现在的边界在哪"
-          },
-          {
-            "id": "remove-dead-code",
-            "reason": "先清场，少搬点东西"
-          }
-        ],
-        "after": [
-          {
-            "id": "verify",
-            "reason": "行为必须完全一致"
-          },
-          {
-            "id": "simplify",
-            "reason": "结构定了再收拾局部"
-          },
-          {
-            "id": "profile",
-            "reason": "结构定了再测量，然后才优化"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-2",
-        "ap-4",
-        "ap-6"
-      ],
-      "prompt": "Refactor $ARGUMENTS. Restructuring only — the observable behavior of this code must be identical before and after.\n\nHard constraints:\n- Behavior is frozen. Same outputs, same side effects, same error types and messages, same ordering, same timing characteristics that anything depends on. If you believe the current behavior is wrong, do NOT fix it here. Write it down and report it; a bug fix hidden inside a refactor is invisible to review.\n- Do not optimize. Do not simplify logic. Do not rename things that are not part of the restructuring. Each of those is its own pass, and mixing them makes the diff unreadable — a reviewer cannot tell a moved line from a changed one.\n- Public interfaces stay put unless I approve each change individually: exported names, parameter lists and their order, defaults, return shapes, error types, config keys, and anything another package imports.\n- Tests are the safety net and they must exist first. Run them and record the baseline. If the target has no meaningful coverage, STOP and tell me — do not refactor unprotected.\n- Never restructure after a performance-tuning pass. If this code has been optimized, tell me before proceeding: restructuring will discard that work.\n\nWorking order:\n1. Report the test baseline and describe the current structure in a few lines — what the pieces are and how they depend on each other.\n2. Propose the target structure and the sequence of moves to get there. Wait for my approval before editing.\n3. Execute one move at a time. One structural move per commit: extract a module, invert a dependency, collapse two layers — one of those per commit, never several at once.\n4. Run the full test suite after every move, not only at the end. If a move turns the suite red, revert that move rather than patching forward.\n\nReport at the end: the moves you made, the behavior you deliberately preserved even though it looks wrong, and anything you found that belongs in a separate pass.",
-      "commandFile": {
-        "path": ".claude/commands/refactor.md",
-        "frontmatter": {
-          "description": "只调整结构，行为与公开接口保持不变；要求测试基线，一次一个结构动作。",
-          "argument-hint": "[path]",
-          "disable-model-invocation": true
-        }
-      }
-    },
-    {
-      "id": "simplify",
-      "name": "simplify",
-      "category": "modify",
-      "risk": "high",
-      "summary": "精简局部逻辑，不改变对外行为。",
-      "shadowsBuiltin": {
-        "command": "/simplify",
-        "kind": "bundled-skill",
-        "note": "Claude Code 自带 /simplify（bundled skill，四个 agent 并行看复用/精简/效率/抽象层次）。你在 .claude/skills/ 或 .claude/commands/ 里放同名文件会**覆盖**它。想两个都留着，把这条改名成 simplify-strict。",
-        "source": "https://code.claude.com/docs/en/commands"
-      },
-      "whenToUse": [
-        "一段逻辑你读第二遍还要回头看，但它其实是对的。",
-        "同一个判断分散在三四个 if 里，合并后语义不变。",
-        "刚写完一版能跑的实现，想在提交前把脚手架收干净。"
-      ],
-      "whenNotToUse": [
-        "这块代码没有测试 —— 先跑 add-tests，否则改坏了没人告诉你。",
-        "你其实想改的是结构（拆模块、挪边界）—— 那是 refactor，不是 simplify。",
-        "代码看着乱是因为有 bug —— 先 code-review 定位，别指望精简顺手把 bug 带走。"
-      ],
-      "pitfalls": [
-        "最常见的坑：它会删掉你有意保留的扩展点 —— 只有一个实现的接口、暂时没人调的 hook、留给下个需求的 strategy 分支，在它眼里都是「多余的间接层」。提示词里的「不许删疑似故意保留的抽象」那段就是为这个写的。",
-        "不加「接口不变」约束的话，它会顺手改导出函数的签名，然后你在别的包里才发现编译不过。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "add-tests",
-            "reason": "没有测试就别跑，改坏了发现不了"
-          },
-          {
-            "id": "refactor",
-            "reason": "结构要动的话先动结构，顺序反了会白干"
-          }
-        ],
-        "after": [
-          {
-            "id": "verify",
-            "reason": "行为必须和跑之前一模一样，跑完立刻验"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-2",
-        "ap-3",
-        "ap-6"
-      ],
-      "prompt": "Simplify the code in $ARGUMENTS. If no target is given, simplify only the files changed on this branch versus the default branch.\n\nScope — do exactly one thing:\n1. Reduce incidental complexity in the target: collapse redundant branches, remove needless indirection, inline a single-use helper that costs more than it saves, replace hand-rolled logic with a helper that already exists in this repo.\n2. Do NOT fix bugs, do NOT add features, do NOT optimize for speed, do NOT reformat or re-sort code you are not otherwise changing, and do NOT rename anything on the public surface. If you spot a bug, write it down and keep going — report it at the end, do not fix it here.\n\nHard constraints:\n- Behavior must not change. Every observable output, side effect, thrown error type, log line something depends on, and public signature stays exactly as it is.\n- The public interface must not change: exported functions, classes, and types, their parameter lists, defaults, and return shapes. If a simplification would require an interface change, stop and report it as a proposal instead of doing it.\n- Do not delete an abstraction that merely looks unused. Plugin hooks, adapter and strategy seams, feature flags, protected or overridable members, an interface with one implementation today, and anything referenced from config, docs, generated code, or another package are all presumed deliberate. If you cannot prove it is dead with a repo-wide search, leave it and list it under \"left alone\".\n- Before changing anything, check that the target is covered by tests. Run them and record the pass/fail baseline. If there is no meaningful coverage, STOP and say so — ask whether to add tests first or to proceed unprotected. Do not proceed silently.\n- Keep comments that explain why. Delete only a comment that restates code you just deleted.\n\nWorking order:\n1. Report the test baseline.\n2. List the simplifications you intend to make, grouped by kind, before editing anything.\n3. Apply them. Put each kind in its own commit so any one can be reverted alone. Never mix simplification with another kind of change.\n4. Re-run the same tests. The result must match the baseline exactly. If it does not, revert and report.\n\nFinish with: what you changed and why, what you deliberately left alone and the reason, and anything you suspect is dead but could not prove.",
-      "commandFile": {
-        "path": ".claude/commands/simplify.md",
-        "frontmatter": {
-          "description": "精简局部逻辑，行为和对外接口保持不变。改动前要求有测试基线。",
-          "argument-hint": "[path]",
-          "disable-model-invocation": true
-        },
-        "frontmatterNotes": [
-          "disable-model-invocation: true —— 这条会改文件，只应该你手动敲 /simplify 触发，不该让 Claude 自己决定什么时候跑。"
-        ]
-      }
-    },
-    {
-      "id": "improve-error-handling",
-      "name": "improve-error-handling",
-      "category": "modify",
-      "risk": "medium",
-      "summary": "把吞掉的、糊弄过去的错误处理补成能排查的。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "线上出问题时日志里什么都看不出来。",
-        "审查发现一堆 catch 块是空的，或者只写了 log 就继续往下走。",
-        "失败被当成成功返回给了调用方。"
-      ],
-      "whenNotToUse": [
-        "你还不知道哪些错误真的需要处理 —— 先 code-review 找出来。",
-        "你想做的是加重试/降级/熔断 —— 那是设计决策，不该由一条命令顺手决定。"
-      ],
-      "pitfalls": [
-        "它爱给每个函数套一层 try/catch，结果是噪音变多、真正的错误更难找。要写死「只在能做出处理决策的地方捕获」。",
-        "改错误类型会悄悄破坏调用方 —— 上游可能正 catch 着具体的错误类做分支。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "code-review",
-            "reason": "先定位哪些地方真的在吞错误"
-          }
-        ],
-        "after": [
-          {
-            "id": "add-tests",
-            "reason": "补上失败路径的测试"
-          },
-          {
-            "id": "verify",
-            "reason": "确认正常路径没被改坏"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-6"
-      ],
-      "prompt": "Improve the error handling in $ARGUMENTS.\n\nFix these, in priority order:\n1. Swallowed failures — an empty catch, a catch that only logs and continues, an ignored error return, a rejected promise nobody awaits. A failure that does not reach a caller or an operator is the bug.\n2. Failures reported as success — a function that returns a default, an empty list, or null on error, so the caller cannot tell the difference.\n3. Unactionable messages — an error that does not say what operation failed, on what input, and what the caller should do about it. Include the identifiers needed to find the record; never include secrets, tokens, or personal data.\n4. Lost context — a re-thrown error that drops the original cause or stack.\n\nHard constraints:\n- Do not change the happy path. If the operation succeeds, everything it returns and every side effect stays exactly as it is.\n- Do not change the *type* of an error that a caller might be matching on. Grep for callers first. If a type must change, stop and tell me which callers are affected.\n- Catch only where you can make a decision. If this layer cannot decide anything, let the error propagate and add context on the way through. Do not wrap every function in try/catch — that hides the real handler and adds noise.\n- Do not add retries, fallbacks, circuit breakers, or default values to paper over a failure. Those are design decisions with their own failure modes. Propose them separately; do not implement them here.\n- Do not silence a linter or type checker to make a change go through.\n\nWorking order:\n1. List what you found, grouped by the four kinds above, with file:line. Wait for my go-ahead.\n2. Apply the fixes. One kind per commit.\n3. Add or point out a test for each failure path you changed. An error path with no test regresses silently.\n4. Run the suite and confirm the happy path is unchanged.",
-      "commandFile": {
-        "path": ".claude/commands/improve-error-handling.md",
-        "frontmatter": {
-          "description": "修复被吞掉/被伪装成成功的错误，不动正常路径，不擅自加重试与降级。",
-          "argument-hint": "[path]",
-          "disable-model-invocation": true
-        }
-      }
-    },
-    {
-      "id": "optimize",
-      "name": "optimize",
-      "category": "modify",
-      "risk": "high",
-      "summary": "只优化 profile 指出来的地方，改完要拿数字说话。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "profile 已经跑过，你手里有一份热点数据。",
-        "有明确的性能目标（比如 p99 从 800ms 降到 200ms）。"
-      ],
-      "whenNotToUse": [
-        "**没跑过 profile —— 这是硬性前置。** 凭直觉猜的热点十次有九次是错的。",
-        "结构还要动 —— 先 refactor，否则优化成果会被后面的重构作废。",
-        "只是「感觉有点慢」，没有基准也没有目标 —— 先定义什么叫快。"
-      ],
-      "pitfalls": [
-        "它会拿可读性换性能，而且换得很积极 —— 缓存、手动内联、位运算、把清楚的循环改成看不懂的一行。不给约束的话，你会得到一份快 3% 但没人敢动的代码。",
-        "微基准的提升经常在真实负载下消失，甚至变负。要求它在真实场景下复测。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "profile",
-            "reason": "**必须**先测量，这是硬前置"
-          },
-          {
-            "id": "refactor",
-            "reason": "结构先定下来，否则优化白做"
-          },
-          {
-            "id": "add-tests",
-            "reason": "优化最容易悄悄改坏行为"
-          }
-        ],
-        "after": [
-          {
-            "id": "verify",
-            "reason": "行为必须没变"
-          },
-          {
-            "id": "profile",
-            "reason": "改完再测一次，确认真的变快了"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-2",
-        "ap-4",
-        "ap-6"
-      ],
-      "prompt": "Optimize the hotspots identified in $ARGUMENTS.\n\nSTOP CONDITION — check this first. If I have not given you profiling data, or you cannot find a recent profile in the repo, do NOT start. Say that you need a profile and stop. Do not read the code and guess where the time goes; that guess is wrong far more often than it is right, and optimizing the wrong place costs readability for nothing.\n\nHard constraints:\n- Optimize only what the profile flags. Something that looks slow but does not appear in the profile is not a target, no matter how inefficient it looks.\n- Behavior is frozen: same results, same error handling, same ordering. An optimization that changes an edge case is a bug.\n- Every change needs a measured before and after, on a realistic workload, reported as numbers. A change you cannot measure is a change you cannot justify — revert it.\n- Readability is a real cost. State it for each change: \"this made the function harder to follow in exchange for X% on the measured workload.\" If the win is in the noise, or under roughly 5% on the real workload, revert it and say so. Do not accumulate small unmeasurable wins.\n- No caching without stating the invalidation rule and what happens when it is wrong. No concurrency without stating what is now shared and how it is protected.\n- Do not restructure the code while optimizing. If the hot path needs a different shape, stop and tell me — that is a refactor, and doing it here means the next refactor throws your work away.\n\nWorking order:\n1. Restate the profile's top hotspots with their share of total time, and say which you will target and which you will not, with reasons.\n2. Establish a repeatable benchmark and report the baseline number before changing anything.\n3. One optimization per commit, each with its own before/after measurement in the commit message.\n4. Re-run the full test suite after each change, and re-profile at the end to confirm the hotspot actually moved — and to show what the new bottleneck is.\n\nFinish with a table: change, measured win, readability cost, keep or revert.",
-      "commandFile": {
-        "path": ".claude/commands/optimize.md",
-        "frontmatter": {
-          "description": "只优化 profile 指出的热点，每处改动都要有真实负载下的前后数字；没有 profile 直接拒绝执行。",
-          "argument-hint": "[profile 数据 | path]",
-          "disable-model-invocation": true
-        },
-        "frontmatterNotes": [
-          "这条命令的第一段是硬性停止条件 —— 没有 profile 数据它应该直接拒绝开工，而不是读代码猜热点。"
-        ]
-      }
-    },
-    {
-      "id": "audit-dependencies",
-      "name": "audit-dependencies",
-      "category": "modify",
-      "risk": "medium",
-      "summary": "盘一遍依赖：有漏洞的、没人用的、版本落后的，先出报告再动手。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "很久没管依赖了，想知道欠了多少债。",
-        "发版前例行检查有没有已知漏洞。",
-        "打包体积变大，想找出谁带进来的。"
-      ],
-      "whenNotToUse": [
-        "你想的是「全部升到最新」 —— 那不是审计，是一次高风险大改，而且会一次性引入所有 breaking change。",
-        "正在赶发版 —— 依赖升级的爆炸半径不可预测，别在这个时候动。"
-      ],
-      "pitfalls": [
-        "不加约束的话它会直接开始升级，甚至跨大版本升。一定要求它先出报告、等你挑。",
-        "「没人用」的判断对可选依赖、peer 依赖、构建期工具、类型包经常是错的。"
-      ],
-      "pairs": {
-        "before": [],
-        "after": [
-          {
-            "id": "verify",
-            "reason": "每升一个都要验"
-          },
-          {
-            "id": "security-audit",
-            "reason": "漏洞类的接着做深一层"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-6"
-      ],
-      "prompt": "Audit the dependencies of this project. Report first — do not change anything until I pick.\n\nPhase 1, read-only. Produce four lists:\n1. Known vulnerabilities. Use the project's own tooling (npm audit, pip-audit, cargo audit, govulncheck, or whatever this stack uses). For each: package, severity, whether the vulnerable code path is actually reachable from this project, and the smallest version that fixes it. \"Reachable\" matters more than severity — say when you cannot determine it.\n2. Unused. A declared dependency you cannot find imported. Before listing one, check for use in build scripts, config files, type-only imports, peer or optional dependencies, plugin auto-loading, and CI. If you are not certain, put it under \"possibly unused\" with the reason.\n3. Outdated. Split into patch, minor, and major. For majors, note the breaking changes from the changelog — do not summarize from the version number alone.\n4. Risk signals. Unmaintained (no release in a long time), single-maintainer packages in critical paths, packages with a tiny footprint you could inline, and duplicate packages doing the same job.\n\nPhase 2, only after I choose. For each item I approve:\n- One dependency per commit. Never batch upgrades, and never mix a security patch with a version bump for convenience — I need to revert one without losing the other.\n- Security patches first, as small a version jump as fixes the issue.\n- After each upgrade: install cleanly from a fresh lockfile, build, and run the full test suite. Report the result before moving to the next.\n- For a major version, list the call sites that need changing and stop for my approval before touching them.\n\nDo not upgrade anything I did not pick. Do not \"helpfully\" update the lockfile beyond the package in question.",
-      "commandFile": {
-        "path": ".claude/commands/audit-dependencies.md",
-        "frontmatter": {
-          "description": "盘点依赖的漏洞/未使用/过期/风险信号，先出报告等确认，升级时一个依赖一个 commit。",
-          "disable-model-invocation": true
-        }
-      }
-    },
-    {
-      "id": "standardize",
-      "name": "standardize",
-      "category": "modify",
-      "risk": "low",
-      "summary": "统一格式、lint、类型和命名，纯机械改动。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "仓库里几种风格并存，读起来费劲。",
-        "刚合并完别人的分支，风格没对齐。",
-        "提交前的收尾动作。"
-      ],
-      "whenNotToUse": [
-        "和功能改动放在同一个 commit 里 —— 格式化的 diff 会把真正的改动淹掉。",
-        "项目还没有 lint / formatter 配置 —— 先定规则，别让它替你发明一套。"
-      ],
-      "pitfalls": [
-        "格式化会碰到大量文件，如果混进了任何一处逻辑改动，你基本不可能在 diff 里发现。所以必须单独 commit。",
-        "它可能替你「改进」一套项目已有的命名约定 —— 要求它沿用仓库里现有的规则，而不是套用语言社区的通用规范。"
-      ],
-      "pairs": {
-        "before": [],
-        "after": [
-          {
-            "id": "verify",
-            "reason": "确认纯机械改动没碰坏行为"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-6"
-      ],
-      "prompt": "Standardize $ARGUMENTS. Mechanical changes only.\n\nUse the project's own rules. Read the config that already exists — the formatter config, the linter config, the type-checker settings, the editorconfig — and apply those. If a category has no configured rule, infer the convention from the majority of the existing code. Do NOT apply your own preferences or a language community's default style over what this repo already does. If the repo is genuinely inconsistent with no majority, list the options and ask; do not pick for me.\n\nIn scope:\n- Run the configured formatter.\n- Fix linter findings that are purely mechanical: unused imports, unused variables, inconsistent quotes, missing semicolons, import ordering.\n- Fix type errors that are annotation-only — adding a missing type, narrowing an implicit any — where the runtime behavior does not change.\n- Naming consistency, only where a name clearly departs from the surrounding convention, and only for non-exported symbols.\n\nOut of scope — stop and report instead of doing:\n- Any change to logic, control flow, or behavior.\n- Renaming anything exported or otherwise public.\n- Suppressing a linter or type error with an ignore comment. If a finding cannot be fixed mechanically, leave it and list it.\n- Rewriting code to a newer language idiom. A working for-loop is not a lint finding.\n\nHard constraints:\n- These commits must contain nothing but mechanical changes. If you find a real bug, do not fix it — report it. A logic fix buried in a thousand-line reformat is invisible.\n- Separate commits by kind: formatting in one, lint fixes in another, type annotations in a third. Formatting commits are large and reviewed by skimming; the others need reading.\n- Run the tests afterward. If a purely mechanical change turns the suite red, something was not mechanical — revert it and report what happened.",
-      "commandFile": {
-        "path": ".claude/commands/standardize.md",
-        "frontmatter": {
-          "description": "按项目已有配置统一格式/lint/类型/命名，纯机械改动，与逻辑改动分开提交。",
-          "argument-hint": "[path]",
-          "disable-model-invocation": true
-        }
-      }
-    },
-    {
-      "id": "add-tests",
-      "name": "add-tests",
-      "category": "modify",
-      "risk": "low",
-      "summary": "给现有行为补测试 —— 所有高风险命令的前置。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "准备跑 refactor / simplify / optimize，需要先有行为基线。",
-        "某块代码你不敢动，因为不知道改坏了会不会有人发现。",
-        "刚修完 bug，要防止它再回来。"
-      ],
-      "whenNotToUse": [
-        "你希望测试描述的是「应该怎样」 —— 补基线测试要锁的是「现在实际怎样」，两者混了就失去了基线的意义。",
-        "只是想把覆盖率数字刷上去 —— 那会得到一堆断言 mock 的测试，没有任何保护作用。"
-      ],
-      "pitfalls": [
-        "它会写出「测试 mock 是否按 mock 的方式工作」的测试 —— 覆盖率涨了，保护力为零。",
-        "补基线的时候如果发现当前行为是错的，它会顺手把代码改对。那你就没有基线了，而且 bug 修复混进了测试 commit。"
-      ],
-      "pairs": {
-        "before": [],
-        "after": [
-          {
-            "id": "refactor",
-            "reason": "有基线了才能安全动结构"
-          },
-          {
-            "id": "simplify",
-            "reason": "同上"
-          },
-          {
-            "id": "verify",
-            "reason": "确认新测试真的在跑"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-2",
-        "ap-6"
-      ],
-      "prompt": "Add tests for $ARGUMENTS. These are characterization tests: they lock in what the code does *today*, so that later changes have something to break.\n\nHard constraints:\n- Do NOT change production code. Not a bug fix, not a rename, not a signature tweak to make something easier to test. If code is untestable as written, report what would need to change and stop — that is a refactor and it needs its own pass, done after these tests exist.\n- Test the behavior that exists, not the behavior that should exist. If you find current behavior that looks wrong, write the test that asserts the *current* behavior, mark it clearly (a comment naming it as suspected-wrong, or a name like `test_currently_returns_null_on_empty_input`), and report it. Do not write a failing test for the behavior you think is correct — a red suite is not a baseline.\n- Do not mock the thing under test. Mock only what crosses a process boundary: network, clock, filesystem, randomness. A test that asserts a mock was called the way you configured it proves nothing.\n- Do not chase a coverage number. Ten tests over the branches that matter beat a hundred that touch every line.\n\nWhat to cover, in priority order:\n1. The paths that later passes will touch, and anything with no coverage at all today.\n2. Boundaries: empty, one, many, null and undefined, zero and negative, max size, duplicate, out of order, wrong type.\n3. Error paths — what happens when the dependency fails, the input is malformed, the resource is missing.\n4. The happy path, last. It is usually the one already implicitly covered.\n\nEach test must fail if the behavior it describes changes. Verify this: after writing a test, deliberately break the code it covers, confirm the test goes red, then restore. Report any test that stayed green — it is not protecting anything.\n\nFinish with: what you covered, what you could not test and why, and any current behavior you suspect is a bug.",
-      "commandFile": {
-        "path": ".claude/commands/add-tests.md",
-        "frontmatter": {
-          "description": "为现有行为补特征测试，锁定当前行为作为基线；不改动生产代码。",
-          "argument-hint": "[path]",
-          "disable-model-invocation": true
-        }
-      }
-    },
-    {
-      "id": "document",
-      "name": "document",
-      "category": "modify",
-      "risk": "low",
-      "summary": "补文档和注释，写代码实际做的事，不是你希望它做的事。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "一个模块要交给别人接手。",
-        "公开 API 缺少用法说明。",
-        "有一段逻辑，为什么这么写只有你知道。"
-      ],
-      "whenNotToUse": [
-        "代码本身还要大改 —— 先改完再写，不然文档立刻过期。",
-        "你想要的是每个函数上面都有一段注释 —— 那是噪音，不是文档。"
-      ],
-      "pitfalls": [
-        "它会写出「// 把 x 加一」这种复述代码的注释。真正值钱的是「为什么」—— 为什么选这个方案、为什么不能改、这里有什么坑。",
-        "它会照着函数名想当然地描述行为，而不是读实现。一份说得好听但和代码对不上的文档，比没有文档更糟。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "explain-architecture",
-            "reason": "先摸清全局再动笔"
-          }
-        ],
-        "after": []
-      },
-      "constraintsCovered": [
-        "ap-1"
-      ],
-      "prompt": "Document $ARGUMENTS.\n\nEvery statement you write must be verified against the implementation. Read the code and confirm it, do not infer behavior from a function's name or from an existing doc comment — those are exactly what goes stale. If the current docs contradict the code, the code wins: fix the doc and flag the contradiction in your report, because it may mean the code is the thing that is wrong.\n\nWrite these, in priority order:\n1. Module or package level — what this is for, what belongs in it, what does not, and how it relates to its neighbours.\n2. Public API — for each exported item: what it does, what the parameters mean including units and valid ranges, what it returns, what it throws and when, and any side effect. Include a usage example that would actually run. Verify the example against the real signature; a wrong example is worse than none.\n3. Why-comments at any non-obvious decision — a workaround, a deliberate inefficiency, an ordering that matters, a constraint imposed from outside. This is the highest-value category, because it is the only information that cannot be recovered by reading the code.\n4. Known limitations and sharp edges. What breaks this, what it does not handle, what surprises people.\n\nDo not write:\n- A comment that restates the line below it.\n- A doc comment on every function for the sake of coverage. An obvious function needs nothing.\n- Aspirational description. Document what it does today, not what it is supposed to become.\n\nHard constraints:\n- Do not change any code. Not even formatting. Comments and documentation files only. If you find a bug while reading, report it — do not fix it here.\n- Match the documentation style already used in this repo — same format, same tone, same level of detail. Do not introduce a new convention.\n- If you cannot determine what something does or why it exists, write that down as an open question. A stated gap is useful; a confident guess is a liability.",
-      "commandFile": {
-        "path": ".claude/commands/document.md",
-        "frontmatter": {
-          "description": "补写模块/公开 API/为什么这么写的文档，只写代码实际行为，不改动任何代码。",
-          "argument-hint": "[path]",
-          "disable-model-invocation": true
-        }
-      }
-    },
-    {
-      "id": "verify",
-      "name": "verify",
-      "category": "review",
-      "risk": "readonly",
-      "summary": "跑构建、测试、类型检查，如实报结果 —— 每次改完都跑一次。",
-      "shadowsBuiltin": {
-        "command": "/verify",
-        "kind": "bundled-skill",
-        "note": "Claude Code 自带 /verify（bundled skill），它的做法是**真的把 app 构建并跑起来看结果**，而不是退回去跑测试和类型检查。这条是「跑检查套件」的版本，语义不完全一样。同名会覆盖 —— 想两个都要，把这条改名成 verify-checks。另外自 v2.1.215 起，Claude 不会自己主动跑 /verify，只在你敲的时候跑。",
-        "source": "https://code.claude.com/docs/en/commands"
-      },
-      "whenToUse": [
-        "任何一条改代码的命令跑完之后，立刻跑。",
-        "分阶段的大改中间，每个阶段之后。",
-        "提交前最后确认一遍。"
-      ],
-      "whenNotToUse": [
-        "你指望它顺手把红的修绿 —— 它只报告，修是 fix-issues 的事。",
-        "整个流程只在最后跑这一次 —— 那就失去意义了，它是节拍器不是终点。"
-      ],
-      "pitfalls": [
-        "最常见的失败模式是「乐观汇报」：只跑了一部分测试就说通过，或者把 skip 当成 pass。要求它把实际执行的命令和原始输出贴出来。",
-        "改动没被任何测试覆盖时，绿灯说明不了任何事。要求它明确说出「这次改的地方有没有被测到」。"
-      ],
-      "pairs": {
-        "before": [],
-        "after": [
-          {
-            "id": "fix-issues",
-            "reason": "红了的话拿着结果去修"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-5",
-        "ap-7"
-      ],
-      "prompt": "Verify the current state of this project. Report only — this is read-only.\n\nRun the project's real checks, in this order, and do not stop at the first failure. I need the whole picture:\n1. Build or compile.\n2. Type check.\n3. Full test suite. Not a subset, not the tests you think are relevant — all of them.\n4. Linter, in report mode.\n\nHard constraints:\n- Do NOT fix anything. Not a failing test, not a type error, not a lint finding, not a \"trivial\" one. Report it. Deciding what to fix is my call, and a fix applied here lands in the same diff as whatever I was already doing.\n- Do not modify any file, including test files, config, and snapshots. Never update a snapshot to make a test pass.\n- Report what actually happened. Quote the real command you ran and its real output. If a suite did not finish, was skipped, timed out, or you could not find how to run it, say exactly that — do not infer a result you did not observe.\n- Skipped and pending tests are not passes. Report them as their own number.\n- If you cannot determine the project's check commands, say so and stop. Do not invent a command.\n\nThen answer this specifically, because it is the question a green result usually hides: **are the changes on this branch actually covered by any of the tests that just ran?** Diff the branch, and for each changed area say whether a test exercises it. A passing suite that never touches the new code tells us nothing, and I would rather know that than feel reassured.\n\nReport in this shape:\n- One line per check: name, command, pass/fail, counts (passed / failed / skipped), duration.\n- Every failure: the test name, the assertion, and the first meaningful line of the error. Group failures that share a root cause.\n- Coverage of the change, per the paragraph above.\n- A one-line verdict: green / red / green but the change is untested.\n\nDo not soften a red result. If it is broken, the first line of your report says so.",
-      "commandFile": {
-        "path": ".claude/commands/verify.md",
-        "frontmatter": {
-          "description": "跑构建/类型检查/全量测试/lint 并如实报告，不修任何东西；额外回答本次改动是否被测试覆盖。",
-          "disable-model-invocation": true,
-          "disallowed-tools": "Edit Write NotebookEdit"
-        },
-        "frontmatterNotes": [
-          "`disallowed-tools` 才是真正把写文件能力从工具池里拿掉的字段 —— 只读命令靠它兜底，不要用 `allowed-tools`（那个是免批准，不是限制）。",
-          "限制在你发下一条消息时自动解除，不影响你审完接着让它改。"
-        ]
-      }
-    },
-    {
-      "id": "code-review",
-      "name": "code-review",
-      "category": "review",
-      "risk": "readonly",
-      "summary": "审查当前 diff，只出报告，一个字都不改。",
-      "shadowsBuiltin": {
-        "command": "/code-review",
-        "kind": "bundled-skill",
-        "note": "Claude Code 自带 /code-review（bundled skill，支持 low/medium/high/xhigh/max/ultra 分档、--fix、--comment）。同名自定义命令会**覆盖**它。除非你就是想要一个更严格的只读版本，否则先用自带的。",
-        "source": "https://code.claude.com/docs/en/commands"
-      },
-      "whenToUse": [
-        "写完一版准备提交，想在自己看之前先拿到一张排好序的问题清单。",
-        "接手别人的分支，需要快速知道哪里危险。",
-        "作为 fix-issues 的前置 —— 先有清单，再挑着修。"
-      ],
-      "whenNotToUse": [
-        "你其实想让它顺手把问题改掉 —— 那直接跑 fix-issues，别指望审查阶段偷偷帮你改。",
-        "diff 超过一两千行 —— 拆开分批审，一次性审完的结论没法用。",
-        "你要找的是安全漏洞 —— 用 security-audit，这条只做浅层覆盖。"
-      ],
-      "pitfalls": [
-        "**`allowed-tools` 不是限制，是免批准。** 官方文档写得很清楚：它只是让列出的工具在这一轮不用问你，`\"It does not restrict which tools are available: every tool remains callable\"`。想真的禁止它写文件，要用 `disallowed-tools`。网上很多「只读命令」模板这里是反的。",
-        "不写死「不许改文件」，它十有八九会边审边顺手修 —— 于是你失去了挑哪些问题值得修的机会，diff 也混成一坨。"
-      ],
-      "pairs": {
-        "before": [],
-        "after": [
-          {
-            "id": "fix-issues",
-            "reason": "拿到清单后挑着修"
-          },
-          {
-            "id": "add-tests",
-            "reason": "审出来的行为缺口先补测试再动手"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-5"
-      ],
-      "prompt": "Review the current diff. Report findings only — this is a read-only pass.\n\nTarget: $ARGUMENTS. If empty, review the diff between this branch and the default branch (`git diff $(git merge-base HEAD origin/HEAD)...HEAD`).\n\nHard constraints:\n- Do NOT edit, create, or delete any file. Do NOT run a formatter, a codemod, or any tool with a --fix flag. Do NOT commit. If you find yourself about to change a file, stop and write the finding down instead. Deciding which findings are worth acting on is my job; a review that quietly fixes things takes that decision away and merges unrelated changes into one diff.\n- Read-only commands are fine: git diff, git log, grep, tests, type checks, and linters in report mode.\n- Review only what the diff touches, plus whatever you must read to judge it. Do not audit the whole repo.\n- Do not invent problems to fill a quota. If the diff is clean, say it is clean.\n\nLook for these, in priority order:\n1. Correctness — logic that yields a wrong result: off-by-one, inverted condition, wrong variable, unhandled null or undefined, race, resource leak, transaction left open.\n2. Contract breakage — a caller elsewhere in the repo that this change breaks. Actually grep for the callers; do not assume there are none.\n3. Error handling — swallowed exceptions, errors logged and then continued past, a failure that surfaces to the caller as success.\n4. Security-adjacent — injection, unvalidated input crossing a trust boundary, secrets in code or logs. Shallow pass only; a real audit is a separate job.\n5. Test gaps — behavior added or changed with no test that would fail if it regressed.\n6. Clarity and cleanup — last, and clearly marked optional.\n\nFor every finding give:\n- file:line\n- Severity: blocker / should-fix / nit\n- The concrete failure: which input or state produces which wrong outcome. If you cannot state that concretely, it is a nit, not a bug — label it honestly.\n- A suggested fix in one or two sentences, described and not applied.\n\nList blockers first. End with a one-line verdict: safe to merge / fix blockers first / needs a closer look at <area>.",
-      "commandFile": {
-        "path": ".claude/commands/code-review.md",
-        "frontmatter": {
-          "description": "只读审查当前 diff，按严重程度输出清单，不改任何文件。",
-          "argument-hint": "[path|PR]",
-          "disallowed-tools": "Edit Write NotebookEdit"
-        },
-        "frontmatterNotes": [
-          "`disallowed-tools` 才是真正把写文件的能力从工具池里拿掉的那个字段 —— 只读命令靠它兜底，不要用 `allowed-tools`。",
-          "限制在下一条消息发出时自动解除，所以不影响你审完接着让它改。"
-        ]
-      }
-    },
-    {
-      "id": "security-audit",
-      "name": "security-audit",
-      "category": "review",
-      "risk": "readonly",
-      "summary": "按攻击面过一遍代码，只报不修，每条要给出可利用路径。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "代码要处理外部输入、认证、密钥或者钱。",
-        "发版前的例行检查。",
-        "接手一个不了解的代码库，想先知道有没有明显的雷。"
-      ],
-      "whenNotToUse": [
-        "你需要的是合规认证 —— 这是代码审查，不是审计报告，不能拿去交差。",
-        "只想升级有漏洞的依赖 —— 那是 audit-dependencies。",
-        "指望它替代真正的渗透测试 —— 静态阅读发现不了运行时和配置层的问题。"
-      ],
-      "pitfalls": [
-        "它会编 CVE 编号，也会把「理论上不安全的写法」按高危报出来，实际上那条路径根本不可达。必须要求每条给出具体的可利用路径，给不出的降级或删掉。",
-        "注意和内置的 `/security-review` 区分：内置那条是审当前分支的 diff，这条是按攻击面过一遍代码，用途不同。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "explain-architecture",
-            "reason": "先知道信任边界在哪"
-          }
-        ],
-        "after": [
-          {
-            "id": "fix-issues",
-            "reason": "挑确认的问题去修"
-          },
-          {
-            "id": "audit-dependencies",
-            "reason": "依赖层的问题单独盘"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-5"
-      ],
-      "prompt": "Audit $ARGUMENTS for security problems. If no target is given, audit the code paths that handle untrusted input. Report only — this is read-only.\n\nHard constraints:\n- Do NOT change any file. Not a fix, not a hardening tweak, not a \"safe\" one-liner. A security fix deserves its own reviewed change, and one buried in an audit is a fix nobody reviewed.\n- Never invent a CVE number, a advisory ID, or a version claim. If you are not certain an identifier is real, describe the problem in words instead. A fabricated CVE destroys the credibility of the entire report.\n- Every finding needs a concrete exploitable path: who the attacker is, what they control, what they send, and what they get. If you cannot trace input from a real entry point to the vulnerable line, it is not a finding — put it under \"hardening suggestions\" instead, clearly separated.\n- Do not report a theoretical weakness in code that untrusted input cannot reach. Say what makes it reachable, or say it is not.\n- Do not test any exploit against a live system. Reading code only.\n\nWork through the attack surface systematically:\n1. Entry points. Enumerate where untrusted data enters: HTTP handlers, CLI arguments, environment, message queues, file uploads, webhooks, deserialization, IPC. Everything else follows from this list.\n2. Injection. SQL and NoSQL, command execution, path traversal, template injection, XSS sinks, log injection, SSRF. Trace the data, do not pattern-match on function names.\n3. AuthN and AuthZ. Missing checks, checks that can be bypassed by ordering, IDOR — an authorization check that verifies identity but never verifies ownership of the object being touched.\n4. Secrets. Hardcoded credentials, secrets in logs or error messages or URLs, keys committed to the repo, tokens with no expiry.\n5. Crypto. Home-rolled crypto, ECB, static IVs, weak hashing for passwords, predictable randomness for anything security-bearing, missing certificate verification.\n6. Data exposure. Over-broad API responses, personal data in logs, stack traces reaching users, missing access control on listing endpoints.\n\nFor each finding:\n- file:line\n- Severity, and say what drives it: how reachable, what an attacker gains, what it takes.\n- The exploit path, concretely.\n- The fix, described in a sentence or two — described, not applied.\n\nSort by severity. End with what you did NOT examine, and say plainly that a code read does not cover runtime configuration, infrastructure, or dependencies — those need their own passes.",
-      "commandFile": {
-        "path": ".claude/commands/security-audit.md",
-        "frontmatter": {
-          "description": "按攻击面只读审查代码安全问题，每条给出可利用路径，不改任何文件，不编造 CVE。",
-          "argument-hint": "[path]",
-          "disable-model-invocation": true,
-          "disallowed-tools": "Edit Write NotebookEdit"
-        },
-        "frontmatterNotes": [
-          "`disallowed-tools` 才是真正把写文件能力从工具池里拿掉的字段 —— 只读命令靠它兜底，不要用 `allowed-tools`（那个是免批准，不是限制）。",
-          "限制在你发下一条消息时自动解除，不影响你审完接着让它改。"
-        ]
-      }
-    },
-    {
-      "id": "explain-architecture",
-      "name": "explain-architecture",
-      "category": "review",
-      "risk": "readonly",
-      "summary": "讲清楚这个代码库实际长什么样 —— 以代码为准，不是以 README 为准。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "接手一个陌生的代码库，动手之前。",
-        "所有大改造的前置：不知道边界在哪就动手，一定会捅到不该捅的地方。",
-        "要给新人讲这个项目。"
-      ],
-      "whenNotToUse": [
-        "你只想看懂一个函数 —— 直接问就行，不用启动全局梳理。",
-        "指望它输出一份可以直接交付的架构文档 —— 它给的是现状描述，成文还得你来。"
-      ],
-      "pitfalls": [
-        "它会照抄 README 和文档里的说法，而那些经常和代码早就对不上了。要求它以代码为准，并且明确指出文档和实现打架的地方 —— 这些地方往往就是坑最多的地方。",
-        "它容易描述「理想的分层」而不是实际的依赖流向。要求它指出打破分层的实际引用。"
-      ],
-      "pairs": {
-        "before": [],
-        "after": [
-          {
-            "id": "refactor",
-            "reason": "知道边界了才好动结构"
-          },
-          {
-            "id": "harden",
-            "reason": "全流程改造前的第一步"
-          },
-          {
-            "id": "document",
-            "reason": "梳理完顺手补文档"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-5"
-      ],
-      "prompt": "Explain the architecture of this codebase. If $ARGUMENTS names a subsystem, scope it to that. Read-only.\n\nGround every statement in the code. README files, architecture docs, and comments are evidence of *intent*, not of current structure — they go stale first and they mislead most. Where a document and the code disagree, describe what the code does and flag the disagreement explicitly. Those disagreements are the most valuable thing in this report: they are where the surprises live.\n\nCover:\n1. What this system does, in three sentences, derived from the entry points and the data it moves — not from the README's marketing line.\n2. Entry points. Every way execution starts: main functions, HTTP routes, CLI commands, scheduled jobs, queue consumers, event handlers.\n3. The real module map. What the units are, what each is responsible for, and which direction dependencies actually run. Name the files. If there is a layering convention, say whether the code actually respects it, and point at the specific imports that break it.\n4. The data. The core domain types, where they are defined, where they are persisted, and how they change shape as they cross boundaries.\n5. The seams. Where a change can be made in isolation, and where a change will ripple. This is the part that decides how any later refactor gets planned.\n6. Cross-cutting machinery: configuration, dependency wiring, error handling, logging, auth, transactions. How each is threaded through, and whether it is consistent.\n7. What is unusual. Anything that departs from what a reader would expect from this stack — a hand-rolled version of a standard thing, an inverted convention, a deliberate duplication. For each, look at the git history to see if the reason is recoverable.\n\nHard constraints:\n- Do NOT change any file. No notes written to disk, no docs updated, no diagrams committed. Report in your response. If I want it written down, that is a separate pass.\n- Distinguish what you verified from what you inferred. Mark inferences as inferences.\n- If part of the system is too large to read properly, say which part and what you sampled, rather than generalizing from a corner of it.\n- Do not propose improvements. This pass is description. A recommendation mixed into a description makes it hard to tell what is there from what you think should be.\n\nFinish with: the three things most likely to surprise someone changing this code for the first time.",
-      "commandFile": {
-        "path": ".claude/commands/explain-architecture.md",
-        "frontmatter": {
-          "description": "只读梳理代码库实际结构，以代码为准并指出文档与实现不符之处；只描述不建议。",
-          "argument-hint": "[subsystem]",
-          "disable-model-invocation": true,
-          "disallowed-tools": "Edit Write NotebookEdit"
-        },
-        "frontmatterNotes": [
-          "`disallowed-tools` 才是真正把写文件能力从工具池里拿掉的字段 —— 只读命令靠它兜底，不要用 `allowed-tools`（那个是免批准，不是限制）。",
-          "限制在你发下一条消息时自动解除，不影响你审完接着让它改。"
-        ]
-      }
-    },
-    {
-      "id": "check-against-spec",
-      "name": "check-against-spec",
-      "category": "review",
-      "risk": "readonly",
-      "summary": "拿实现对着规格逐条核，两个方向都核。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "有一份需求文档 / API 规格 / RFC，想知道实现到哪一步了。",
-        "接了别人的活，要验收。",
-        "对着一份协议或标准做实现，需要逐条确认。"
-      ],
-      "whenNotToUse": [
-        "没有明确的规格文件 —— 它会开始猜你想要什么，那还不如不核。",
-        "规格已经过时 —— 先更新规格，否则你会照着错的东西改代码。"
-      ],
-      "pitfalls": [
-        "只核「规格里有的实现了没」是不够的 —— 反方向同样重要：实现里有一堆规格没提的行为，那些往往是没人知道的隐藏功能或者副作用。",
-        "它倾向于把「大致做了」判成「已实现」。要求每条给出 file:line 证据，给不出就算未实现。"
-      ],
-      "pairs": {
-        "before": [],
-        "after": [
-          {
-            "id": "fix-issues",
-            "reason": "按差距清单补齐"
-          },
-          {
-            "id": "add-tests",
-            "reason": "给规格里的每条加测试"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-5"
-      ],
-      "prompt": "Check this implementation against the specification at $ARGUMENTS.\n\nIf no specification is given, STOP and ask for one. Do not infer the spec from the code, from the issue tracker, or from what the feature seems like it should do — a check against a spec you invented is worthless, and worse, it reads as authoritative.\n\nRead the spec first, in full, and break it into individually checkable requirements. Number them. If the spec is ambiguous on a point, mark it ambiguous and check both readings rather than picking one silently.\n\nCheck in both directions. The second is the one people skip and it is where the surprises are:\n\n**Spec → code.** For every numbered requirement:\n- Status: implemented / partially implemented / not implemented / contradicted.\n- Evidence: file:line. No evidence means not implemented. \"The code seems to handle this\" is not evidence — if you cannot point at the lines, say so.\n- For partial: exactly which part is missing.\n- For contradicted: what the code does instead, and quote both.\n\n**Code → spec.** Behavior the implementation has that the spec never mentions:\n- Undocumented endpoints, parameters, config options, side effects, error cases.\n- Extra validation the spec does not require, or missing validation it does.\n- For each: is this a deliberate extension, dead scaffolding, or something nobody knows is there? Check the git history when the answer is not obvious from the code.\n\nHard constraints:\n- Do NOT change any code, tests, or the spec itself. Report only.\n- Do not resolve a disagreement by deciding the spec is wrong. Report the mismatch and let me decide which side moves.\n- Distinguish \"cannot be determined by reading\" from \"not implemented\". Say which checks would need running the system.\n\nReport: a table of requirement number, status, evidence; then the unspecified-behavior list; then a summary count and the gaps that matter most, ordered by consequence rather than by spec order.",
-      "commandFile": {
-        "path": ".claude/commands/check-against-spec.md",
-        "frontmatter": {
-          "description": "拿实现对规格双向逐条核对（规格→代码、代码→规格），每条要 file:line 证据，只读不改。",
-          "argument-hint": "<spec 路径或 URL>",
-          "disable-model-invocation": true,
-          "disallowed-tools": "Edit Write NotebookEdit"
-        },
-        "frontmatterNotes": [
-          "`disallowed-tools` 才是真正把写文件能力从工具池里拿掉的字段 —— 只读命令靠它兜底，不要用 `allowed-tools`（那个是免批准，不是限制）。",
-          "限制在你发下一条消息时自动解除，不影响你审完接着让它改。"
-        ]
-      }
-    },
-    {
-      "id": "profile",
-      "name": "profile",
-      "category": "review",
-      "risk": "readonly",
-      "summary": "真的跑起来测量，拿到热点数据 —— optimize 的硬性前置。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "准备优化，需要先知道时间花在哪。",
-        "有明确的性能问题需要定位。",
-        "想验证一次优化是不是真的有效（改完再跑一次）。"
-      ],
-      "whenNotToUse": [
-        "没有能代表真实用法的负载 —— 用错的负载测出来的热点会把你带到沟里。",
-        "你想要的是「读代码找出慢的地方」 —— 那不是 profile，那是猜。"
-      ],
-      "pitfalls": [
-        "它会「靠读代码分析性能」然后给你一份看起来很专业的热点列表 —— 全是猜的。必须要求真的执行测量，做不到就明说做不到。",
-        "在开发模式、空数据集、单次调用下测出来的数据，和生产环境经常完全对不上。要求它说清楚测量条件。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "refactor",
-            "reason": "结构先定，否则测了也白测"
-          }
-        ],
-        "after": [
-          {
-            "id": "optimize",
-            "reason": "拿着数据去优化，这是 optimize 的硬前置"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-4",
-        "ap-5"
-      ],
-      "prompt": "Profile $ARGUMENTS and find where the time and memory actually go.\n\nThis command requires *measurement*. Do not analyze the code and present an opinion about what is slow — that is a guess, it is usually wrong, and formatted as a hotspot list it will send the next optimization pass at the wrong target. If you cannot actually run and measure this workload, say so plainly, explain what is blocking you, and stop. \"I could not profile\" is a useful answer. A fabricated profile is not.\n\nWorking order:\n1. Establish the workload. What are you measuring, and does it resemble real usage? State the input size, data shape, iteration count, and whether this is a warm or cold path. If I have not given you a representative workload, ask for one before measuring.\n2. Establish the environment. Build mode (this matters enormously — a debug build profiles nothing useful), runtime version, machine, and anything else that would change the numbers. Note explicitly where this differs from production.\n3. Use the real tooling for this stack — the language's profiler, the runtime's, or the framework's. Say which one and how you invoked it.\n4. Measure a baseline several times. Report the variance. A single run tells you nothing about whether a difference is real, and neither does a mean without a spread.\n\nReport:\n- Where the time goes: functions or call paths ranked by self time and by total time. Both — they answer different questions.\n- Allocation and memory pressure, if the runtime exposes it, plus GC behavior where relevant.\n- Any I/O, lock contention, or waiting that dominates. Time spent blocked is invisible to a CPU-only profile; say whether your method could see it.\n- The distribution, not just the average: median and tail. A p99 problem is invisible in a mean.\n\nHard constraints:\n- Read-only. Do not optimize anything, do not \"quickly try\" a change to see if it helps, do not modify code to add instrumentation without telling me and reverting it. Report only.\n- Attach numbers to every claim. A hotspot with no measurement is not a hotspot.\n- State what your method cannot see. Sampling profilers miss short calls; CPU profilers miss blocking; a single-process profile misses cross-service latency.\n\nFinish with the ranked candidates for optimization, each with its measured share of total, and your honest read on whether the top item is worth optimizing at all — sometimes the answer is that the profile is flat and there is nothing to win.",
-      "commandFile": {
-        "path": ".claude/commands/profile.md",
-        "frontmatter": {
-          "description": "实际运行并测量性能热点，报告负载/环境/方法与数据分布；测不了就明说，不靠读代码猜。",
-          "argument-hint": "[workload | path]",
-          "disable-model-invocation": true,
-          "disallowed-tools": "Edit Write NotebookEdit"
-        },
-        "frontmatterNotes": [
-          "`disallowed-tools` 才是真正把写文件能力从工具池里拿掉的字段 —— 只读命令靠它兜底，不要用 `allowed-tools`（那个是免批准，不是限制）。",
-          "限制在你发下一条消息时自动解除，不影响你审完接着让它改。"
-        ]
-      }
-    },
-    {
-      "id": "harden",
-      "name": "harden",
-      "category": "combo",
-      "risk": "high",
-      "summary": "全流程编排：从摸架构到补文档，每个阶段停下等你确认。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "接手一个没人维护过的项目，想系统性过一遍。",
-        "发版前留出了一整块时间，准备认真收拾一轮技术债。",
-        "你知道要做十件事，但记不住正确顺序 —— 顺序本身就是这条命令的价值。"
-      ],
-      "whenNotToUse": [
-        "你只想修一个具体问题 —— 直接跑对应的单条命令，别启动全流程。",
-        "没有能跑起来的测试 —— 阶段 0 会直接把你拦下来，先解决测试再来。",
-        "你没空全程盯着 —— 它每个阶段都会停下等确认，无人值守跑不动。"
-      ],
-      "pitfalls": [
-        "阶段顺序不是随便排的：**先重构后优化**（反过来优化成果会被重构作废），**先测量后优化**（不然优化的是错的地方）。你要是让它跳步，这两条约束就失效了。",
-        "它会想把两个阶段合成一轮做完 —— 尤其「审查 + 修」看起来特别顺。别答应，那正好踩中最常见的两个坑。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "explain-architecture",
-            "reason": "不熟的代码库先摸清结构再启动"
-          }
-        ],
-        "after": [
-          {
-            "id": "pre-release",
-            "reason": "全流程跑完，发版前再走一遍轻量检查"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-2",
-        "ap-4",
-        "ap-5",
-        "ap-6",
-        "ap-7"
-      ],
-      "prompt": "Run a full hardening pass on this codebase. You are an orchestrator: you sequence the stages below and stop for my confirmation between every one.\n\nHard constraints:\n- STOP after each stage. Print what the stage found or changed, then wait for me to say continue. Do not chain two stages in one turn, no matter how small the second one looks. \"Review and then fix\" in one pass is exactly the mistake this command exists to prevent.\n- One stage means one concern and its own commit or commits. Never mix a review with a fix, or a restructuring with an optimization, in the same commit. I need to be able to revert any single stage on its own.\n- The stage order is not negotiable, and two orderings in particular. Restructuring after optimizing throws the optimization away, so restructure first. Optimizing before measuring optimizes the wrong thing, so measure first.\n- Run the verify step after every stage that touched code, not once at the end. It is the metronome, not the finish line.\n- If a stage's verify fails, stop the whole run and fix that before going on. Do not carry a red build into the next stage.\n\nStages:\n0. Baseline. Report the test command, the current pass/fail count, coverage if available, and the commit you are starting from. If the tests do not run at all, stop here and say so.\n1. Map. Read-only architecture pass: what the modules are, which way dependencies flow, where the seams are. No edits.\n2. Cover. Add tests for the areas stages 4 through 8 will touch, starting with whatever has no coverage today. Tests only, no production-code changes. Verify.\n3. Review. Read-only: correctness bugs, error handling, security. Produce a ranked list. No edits. Then ask me which findings to act on — do not act on all of them by default.\n4. Fix. Only the findings I picked, one commit per finding or per tight group. Verify.\n5. Prune. Remove genuinely dead code. Prove each removal with a repo-wide search first, and skip anything reachable from config, docs, generated code, or another package. Verify.\n6. Restructure. Refactor for structure. Public interfaces stay put unless I approve each change individually. Verify.\n7. Simplify. Reduce incidental complexity. Behavior and interfaces unchanged. Verify.\n8. Measure, then optimize. Profile first and show me the numbers. Optimize only what the profile flags, and only where the measured win justifies the complexity it adds. Re-measure afterward and show the before/after. Do not skip the measuring half.\n9. Normalize. Lint, type-check, naming and layout consistency. Mechanical changes only. Verify.\n10. Document. Update docs and comments to match what the code now does.\n\nStart at stage 0 and stop.",
-      "commandFile": {
-        "path": ".claude/commands/harden.md",
-        "frontmatter": {
-          "description": "全流程加固编排：基线→摸架构→补测试→审查→修→删死代码→重构→精简→测量后优化→规范化→文档，每阶段停下等确认。",
-          "disable-model-invocation": true
-        },
-        "frontmatterNotes": [
-          "必须 disable-model-invocation: true —— 这是个会连续改一整个代码库的编排命令，绝不能让 Claude 自己判断时机启动。"
-        ]
-      }
-    },
-    {
-      "id": "pre-commit",
-      "name": "pre-commit",
-      "category": "combo",
-      "risk": "low",
-      "summary": "提交前的轻量组合：先验一遍，再统一格式，分开提交。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "写完一段改动，准备提交。",
-        "想在推之前把明显的问题挡掉。"
-      ],
-      "whenNotToUse": [
-        "改动很大 —— 这条是轻量收尾，大改动该走 code-review。",
-        "你希望它顺手把测试修绿 —— 它只会告诉你红了，修是另一件事。"
-      ],
-      "pitfalls": [
-        "格式化必须和你的功能改动分开 commit，否则 review 的人在几百行格式变动里找不到你真正改了什么。"
-      ],
-      "pairs": {
-        "before": [],
-        "after": [
-          {
-            "id": "code-review",
-            "reason": "改动大的话接着做完整审查"
-          }
-        ]
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-6"
-      ],
-      "prompt": "Get my current changes ready to commit. This is a light pass — two stages, and you stop between them.\n\nStage 1 — check. Read-only.\n- Run the build, the type check, the full test suite, and the linter in report mode.\n- Report the results honestly: real commands, real output, skipped counts stated separately from passes.\n- Review the diff yourself for anything obviously wrong: a leftover debug print or console log, a commented-out block, a hardcoded path or credential, a TODO you just added, a large accidental inclusion (a lockfile, a build artifact, a vendored directory), a file that should not be tracked.\n- Do NOT fix anything in this stage.\n\nThen STOP and show me the results. If anything is red or suspicious, we deal with it before going further — do not proceed to stage 2 on your own.\n\nStage 2 — standardize, only after I say go.\n- Run the project's configured formatter and apply the mechanical lint fixes, following the repo's own configuration rather than any style you would prefer.\n- Put this in its OWN commit, separate from my functional changes, labelled as formatting. A formatting commit is reviewed by skimming and a logic commit is reviewed by reading; combining them means the logic change never gets read.\n- Do not change any logic. If a lint finding cannot be fixed mechanically, leave it and mention it.\n- Re-run the tests afterward. If a purely mechanical change turned the suite red, revert it and tell me — something was not mechanical.\n\nFinally, propose a commit message for my functional changes: what changed and why, not a list of the files you touched. Propose it — do not commit my changes for me unless I ask.",
-      "commandFile": {
-        "path": ".claude/commands/pre-commit.md",
-        "frontmatter": {
-          "description": "提交前轻量组合：先只读跑检查并扫一遍 diff，停下等确认，再单独做格式化提交。",
-          "disable-model-invocation": true
-        }
-      }
-    },
-    {
-      "id": "pre-release",
-      "name": "pre-release",
-      "category": "combo",
-      "risk": "medium",
-      "summary": "发版前：安全审查 + 全量验证 + 文档对齐，每步停下。",
-      "shadowsBuiltin": null,
-      "whenToUse": [
-        "准备打 tag 发版。",
-        "要把改动推到生产环境之前。"
-      ],
-      "whenNotToUse": [
-        "还在开发中期 —— 这是收口用的，中途跑纯属浪费时间。",
-        "你需要的是完整的代码质量改造 —— 那是 harden，这条只做发版前检查。"
-      ],
-      "pitfalls": [
-        "发版前最容易出的事故是「顺手修一下」：审查发现小问题，直接改，没重新跑完整验证就发了。这条命令写死了每次改动后必须重验。",
-        "文档和 changelog 经常是最后才想起来的，而它们恰恰是用户第一眼看到的东西。"
-      ],
-      "pairs": {
-        "before": [
-          {
-            "id": "harden",
-            "reason": "要做深度整理的话先走全流程"
-          },
-          {
-            "id": "verify",
-            "reason": "确保出发点是绿的"
-          }
-        ],
-        "after": []
-      },
-      "constraintsCovered": [
-        "ap-1",
-        "ap-5",
-        "ap-6",
-        "ap-7"
-      ],
-      "prompt": "Run the pre-release checks. Stop after every stage and wait for me — this is the last gate before something reaches users, and the failure mode here is a well-meant quick fix that goes out unverified.\n\nHard constraints:\n- STOP between stages. Do not chain them.\n- Nothing gets fixed during a review stage. If a stage finds a problem, report it and stop; we decide together whether it blocks the release. A fix applied mid-review goes out without the full suite having run against it.\n- ANY change made during this run, however small, sends us back to stage 2 for a full re-verify. No exceptions, no \"it was only a typo in a comment\".\n- Do not tag, publish, push, or deploy anything. Ever, in this command. You prepare and report; releasing is a human action.\n\nStage 1 — scope. What is actually shipping: the commit range since the last release, the user-visible changes, anything that breaks compatibility (API signatures, config keys, data formats, minimum versions), and any migration a user must perform. Flag every breaking change explicitly — this is the list people miss.\n\nStage 2 — verify. Full build from clean, full test suite, type check, linter. Real commands and real output. Skipped tests reported separately from passes. If the project has integration or end-to-end suites, run those too and say so if you cannot.\n\nStage 3 — security. Audit the diff for this release: secrets that got committed, new untrusted-input paths, auth or permission changes, new dependencies and their known vulnerabilities, debug flags or verbose logging left switched on. Report only. Never invent a CVE identifier.\n\nStage 4 — documentation. Does the documentation describe what is actually shipping? Check the README, the API docs, the changelog, the version number, migration notes for every breaking change from stage 1, and any example or quickstart that a signature change just invalidated. Propose the edits; apply them only after I approve, and remember that applying them sends us back to stage 2.\n\nFinish with a release readiness summary: what is shipping, what is blocking, what is a known issue we are accepting, and a clear go / no-go recommendation with your reason.",
-      "commandFile": {
-        "path": ".claude/commands/pre-release.md",
-        "frontmatter": {
-          "description": "发版前分阶段检查：范围盘点→全量验证→安全审查→文档对齐，每阶段停下；任何改动都要求重新全量验证。",
-          "disable-model-invocation": true
-        }
-      }
     }
   ],
   "builtins": {
@@ -1386,11 +62,18 @@
     "officialDocs": "https://code.claude.com/docs/en/commands",
     "items": [
       {
+        "command": "/help",
+        "purpose": "显示帮助和可用命令 —— 你本地的这份才是最终依据",
+        "kind": "builtin",
+        "group": "最常用",
+        "source": "table"
+      },
+      {
         "command": "/clear",
         "args": "[name]",
         "purpose": "清空上下文，开一段新对话",
         "kind": "builtin",
-        "group": "会话与上下文",
+        "group": "最常用",
         "aliases": [
           "/reset",
           "/new"
@@ -1402,15 +85,7 @@
         "args": "[instructions]",
         "purpose": "把已有对话总结压缩，腾出上下文空间",
         "kind": "builtin",
-        "group": "会话与上下文",
-        "source": "table"
-      },
-      {
-        "command": "/autocompact",
-        "args": "[auto\\|<tokens>]",
-        "purpose": "设置自动压缩的触发点（上下文占到多满时自动压）",
-        "kind": "builtin",
-        "group": "会话与上下文",
+        "group": "最常用",
         "source": "table"
       },
       {
@@ -1418,7 +93,7 @@
         "args": "[all]",
         "purpose": "用彩色方格图看当前上下文占用情况",
         "kind": "builtin",
-        "group": "会话与上下文",
+        "group": "最常用",
         "source": "table"
       },
       {
@@ -1426,10 +101,113 @@
         "args": "[session]",
         "purpose": "按 ID 或名字恢复之前的对话，或打开会话选择器",
         "kind": "builtin",
-        "group": "会话与上下文",
+        "group": "最常用",
         "aliases": [
           "/continue"
         ],
+        "source": "table"
+      },
+      {
+        "command": "/model",
+        "args": "[model]",
+        "purpose": "切换模型，并存为新会话的默认",
+        "kind": "builtin",
+        "group": "最常用",
+        "source": "table"
+      },
+      {
+        "command": "/init",
+        "purpose": "为项目生成 CLAUDE.md 指南",
+        "kind": "builtin",
+        "group": "最常用",
+        "source": "table"
+      },
+      {
+        "command": "/diff",
+        "purpose": "打开交互式 diff 查看器，看未提交改动和每轮的改动",
+        "kind": "builtin",
+        "group": "最常用",
+        "source": "table"
+      },
+      {
+        "command": "/rewind",
+        "purpose": "把对话和/或代码回滚到之前某个检查点",
+        "kind": "builtin",
+        "group": "最常用",
+        "aliases": [
+          "/checkpoint",
+          "/undo"
+        ],
+        "source": "table"
+      },
+      {
+        "command": "/code-review",
+        "args": "[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [pr#|branch|path]",
+        "purpose": "审当前 diff（或指定 PR / 分支 / 路径）的正确性 bug 与可清理处，支持 --fix",
+        "kind": "skill",
+        "group": "最常用",
+        "source": "table"
+      },
+      {
+        "command": "/review",
+        "args": "[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [pr#|branch|path]",
+        "purpose": "/code-review 的别名，用法和分档完全一样",
+        "kind": "builtin",
+        "group": "最常用",
+        "source": "table"
+      },
+      {
+        "command": "/usage",
+        "purpose": "查看会话花费、套餐额度和活动统计",
+        "kind": "builtin",
+        "group": "最常用",
+        "source": "table"
+      },
+      {
+        "command": "/config",
+        "args": "[key=value ...]",
+        "purpose": "打开设置界面，调主题、模型、输出风格等",
+        "kind": "builtin",
+        "group": "最常用",
+        "aliases": [
+          "/settings"
+        ],
+        "source": "table"
+      },
+      {
+        "command": "/permissions",
+        "purpose": "管理工具权限的 allow / ask / deny 规则",
+        "kind": "builtin",
+        "group": "最常用",
+        "aliases": [
+          "/allowed-tools"
+        ],
+        "source": "table"
+      },
+      {
+        "command": "/doctor",
+        "purpose": "跑一次安装体检，能诊断也能修：PATH、重复安装、无用 skill、慢 hook、CLAUDE.md 瘦身",
+        "kind": "skill",
+        "group": "最常用",
+        "aliases": [
+          "/checkup"
+        ],
+        "source": "table"
+      },
+      {
+        "command": "/plan",
+        "args": "[description]",
+        "purpose": "直接从输入栏进入 plan 模式",
+        "kind": "builtin",
+        "group": "最常用",
+        "source": "table"
+      },
+      {
+        "command": "/autocompact",
+        "args": "[auto|<tokens>]",
+        "purpose": "设置自动压缩的触发点（上下文占到多满时自动压）",
+        "kind": "builtin",
+        "group": "会话与上下文",
         "source": "table"
       },
       {
@@ -1480,17 +258,6 @@
         "source": "table"
       },
       {
-        "command": "/rewind",
-        "purpose": "把对话和/或代码回滚到之前某个检查点",
-        "kind": "builtin",
-        "group": "会话与上下文",
-        "aliases": [
-          "/checkpoint",
-          "/undo"
-        ],
-        "source": "table"
-      },
-      {
         "command": "/background",
         "args": "[prompt]",
         "purpose": "把当前会话转成后台 agent，腾出这个终端",
@@ -1528,7 +295,7 @@
       },
       {
         "command": "/goal",
-        "args": "[condition\\|clear]",
+        "args": "[condition|clear]",
         "purpose": "设一个目标，Claude 会跨多轮一直做到条件满足",
         "kind": "builtin",
         "group": "会话与上下文",
@@ -1545,13 +312,6 @@
       {
         "command": "/focus",
         "purpose": "切换精简视图：只显示你的提问、一行工具摘要和最终回复",
-        "kind": "builtin",
-        "group": "会话与上下文",
-        "source": "table"
-      },
-      {
-        "command": "/diff",
-        "purpose": "打开交互式 diff 查看器，看未提交改动和每轮的改动",
         "kind": "builtin",
         "group": "会话与上下文",
         "source": "table"
@@ -1592,22 +352,6 @@
         "kind": "builtin",
         "group": "会话与上下文",
         "source": "changelog"
-      },
-      {
-        "command": "/code-review",
-        "args": "[low\\|medium\\|high\\|xhigh\\|max\\|ultra] [--fix] [--comment] [pr#\\|branch\\|path]",
-        "purpose": "审当前 diff（或指定 PR / 分支 / 路径）的正确性 bug 与可清理处，支持 --fix",
-        "kind": "skill",
-        "group": "写代码与审查",
-        "source": "table"
-      },
-      {
-        "command": "/review",
-        "args": "[low\\|medium\\|high\\|xhigh\\|max\\|ultra] [--fix] [--comment] [pr#\\|branch\\|path]",
-        "purpose": "/code-review 的别名，用法和分档完全一样",
-        "kind": "builtin",
-        "group": "写代码与审查",
-        "source": "table"
       },
       {
         "command": "/simplify",
@@ -1670,21 +414,6 @@
         "source": "table"
       },
       {
-        "command": "/init",
-        "purpose": "为项目生成 CLAUDE.md 指南",
-        "kind": "builtin",
-        "group": "写代码与审查",
-        "source": "table"
-      },
-      {
-        "command": "/plan",
-        "args": "[description]",
-        "purpose": "直接从输入栏进入 plan 模式",
-        "kind": "builtin",
-        "group": "写代码与审查",
-        "source": "table"
-      },
-      {
         "command": "/deep-research",
         "args": "<question>",
         "purpose": "对一个问题扇出网络搜索、交叉验证来源，产出带引用的报告",
@@ -1708,16 +437,8 @@
         "source": "table"
       },
       {
-        "command": "/model",
-        "args": "[model]",
-        "purpose": "切换模型，并存为新会话的默认",
-        "kind": "builtin",
-        "group": "模型与运行方式",
-        "source": "table"
-      },
-      {
         "command": "/effort",
-        "args": "[level\\|auto]",
+        "args": "[level|auto]",
         "purpose": "设置模型的思考力度（effort level）",
         "kind": "builtin",
         "group": "模型与运行方式",
@@ -1725,7 +446,7 @@
       },
       {
         "command": "/fast",
-        "args": "[on\\|off]",
+        "args": "[on|off]",
         "purpose": "开关快速模式（仍是 Opus，只是输出更快，不降级到小模型）",
         "kind": "builtin",
         "group": "模型与运行方式",
@@ -1733,7 +454,7 @@
       },
       {
         "command": "/advisor",
-        "args": "[model\\|off]",
+        "args": "[model|off]",
         "purpose": "开关顾问工具：在关键节点让第二个模型给建议",
         "kind": "builtin",
         "group": "模型与运行方式",
@@ -1765,27 +486,6 @@
         "group": "模型与运行方式",
         "aliases": [
           "/routines"
-        ],
-        "source": "table"
-      },
-      {
-        "command": "/config",
-        "args": "[key=value ...]",
-        "purpose": "打开设置界面，调主题、模型、输出风格等",
-        "kind": "builtin",
-        "group": "配置与权限",
-        "aliases": [
-          "/settings"
-        ],
-        "source": "table"
-      },
-      {
-        "command": "/permissions",
-        "purpose": "管理工具权限的 allow / ask / deny 规则",
-        "kind": "builtin",
-        "group": "配置与权限",
-        "aliases": [
-          "/allowed-tools"
         ],
         "source": "table"
       },
@@ -1833,7 +533,7 @@
       },
       {
         "command": "/color",
-        "args": "[color\\|default]",
+        "args": "[color|default]",
         "purpose": "设置当前会话输入栏的颜色",
         "kind": "builtin",
         "group": "配置与权限",
@@ -1841,7 +541,7 @@
       },
       {
         "command": "/tui",
-        "args": "[default\\|fullscreen]",
+        "args": "[default|fullscreen]",
         "purpose": "切换终端 UI 渲染器，并带着对话重启进去",
         "kind": "builtin",
         "group": "配置与权限",
@@ -1856,7 +556,7 @@
       },
       {
         "command": "/voice",
-        "args": "[hold\\|tap\\|off]",
+        "args": "[hold|tap|off]",
         "purpose": "开关语音听写",
         "kind": "builtin",
         "group": "配置与权限",
@@ -1931,7 +631,7 @@
       },
       {
         "command": "/mcp",
-        "args": "[reconnect <server>\\|enable\\|disable [<server>\\|all]]",
+        "args": "[reconnect <server>|enable|disable [<server>|all]]",
         "purpose": "管理 MCP 服务连接与 OAuth 授权",
         "kind": "builtin",
         "group": "扩展：skill / plugin / MCP",
@@ -1946,7 +646,7 @@
       },
       {
         "command": "/claude-api",
-        "args": "[migrate\\|managed-agents-onboard\\|prompt-audit]",
+        "args": "[migrate|managed-agents-onboard|prompt-audit]",
         "purpose": "加载 Claude API 与 Managed Agents 的参考资料（按你项目的语言）",
         "kind": "skill",
         "group": "扩展：skill / plugin / MCP",
@@ -1997,13 +697,6 @@
         "source": "table"
       },
       {
-        "command": "/usage",
-        "purpose": "查看会话花费、套餐额度和活动统计",
-        "kind": "builtin",
-        "group": "账号与用量",
-        "source": "table"
-      },
-      {
         "command": "/cost",
         "purpose": "/usage 的别名",
         "kind": "builtin",
@@ -2047,25 +740,8 @@
         "source": "table"
       },
       {
-        "command": "/doctor",
-        "purpose": "跑一次安装体检，能诊断也能修：PATH、重复安装、无用 skill、慢 hook、CLAUDE.md 瘦身",
-        "kind": "skill",
-        "group": "安装与诊断",
-        "aliases": [
-          "/checkup"
-        ],
-        "source": "table"
-      },
-      {
         "command": "/status",
         "purpose": "打开设置的状态页：版本、模型、账号、连通性",
-        "kind": "builtin",
-        "group": "安装与诊断",
-        "source": "table"
-      },
-      {
-        "command": "/help",
-        "purpose": "显示帮助和可用命令 —— 你本地的这份才是最终依据",
         "kind": "builtin",
         "group": "安装与诊断",
         "source": "table"
@@ -2265,6 +941,10 @@
     "caveat": "官方那张「All commands」表并不完整 —— /update、/todos、/env、/buddy 只在 changelog 里出现过。内置命令随版本、套餐和平台变化，以你本地 /help 输出为准。",
     "groups": [
       {
+        "title": "最常用",
+        "why": "日常几乎天天敲的，先看这些"
+      },
+      {
         "title": "会话与上下文",
         "why": "开新对话、压缩上下文、回滚、分叉、后台跑"
       },
@@ -2297,89 +977,5 @@
         "why": "好玩的，以及已经没了的（网上老文章还在提）"
       }
     ]
-  },
-  "antipatterns": [
-    {
-      "id": "ap-1",
-      "title": "一条命令里叠加多个动作",
-      "example": "「review 并且 refactor 并且 optimize」",
-      "why": "diff 太大没法审，出了问题也分不清是哪一步干的。",
-      "instead": "一条命令一个动作，中间用 verify 断开。",
-      "related": [
-        "code-review",
-        "simplify",
-        "harden"
-      ]
-    },
-    {
-      "id": "ap-2",
-      "title": "没有测试就直接 simplify / refactor",
-      "example": null,
-      "why": "改坏了发现不了 —— 这两条命令都以「行为不变」为前提，而验证行为不变的唯一手段就是测试。",
-      "instead": "先 add-tests 拿到基线，再动手。",
-      "related": [
-        "add-tests",
-        "simplify",
-        "refactor"
-      ]
-    },
-    {
-      "id": "ap-3",
-      "title": "simplify 不加「接口不变」约束",
-      "example": null,
-      "why": "有意保留的扩展点被当成多余的间接层删掉：只有一个实现的接口、还没人调的 hook、留给下个需求的分支。",
-      "instead": "提示词里写死「公开接口不变」+「不许删疑似故意保留的抽象，删之前先全仓搜索证明它是死的」。",
-      "related": [
-        "simplify"
-      ]
-    },
-    {
-      "id": "ap-4",
-      "title": "先优化后重构",
-      "example": null,
-      "why": "优化成果被重构作废 —— 你精心调过的那段代码，重构时整个被挪走重写了。",
-      "instead": "永远是 refactor → profile → optimize。结构先定下来，再测量，再针对性优化。",
-      "related": [
-        "refactor",
-        "profile",
-        "optimize",
-        "harden"
-      ]
-    },
-    {
-      "id": "ap-5",
-      "title": "审查阶段允许改文件",
-      "example": null,
-      "why": "失去挑选修哪些问题的机会，而且审查的改动和后续的改动混在同一个 diff 里。",
-      "instead": "审查命令的 frontmatter 加 `disallowed-tools: Edit Write NotebookEdit`，提示词里也写死「只报告不修改」。注意不是 `allowed-tools` —— 那个字段是免批准，不是限制。",
-      "related": [
-        "code-review",
-        "security-audit",
-        "harden"
-      ]
-    },
-    {
-      "id": "ap-6",
-      "title": "全程一个 commit",
-      "example": null,
-      "why": "没法按类别回滚。精简改坏了一处，你只能连着修的三个 bug 一起 revert。",
-      "instead": "一类改动一个 commit，提示词里明确要求。",
-      "related": [
-        "simplify",
-        "harden"
-      ]
-    },
-    {
-      "id": "ap-7",
-      "title": "verify 只在最后跑一次",
-      "example": null,
-      "why": "它是节拍器，不是终点。攒了五个阶段才验一次，红了你也不知道是哪个阶段红的。",
-      "instead": "每个动过代码的阶段之后都跑一次。",
-      "related": [
-        "verify",
-        "harden"
-      ]
-    }
-  ],
-  "backlog": []
+  }
 }

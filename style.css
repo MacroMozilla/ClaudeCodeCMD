@@ -387,9 +387,10 @@ table.builtins td:first-child { font-family: var(--mono); white-space: nowrap; }
 /* ── 复制按钮说明 + ⑤ 内置命令分组 ─────────────────── */
 
 .copy-help {
-  margin: 0 0 .35rem; font-size: .74rem; color: var(--fg-muted);
-  padding: .3rem .6rem; background: var(--bg-sunken);
-  border: 1px solid var(--border); border-radius: 5px;
+  margin: 0 0 .4rem; font-size: .75rem; color: var(--fg-muted); line-height: 1.55;
+  padding: .4rem .7rem; background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 5px;
 }
 .copy-help strong { color: var(--fg); }
 .copy-help code { font-size: .95em; }
@@ -426,4 +427,53 @@ table.builtins td:first-child { width: 17rem; }
   background: var(--risk-medium-bg); color: var(--risk-medium-fg);
   border-color: color-mix(in srgb, var(--risk-medium-fg) 30%, transparent);
   font-family: var(--sans); font-weight: 600;
+}
+
+/* ── ① 内置命令主表 ─────────────────────────────────── */
+
+col.w-bicmd    { width: 15rem; }
+col.w-bialias  { width: 14rem; }
+col.w-bikind   { width: 7rem; }
+
+table.bi-table td { vertical-align: top; }
+/* 超长参数串（/code-review 那种）单行省略，鼠标悬停看全，避免把行撑成四行 */
+td.c-bicmd { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+tr.bi-row td { padding: .22rem .6rem; }
+tr.bi-row:hover { background: var(--bg-hover); }
+.bi-name { font-size: .84rem; font-weight: 600; color: var(--fg); }
+td.c-bipurpose { color: var(--fg-muted); font-size: .82rem; white-space: normal; }
+td.c-bialias { white-space: normal; }
+.bi-dash { color: var(--fg-faint); }
+
+.kind-tag.k-builtin  { background: var(--bg-sunken); color: var(--fg-muted); border: 1px solid var(--border); }
+.kind-tag.k-skill    { background: var(--risk-readonly-bg); color: var(--risk-readonly-fg); }
+.kind-tag.k-workflow { background: var(--risk-medium-bg); color: var(--risk-medium-fg); }
+
+.group-n-inline {
+  margin-left: .4rem; padding: 0 .35rem; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: .68rem; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+tr.group-row { scroll-margin-top: 7rem; }
+
+#builtin-authority { margin-top: 1rem; font-size: .78rem; }
+
+@media (max-width: 60rem) {
+  col.w-bialias, th.c-bialias, td.c-bialias { display: none; }
+}
+@media (max-width: 44rem) {
+  col.w-bikind, th.c-bikind, td.c-bikind { display: none; }
+  table.bi-table { table-layout: auto; }
+}
+
+@media (max-width: 40rem) {
+  #group-jump { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  #group-jump::-webkit-scrollbar { display: none; }
+  .bi-name { font-size: .8rem; }
+  td.c-bipurpose { font-size: .78rem; }
+  tr.bi-row td { padding: .3rem .35rem; }
+  .wrap { padding-inline: .7rem; }
+  /* 长参数串（如 /claude-api [migrate|...]）在窄屏必须能折，否则整表撑出视口 */
+  td.c-bicmd { white-space: normal; word-break: break-word; }
+  .bi-args { display: block; margin-left: 0; }
 }
