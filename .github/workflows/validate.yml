@@ -106,14 +106,14 @@ jobs:
             await p.goto('http://127.0.0.1:8899/', { waitUntil: 'networkidle' });
             const data = require('./commands.json').builtins;
             const got = await p.locator('tr.bi-row').count();
-            const groups = await p.locator('tr.group-row').count();
+            const groups = await p.locator('section.group-card').count();
             const overflow = await p.evaluate(() =>
               document.documentElement.scrollWidth - document.documentElement.clientWidth);
             await b.close();
             if (errs.length)  { console.error('页面报错:', errs.join(' | ')); process.exit(1); }
             if (got !== data.items.length) { console.error(\`应渲染 \${data.items.length} 行，实际 \${got}\`); process.exit(1); }
-            if (groups !== data.groups.length) { console.error(\`应 \${data.groups.length} 个分组，实际 \${groups}\`); process.exit(1); }
+            if (groups !== data.groups.length) { console.error(\`应 \${data.groups.length} 张分组卡片，实际 \${groups}\`); process.exit(1); }
             if (overflow > 0) { console.error('出现横向溢出:', overflow, 'px'); process.exit(1); }
-            console.log(\`OK — \${got} 行 / \${groups} 组渲染正常，无报错，无横向溢出\`);
+            console.log(\`OK — \${got} 行 / \${groups} 张卡片渲染正常，无报错，无横向溢出\`);
           })();
           "

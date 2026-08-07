@@ -3,7 +3,7 @@
     "name": "ClaudeCodeCMD",
     "tagline": "Claude Code 内置命令速查 · 111 条全收录",
     "schemaVersion": "0.1.0",
-    "contentVersion": "4.0.0",
+    "contentVersion": "4.1.0",
     "updated": "2026-08-06",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",

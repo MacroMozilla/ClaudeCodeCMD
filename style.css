@@ -435,6 +435,8 @@ col.w-bicmd   { width: 21rem; }
 col.w-bipairs { width: 15rem; }
 col.w-bicopy  { width: 5rem; }
 
+/* 卡片各有一张表，必须都用固定布局 + 同一套列宽，列才对得齐 */
+table.bi-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 table.bi-table td { vertical-align: top; }
 /* 超长参数串（/code-review 那种）单行省略，鼠标悬停看全，避免把行撑成四行 */
 td.c-bicmd { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -481,11 +483,14 @@ tr.group-row { scroll-margin-top: 7rem; }
   .bi-args { display: block; margin-left: 0; }
 }
 
-/* 配对跳转：111 行里跳过去必须闪一下，否则找不到落在哪 */
-tr.bi-row.flash { animation: biflash 1.6s ease-out; }
+/* 配对跳转：111 行里跳过去必须闪得够明显，否则根本找不到落在哪 */
+tr.bi-row.flash { animation: biflash 2s ease-out; }
 @keyframes biflash {
-  0%, 55% { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
-  100%    { background: transparent; box-shadow: none; }
+  0%   { background: var(--flash-strong); box-shadow: inset 4px 0 0 var(--accent); }
+  20%  { background: transparent;         box-shadow: inset 4px 0 0 var(--accent); }
+  40%  { background: var(--flash-strong); box-shadow: inset 4px 0 0 var(--accent); }
+  75%  { background: var(--flash-strong); box-shadow: inset 4px 0 0 var(--accent); }
+  100% { background: transparent;         box-shadow: none; }
 }
 .pair-mini {
   font-family: var(--mono); color: var(--fg-muted); text-decoration: none;
@@ -493,3 +498,67 @@ tr.bi-row.flash { animation: biflash 1.6s ease-out; }
 }
 .pair-mini:hover { color: var(--accent); }
 .pair-mini .arr { color: var(--fg-faint); margin-right: .1rem; }
+
+/* ── 每个任务一张卡片 ───────────────────────────────── */
+
+:root { --flash-strong: #fbdcc6; --card-shadow: 0 1px 2px rgba(28,27,25,.05), 0 2px 10px rgba(28,27,25,.05); }
+@media (prefers-color-scheme: dark) {
+  :root { --flash-strong: #4a3020; --card-shadow: 0 1px 2px rgba(0,0,0,.35), 0 2px 12px rgba(0,0,0,.25); }
+}
+
+.group-cards { display: flex; flex-direction: column; gap: 1.15rem; }
+
+.group-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  scroll-margin-top: 7.5rem;
+}
+.group-card[hidden] { display: none; }
+
+.gc-head {
+  display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap;
+  padding: .55rem .85rem .5rem;
+  background: var(--bg-sunken);
+  border-bottom: 1px solid var(--border);
+}
+.gc-n {
+  display: inline-grid; place-items: center;
+  width: 1.35rem; height: 1.35rem; border-radius: 50%;
+  background: var(--accent); color: var(--bg);
+  font-size: .72rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  align-self: center;
+}
+.gc-title { font-size: .92rem; font-weight: 700; margin: 0; letter-spacing: .01em; }
+.gc-count {
+  font-size: .7rem; font-variant-numeric: tabular-nums;
+  color: var(--accent); background: var(--accent-soft);
+  padding: .05rem .4rem; border-radius: 999px; font-weight: 600;
+}
+.gc-why { color: var(--fg-muted); font-size: .78rem; margin-left: .2rem; }
+
+.group-card table.bi-table { margin: 0; }
+.group-card tr.bi-row:last-child td { border-bottom: 0; }
+
+/* 列名单独一行，粘在页首，和卡片列宽一致 */
+.legend-table { margin-bottom: .5rem; }
+table.bi-table thead th {
+  text-align: left; font-size: .7rem; font-weight: 600;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--fg-faint);
+  padding: .2rem .85rem;
+}
+.legend-table thead th {
+  position: sticky; top: 5.1rem; z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--border-strong);
+}
+th.c-bicopy { text-align: right; }
+/* 卡片内边距和列名对齐 */
+tr.bi-row td { padding-inline: .85rem; }
+
+@media (max-width: 40rem) {
+  .group-cards { gap: .8rem; }
+  .gc-head { padding: .5rem .6rem .45rem; }
+  .gc-why { flex-basis: 100%; margin-left: 0; }
+}

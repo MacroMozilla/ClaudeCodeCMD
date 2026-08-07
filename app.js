@@ -139,18 +139,26 @@
 
     $("#builtin-lead").innerHTML = inline(ui.builtinLead);
 
-    (b.groups || []).forEach(function (g) {
+    (b.groups || []).forEach(function (g, gi) {
       var rows = b.items.filter(function (it) { return it.group === g.title; });
       if (!rows.length) return;
-      body.appendChild(el(
-        '<tr class="group-row" data-group="' + esc(g.title) + '" id="g-' +
-          esc(g.title.replace(/[^\w一-鿿]/g, "")) + '"><td colspan="' + BI_COLS.length + '">' +
-          '<span class="group-title">' + esc(g.title) +
-            '<span class="group-n-inline">' + rows.length + "</span></span>" +
-          '<span class="group-why">' + esc(g.why) + "</span>" +
-        "</td></tr>"
-      ));
-      rows.forEach(function (it) { body.appendChild(renderBuiltinRow(it)); });
+      var card = el(
+        '<section class="group-card" data-group="' + esc(g.title) + '" id="g-' +
+          esc(g.title.replace(/[^\w一-鿿]/g, "")) + '">' +
+          '<header class="gc-head">' +
+            '<span class="gc-n">' + (gi + 1) + "</span>" +
+            '<h2 class="gc-title">' + esc(g.title) + "</h2>" +
+            '<span class="gc-count">' + rows.length + " 条</span>" +
+            '<span class="gc-why">' + esc(g.why) + "</span>" +
+          "</header>" +
+          '<table class="bi-table"><colgroup>' +
+            '<col class="w-bicmd"><col class="w-bipairs"><col class="w-bipurpose"><col class="w-bicopy">' +
+          "</colgroup><tbody></tbody></table>" +
+        "</section>"
+      );
+      var tb = card.querySelector("tbody");
+      rows.forEach(function (it) { tb.appendChild(renderBuiltinRow(it)); });
+      body.appendChild(card);
     });
 
     $("#builtin-authority").innerHTML =
@@ -202,8 +210,8 @@
         var r = document.getElementById(slug(it.command));
         return r && !r.hidden;
       });
-      var gr = $('tr[data-group="' + g.title + '"]');
-      if (gr) gr.hidden = !any;
+      var card = $('section.group-card[data-group="' + g.title + '"]');
+      if (card) card.hidden = !any;
     });
 
     $("#empty-state").hidden = shown !== 0;
