@@ -129,6 +129,8 @@ jobs:
             ['上游更新', 1280, r => r.fulfill({ status: 200, contentType: 'application/json',
                                  body: pkg('9.9.9', '2099-01-01T00:00:00.000Z') }),      'behind'],
             ['查不到',   1280, r => r.abort(),                                            'unknown'],
+            ['宽屏',     2560, r => r.fulfill({ status: 200, contentType: 'application/json',
+                                 body: pkg('9.9.9', '2099-01-01T00:00:00.000Z') }),      'behind'],
             ['窄屏',      390, r => r.fulfill({ status: 200, contentType: 'application/json',
                                  body: pkg('9.9.9', '2099-01-01T00:00:00.000Z') }),      'behind'],
           ];
@@ -151,18 +153,32 @@ jobs:
               await p.waitForFunction(
                 () => document.querySelector('#freshness').dataset.state !== 'loading',
                 null, { timeout: 15000 });
-              const o = await p.evaluate(() => ({
-                state: document.querySelector('#freshness').dataset.state,
-                upValue: document.querySelector('#fr-up-value').textContent,
-                rows: document.querySelectorAll('tr.bi-row').length,
-                cards: document.querySelectorAll('section.group-card').length,
-                overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-                // 每张卡片一张表，第一列宽度必须一致，否则各卡片的列会错开
-                colWidths: [...new Set([...document.querySelectorAll('table.bi-table')].map(
-                  t => Math.round(t.querySelector('col.w-bicmd').getBoundingClientRect().width)))].length,
-                freshTop: document.querySelector('#freshness').getBoundingClientRect().top,
-                firstCardTop: document.querySelector('section.group-card').getBoundingClientRect().top,
-              }));
+              const o = await p.evaluate(() => {
+                const box = s => document.querySelector(s).getBoundingClientRect();
+                const vw = document.documentElement.clientWidth;
+                const hdr = box('.header-inner'), fresh = box('#freshness'), tbl = box('#builtin-body');
+                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+                return {
+                  state: document.querySelector('#freshness').dataset.state,
+                  upValue: document.querySelector('#fr-up-value').textContent,
+                  rows: document.querySelectorAll('tr.bi-row').length,
+                  cards: document.querySelectorAll('section.group-card').length,
+                  overflow: document.documentElement.scrollWidth - vw,
+                  // 每张卡片一张表，第一列宽度必须一致，否则各卡片的列会错开
+                  colWidths: [...new Set([...document.querySelectorAll('table.bi-table')].map(
+                    t => Math.round(t.querySelector('col.w-bicmd').getBoundingClientRect().width)))].length,
+                  freshTop: fresh.top,
+                  firstCardTop: box('section.group-card').top,
+                  // 顶栏和时间条要摊满浏览器；命令表要收在 78rem 里居中
+                  headerSlackL: hdr.left, headerSlackR: vw - hdr.right,
+                  freshSlackL: fresh.left, freshSlackR: vw - fresh.right,
+                  tableWidth: tbl.width, tableOffCenterBy: Math.abs((tbl.left + tbl.right) / 2 - vw / 2),
+                  maxTable: 78 * rem,
+                  // 顶栏高度随视口变，sticky 的列名行必须正好贴在顶栏底下
+                  headerVar: getComputedStyle(document.documentElement).getPropertyValue('--header-h').trim(),
+                  headerH: box('.site-header').height,
+                };
+              });
               await p.close();
               const add = m => fails.push(label + ': ' + m);
               if (errs.length) add('页面报错 ' + errs.join(' | '));
@@ -174,7 +190,22 @@ jobs:
               // 窄屏故意退回 table-layout:auto，只在宽屏要求列对齐
               if (width >= 1280 && o.colWidths !== 1) add('各卡片列宽没对齐');
               if (want === 'unknown' && !o.upValue.includes(up.checkedVersion)) add('查不到时没退回 meta.upstream 快照');
-              console.log(\`  \${fails.length ? '·' : '✓'} \${label}（\${width}px）→ \${o.state}，\${o.rows} 行 / \${o.cards} 张卡片\`);
+
+              // 顶栏和时间条铺满整个浏览器（只留侧边留白），不跟着表格收窄
+              const SIDE = 40;
+              for (const [what, l, r] of [['顶栏', o.headerSlackL, o.headerSlackR],
+                                          ['时间条', o.freshSlackL, o.freshSlackR]]) {
+                if (l > SIDE || r > SIDE) add(\`\${what}没铺满，两侧空了 \${Math.round(l)}/\${Math.round(r)}px\`);
+              }
+              // 命令表反过来必须收窄居中，不能跟着一起摊开
+              if (o.tableWidth > o.maxTable + 1) add(\`命令表宽 \${Math.round(o.tableWidth)}px，超过 78rem\`);
+              if (o.tableOffCenterBy > 2) add(\`命令表没居中，偏 \${Math.round(o.tableOffCenterBy)}px\`);
+              // sticky 的列名行贴着顶栏底部，顶栏高度变了它得跟着变
+              if (Math.abs(parseFloat(o.headerVar) - o.headerH) > 1) {
+                add(\`--header-h=\${o.headerVar} 和实测顶栏高 \${Math.round(o.headerH)}px 对不上\`);
+              }
+              console.log(\`  \${fails.length ? '·' : '✓'} \${label}（\${width}px）→ \${o.state}，\${o.rows} 行 / \${o.cards} 张卡片，\` +
+                \`顶栏满宽 · 表 \${Math.round(o.tableWidth)}px 居中 · --header-h=\${o.headerVar}\`);
             }
             await b.close();
             if (fails.length) { console.error(fails.join('\n')); process.exit(1); }

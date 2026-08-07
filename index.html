@@ -11,7 +11,7 @@
 <meta property="og:type" content="website">
 <!-- ?v= 跟着 commands.json 的 contentVersion 走：GitHub Pages 给静态资源发 max-age=600，
      不带版本号的话改完 10 分钟内浏览器还在用旧的 JS/CSS，页面看起来「没更新」。CI 会校验两者一致。 -->
-<link rel="stylesheet" href="style.css?v=4.3.0">
+<link rel="stylesheet" href="style.css?v=4.4.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌘</text></svg>">
 </head>
 <body>
@@ -19,7 +19,7 @@
 <a class="skip-link" href="#main">跳到正文</a>
 
 <header class="site-header">
-  <div class="wrap header-inner">
+  <div class="bleed header-inner">
     <div class="brand">
       <h1 id="site-title">ClaudeCodeCMD</h1>
       <p id="site-tagline" class="tagline"></p>
@@ -38,11 +38,12 @@
   </div>
 </header>
 
-<main id="main" class="wrap">
+<!-- main 本身不限宽：顶上的时间条要摊满整个浏览器，只有命令表收窄居中 -->
+<main id="main">
 
   <!-- 新鲜度：左边是 npm 上现查的 Claude Code 最新版，右边是本页核对时间。
        两个时间之间的差 = 这页落后了多少。查不到就退回 meta.upstream 里的快照。 -->
-  <section id="freshness" class="freshness" aria-live="polite">
+  <section id="freshness" class="freshness bleed" aria-live="polite">
     <p id="fr-lead" class="fr-lead"></p>
     <div class="fr-row">
       <div class="fr-card">
@@ -58,24 +59,26 @@
         <span class="fr-sub" id="fr-page-sub"></span>
         <span class="fr-hint" id="fr-page-hint"></span>
       </div>
+      <p id="fr-verdict" class="fr-verdict"></p>
     </div>
-    <p id="fr-verdict" class="fr-verdict"></p>
   </section>
 
-  <!-- ① Claude Code 内置命令：主表 -->
-  <section id="sec-builtin" class="section" data-section="builtin">
-    <p id="builtin-lead" class="copy-help"></p>
-    <!-- 列名单独一张表，和各卡片用同一套固定列宽，所以列能对齐 -->
-    <table class="bi-table legend-table" aria-hidden="true">
-      <colgroup>
-        <col class="w-bicmd"><col class="w-bicopy"><col class="w-bipairs"><col class="w-bipurpose">
-      </colgroup>
-      <thead><tr id="table-head"></tr></thead>
-    </table>
-    <div id="builtin-body" class="group-cards"></div>
-    <p id="empty-state" class="empty-state" hidden></p>
-    <p id="builtin-authority" class="builtin-authority"></p>
-  </section>
+  <div class="wrap">
+    <!-- ① Claude Code 内置命令：主表 -->
+    <section id="sec-builtin" class="section" data-section="builtin">
+      <p id="builtin-lead" class="copy-help"></p>
+      <!-- 列名单独一张表，和各卡片用同一套固定列宽，所以列能对齐 -->
+      <table class="bi-table legend-table" aria-hidden="true">
+        <colgroup>
+          <col class="w-bicmd"><col class="w-bicopy"><col class="w-bipairs"><col class="w-bipurpose">
+        </colgroup>
+        <thead><tr id="table-head"></tr></thead>
+      </table>
+      <div id="builtin-body" class="group-cards"></div>
+      <p id="empty-state" class="empty-state" hidden></p>
+      <p id="builtin-authority" class="builtin-authority"></p>
+    </section>
+  </div>
 
 </main>
 
@@ -101,6 +104,6 @@
   </div>
 </noscript>
 
-<script src="app.js?v=4.3.0"></script>
+<script src="app.js?v=4.4.0"></script>
 </body>
 </html>

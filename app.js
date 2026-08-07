@@ -353,6 +353,20 @@
 
   // ── 杂项 ────────────────────────────────────────────
 
+  /* 顶栏摊满宽度之后，分组条在宽屏上少折一两行，顶栏高度就跟着视口变。
+     列名那一行是 sticky 的，偏移写死就会在宽屏露一条缝或压住内容 —— 实测写进 CSS 变量。 */
+  function trackHeaderHeight() {
+    var header = $(".site-header");
+    if (!header) return;
+    var set = function () {
+      document.documentElement.style.setProperty(
+        "--header-h", Math.round(header.getBoundingClientRect().height) + "px");
+    };
+    set();
+    if (window.ResizeObserver) new ResizeObserver(set).observe(header);
+    else window.addEventListener("resize", set, { passive: true });
+  }
+
   function renderChrome() {
     var m = DATA.meta;
     $("#site-tagline").textContent = m.tagline;
@@ -437,6 +451,7 @@
       renderBuiltinHead();
       renderBuiltins();
       wireEvents();
+      trackHeaderHeight();
       apply();
       if (location.hash) {
         var node = document.getElementById(decodeURIComponent(location.hash.slice(1)));

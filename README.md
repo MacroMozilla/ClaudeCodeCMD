@@ -297,6 +297,8 @@ commands.json   ← 所有内容都在这，唯一需要手写的文件
 
 改文案 = 改 `commands.json` 推一下，Pages 直接生效，没有构建步骤。`app.js` 里不含任何具体命令内容。
 
+**版面分两档**：顶栏和顶上那条时间横幅用 `.bleed`，铺满整个浏览器宽度（宽屏上分组跳转能排成一行，两侧不浪费）；命令表用 `.wrap`，收在 78rem 里居中（一行读到底反而难扫）。顶栏高度会随视口宽度变，所以 `app.js` 实测它的高度写进 `--header-h`，sticky 的列名行和锚点滚动偏移都跟着这个变量走 —— 写死会在宽屏露缝。CI 里按 390 / 1280 / 2560 三档验这三件事。
+
 **改完要把 `meta.contentVersion` 加一位** —— `index.html` 用 `?v=<contentVersion>` 破缓存（Pages 对静态资源发 `max-age=600`，不换 URL 浏览器会继续用旧的 JS/CSS）。CI 会检查两者一致。
 
 **重新核过一遍命令之后，同时改 `meta.updated` 和 `meta.upstream.checkedVersion` / `checkedReleasedAt`** —— 页顶那两个时间就是拿这组快照跟实时查到的 npm 版本比的。实时那一侧走 `meta.upstream.api`（npm search 接口，1.8 KB，带 CORS，版本号和发布时间一次给全），失败退到 `apiFallback`（dist-tags，56 字节，只有版本号），再失败就整块退回快照并注明「查不到」。
