@@ -251,6 +251,106 @@
     });
   }
 
+  // ── 新鲜度：上游最新版 vs 本页核对时间 ─────────────
+
+  var DAY = 86400000;
+
+  function fmtDate(d) {
+    if (!d || isNaN(d)) return "";
+    var p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+  }
+  function fmtDateTime(d) {
+    if (!d || isNaN(d)) return "";
+    var p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return fmtDate(d) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  /* 只比日历天，不比毫秒 —— 「差 3 天」比「差 2.7 天」好用 */
+  function dayDiff(a, b) {
+    var da = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+    var db = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+    return Math.round((da - db) / DAY);
+  }
+  function fill(tpl, vars) {
+    return String(tpl).replace(/\{(\w+)\}/g, function (_, k) {
+      return vars[k] == null ? "" : vars[k];
+    });
+  }
+
+  /* npm 的 search 接口：1.8 KB，带 CORS，版本号和发布时间一次给全。
+     它是索引，偶尔比 registry 慢一拍，所以拿不到就退到 dist-tags（56 字节，只有版本号）。 */
+  function fetchUpstream(up) {
+    var timeout = new Promise(function (_, rej) {
+      setTimeout(function () { rej(new Error("timeout")); }, 6000);
+    });
+    var search = fetch(up.api, { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (j) {
+        var pkg = ((j.objects || [])[0] || {}).package || {};
+        if (pkg.name !== up.packageName || !pkg.version) throw new Error("unexpected payload");
+        return { version: pkg.version, releasedAt: pkg.date || null };
+      });
+    return Promise.race([search, timeout]).catch(function () {
+      return Promise.race([
+        fetch(up.apiFallback, { cache: "no-store" })
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+          .then(function (j) {
+            if (!j.latest) throw new Error("no latest tag");
+            return { version: j.latest, releasedAt: null };
+          }),
+        timeout
+      ]);
+    });
+  }
+
+  function paintFreshness(live) {
+    var m = DATA.meta, up = m.upstream, t = DATA.ui.freshness;
+    var offline = !live;
+    var version = live ? live.version : up.checkedVersion;
+    var relRaw = live ? live.releasedAt : up.checkedReleasedAt;
+    var rel = relRaw ? new Date(relRaw) : null;
+    var page = new Date(m.updated + "T00:00:00");
+
+    $("#fr-up-value").textContent = t.versionPrefix + version;
+    $("#fr-up-sub").textContent = rel ? t.releasedAt + " " + fmtDateTime(rel) : "";
+    $("#fr-up-hint").textContent = offline ? t.offlineNote : t.upstreamHint;
+
+    $("#fr-page-value").textContent = fmtDate(page);
+    $("#fr-page-sub").textContent = fill(t.checkedAgainst, { version: up.checkedVersion });
+    $("#fr-page-hint").textContent = t.pageHint;
+
+    var state, verdict, gapText = "";
+    if (offline) { state = "unknown"; verdict = t.verdictUnknown; }
+    else if (version === up.checkedVersion) { state = "fresh"; verdict = t.verdictFresh; }
+    else {
+      state = "behind";
+      var n = rel ? dayDiff(rel, page) : null;
+      gapText = n == null ? "" : n <= 0 ? t.gapSameDay : fill(t.gapDays, { n: n });
+      verdict = fill(t.verdictBehind, { checked: up.checkedVersion, latest: version, gap: gapText });
+    }
+
+    var gap = $("#fr-gap");
+    gap.textContent = state === "fresh" ? "=" : state === "behind" ? (gapText || "≠") : "?";
+    gap.className = "fr-gap s-" + state;
+
+    $("#fr-verdict").innerHTML = inline(verdict) +
+      (state === "behind"
+        ? ' <a href="' + esc(up.changelog) + '" rel="noopener">' + esc(t.changelogLink) + "</a>"
+        : "");
+    $("#freshness").dataset.state = state;
+  }
+
+  function renderFreshness() {
+    var t = DATA.ui.freshness, up = DATA.meta.upstream;
+    $("#fr-lead").textContent = t.lead;
+    $("#fr-up-label").textContent = t.upstreamLabel + "（" + up.channel + "）";
+    $("#fr-page-label").textContent = t.pageLabel;
+    $("#fr-up-value").textContent = t.loading;
+    $("#freshness").dataset.state = "loading";
+    // 先把快照画出来，再去查 —— 网络挂了页面也不是空的
+    fetchUpstream(up).then(paintFreshness, function () { paintFreshness(null); });
+  }
+
   // ── 杂项 ────────────────────────────────────────────
 
   function renderChrome() {
@@ -331,6 +431,7 @@
     .then(function (json) {
       DATA = json;
       renderChrome();
+      renderFreshness();
       renderFilters();
       renderGroupJump();
       renderBuiltinHead();

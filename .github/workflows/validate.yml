@@ -21,7 +21,7 @@ jobs:
       - name: Schema and grouping
         run: |
           python3 - <<'PY'
-          import json, sys, collections
+          import json, sys, re, collections
           d = json.load(open('commands.json', encoding='utf-8'))
           b = d['builtins']
           errs = []
@@ -63,10 +63,30 @@ jobs:
                       if pr.get('command') == i['command']:
                           errs.append(f"{i['command']}: 配对指向了自己")
 
+          # 这张表只写「当前版本还能用的」—— 墓碑行不许再混进来
+          for i in b['items']:
+              if any(w in i['purpose'] for w in ('已移除', '已废弃', 'Removed in', 'Deprecated')):
+                  errs.append(f"{i['command']}: 说明里写着已移除/已废弃，这类命令应该整条删掉")
+
+          # 页顶那两个时间：快照和实时查询的接口都得在，缺一个横幅就画不出来
+          up = d['meta'].get('upstream') or {}
+          for k in ('api', 'apiFallback', 'packageName', 'changelog', 'channel',
+                    'checkedVersion', 'checkedReleasedAt'):
+              if not up.get(k): errs.append(f"meta.upstream 缺字段 {k}")
+          fr = d['ui'].get('freshness') or {}
+          for k in ('lead', 'upstreamLabel', 'upstreamHint', 'pageLabel', 'pageHint', 'loading',
+                    'versionPrefix', 'releasedAt', 'checkedAgainst', 'offlineNote',
+                    'verdictFresh', 'verdictBehind', 'verdictUnknown',
+                    'gapDays', 'gapSameDay', 'changelogLink'):
+              if not fr.get(k): errs.append(f"ui.freshness 缺字段 {k}")
+          if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', d['meta'].get('updated', '')):
+              errs.append("meta.updated 必须是 YYYY-MM-DD —— 页面拿它当「本页核对时间」")
+
           if errs:
-              print('\n'.join('  \u2717 ' + e for e in errs)); sys.exit(1)
+              print('\n'.join('  ✗ ' + e for e in errs)); sys.exit(1)
           na = sum(len(i.get('aliases', [])) for i in b['items'])
           print(f"OK — {len(b['items'])} 条命令 / {na} 个别名 / {len(b['groups'])} 个分组 / {npairs} 条配对，引用全部可解析")
+          print(f"     核到 v{up['checkedVersion']}（{up['checkedReleasedAt']}），本页 {d['meta']['updated']}")
           PY
 
       - name: index.html asset versions match contentVersion
@@ -84,7 +104,7 @@ jobs:
               elif m.group(1) != ver:
                   errs.append(f"{asset} 的 ?v={m.group(1)} 和 contentVersion={ver} 对不上")
           if errs:
-              print('\n'.join('  \u2717 ' + e for e in errs)); sys.exit(1)
+              print('\n'.join('  ✗ ' + e for e in errs)); sys.exit(1)
           print(f"OK — style.css / app.js 都带 ?v={ver}，与 contentVersion 一致")
           PY
 
@@ -97,23 +117,67 @@ jobs:
           sleep 2
           node -e "
           const { chromium } = require('playwright');
+          const data = require('./commands.json');
+          const up = data.meta.upstream;
+
+          // 三种上游应答都得走通：一样 / 落后 / 查不到
+          const pkg = (version, date) => JSON.stringify({ objects: [{ package: {
+            name: up.packageName, version, date } }] });
+          const CASES = [
+            ['同版本',  1280, r => r.fulfill({ status: 200, contentType: 'application/json',
+                                 body: pkg(up.checkedVersion, up.checkedReleasedAt) }), 'fresh'],
+            ['上游更新', 1280, r => r.fulfill({ status: 200, contentType: 'application/json',
+                                 body: pkg('9.9.9', '2099-01-01T00:00:00.000Z') }),      'behind'],
+            ['查不到',   1280, r => r.abort(),                                            'unknown'],
+            ['窄屏',      390, r => r.fulfill({ status: 200, contentType: 'application/json',
+                                 body: pkg('9.9.9', '2099-01-01T00:00:00.000Z') }),      'behind'],
+          ];
+
           (async () => {
             const b = await chromium.launch();
-            const p = await b.newPage();
-            const errs = [];
-            p.on('pageerror', e => errs.push(e.message));
-            p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
-            await p.goto('http://127.0.0.1:8899/', { waitUntil: 'networkidle' });
-            const data = require('./commands.json').builtins;
-            const got = await p.locator('tr.bi-row').count();
-            const groups = await p.locator('section.group-card').count();
-            const overflow = await p.evaluate(() =>
-              document.documentElement.scrollWidth - document.documentElement.clientWidth);
+            const fails = [];
+            for (const [label, width, handler, want] of CASES) {
+              const p = await b.newPage({ viewport: { width, height: 900 } });
+              const errs = [];
+              p.on('pageerror', e => errs.push('pageerror: ' + e.message));
+              p.on('console', m => {
+                if (m.type() !== 'error') return;
+                // 查不到最新版只是降级到快照，浏览器为此打的 net::ERR 不算页面 bug
+                if (((m.location() || {}).url || '').includes('registry.npmjs.org')) return;
+                errs.push('console: ' + m.text());
+              });
+              await p.route('**registry.npmjs.org/**', handler);
+              await p.goto('http://127.0.0.1:8899/', { waitUntil: 'networkidle' });
+              await p.waitForFunction(
+                () => document.querySelector('#freshness').dataset.state !== 'loading',
+                null, { timeout: 15000 });
+              const o = await p.evaluate(() => ({
+                state: document.querySelector('#freshness').dataset.state,
+                upValue: document.querySelector('#fr-up-value').textContent,
+                rows: document.querySelectorAll('tr.bi-row').length,
+                cards: document.querySelectorAll('section.group-card').length,
+                overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                // 每张卡片一张表，第一列宽度必须一致，否则各卡片的列会错开
+                colWidths: [...new Set([...document.querySelectorAll('table.bi-table')].map(
+                  t => Math.round(t.querySelector('col.w-bicmd').getBoundingClientRect().width)))].length,
+                freshTop: document.querySelector('#freshness').getBoundingClientRect().top,
+                firstCardTop: document.querySelector('section.group-card').getBoundingClientRect().top,
+              }));
+              await p.close();
+              const add = m => fails.push(label + ': ' + m);
+              if (errs.length) add('页面报错 ' + errs.join(' | '));
+              if (o.rows !== data.builtins.items.length) add(\`应渲染 \${data.builtins.items.length} 行，实际 \${o.rows}\`);
+              if (o.cards !== data.builtins.groups.length) add(\`应 \${data.builtins.groups.length} 张分组卡片，实际 \${o.cards}\`);
+              if (o.overflow > 0) add('出现横向溢出 ' + o.overflow + 'px');
+              if (o.state !== want) add(\`新鲜度状态应为 \${want}，实际 \${o.state}\`);
+              if (o.freshTop >= o.firstCardTop) add('两个时间没排在命令表上面');
+              // 窄屏故意退回 table-layout:auto，只在宽屏要求列对齐
+              if (width >= 1280 && o.colWidths !== 1) add('各卡片列宽没对齐');
+              if (want === 'unknown' && !o.upValue.includes(up.checkedVersion)) add('查不到时没退回 meta.upstream 快照');
+              console.log(\`  \${fails.length ? '·' : '✓'} \${label}（\${width}px）→ \${o.state}，\${o.rows} 行 / \${o.cards} 张卡片\`);
+            }
             await b.close();
-            if (errs.length)  { console.error('页面报错:', errs.join(' | ')); process.exit(1); }
-            if (got !== data.items.length) { console.error(\`应渲染 \${data.items.length} 行，实际 \${got}\`); process.exit(1); }
-            if (groups !== data.groups.length) { console.error(\`应 \${data.groups.length} 张分组卡片，实际 \${groups}\`); process.exit(1); }
-            if (overflow > 0) { console.error('出现横向溢出:', overflow, 'px'); process.exit(1); }
-            console.log(\`OK — \${got} 行 / \${groups} 张卡片渲染正常，无报错，无横向溢出\`);
+            if (fails.length) { console.error(fails.join('\n')); process.exit(1); }
+            console.log('OK — 渲染、分组、新鲜度横幅（在线/落后/离线）全部正常');
           })();
           "

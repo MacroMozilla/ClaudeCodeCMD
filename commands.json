@@ -1,27 +1,41 @@
 {
   "meta": {
     "name": "ClaudeCodeCMD",
-    "tagline": "Claude Code 内置命令速查 · 111 条全收录",
+    "tagline": "Claude Code 内置命令速查 · 106 条全收录",
     "schemaVersion": "0.1.0",
-    "contentVersion": "4.2.0",
-    "updated": "2026-08-06",
+    "contentVersion": "4.3.0",
+    "updated": "2026-08-07",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",
     "promptLanguageRationale": "提示词正文用英文：对模型的指令遵循更稳，且不影响 Claude 用中文回你。界面文案保持中文。",
     "disclaimer": "Not affiliated with or endorsed by Anthropic.",
-    "status": "②③④⑥ 四个分区内容已写完（19 条命令 + 7 条反模式）。⑤ 内置命令区待用本地 /help 输出填充。",
     "sources": [
       {
         "title": "Claude Code — Commands reference",
         "url": "https://code.claude.com/docs/en/commands",
-        "checkedOn": "2026-08-06"
+        "checkedOn": "2026-08-07"
       },
       {
         "title": "Claude Code — Extend Claude with skills",
         "url": "https://code.claude.com/docs/en/skills",
-        "checkedOn": "2026-08-06"
+        "checkedOn": "2026-08-07"
+      },
+      {
+        "title": "Claude Code — CHANGELOG",
+        "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
+        "checkedOn": "2026-08-07"
       }
-    ]
+    ],
+    "upstream": {
+      "name": "Claude Code",
+      "channel": "npm · @anthropic-ai/claude-code",
+      "api": "https://registry.npmjs.org/-/v1/search?text=%40anthropic-ai%2Fclaude-code&size=1",
+      "apiFallback": "https://registry.npmjs.org/-/package/@anthropic-ai/claude-code/dist-tags",
+      "packageName": "@anthropic-ai/claude-code",
+      "changelog": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
+      "checkedVersion": "2.1.224",
+      "checkedReleasedAt": "2026-08-07T01:36:32.682Z"
+    }
   },
   "ui": {
     "searchPlaceholder": "搜命令名、别名、说明…",
@@ -45,7 +59,7 @@
     "colPurpose": "说明",
     "kindBuiltin": "内置",
     "groupJumpLead": "你现在要干什么",
-    "builtinLead": "Claude Code **自带**的命令，敲一下就能用。**按「你正在干什么」排序**，写代码最常碰的排最前面。「配对」列写了这条命令**通常跟哪条一起用** —— 点一下跳过去。其中 **7 条不在官方「All commands」表里**，是翻遍 129 个文档页面找到的（打「表外」标）。",
+    "builtinLead": "Claude Code **自带**的命令，敲一下就能用。**按「你正在干什么」排序**，写代码最常碰的排最前面。「配对」列写了这条命令**通常跟哪条一起用** —— 点一下跳过去。**已被官方移除的命令一条都没有**，敲下去没反应的不占地方。",
     "colCopy": "复制",
     "copyCmd": "复制",
     "copied": "已复制 ✓",
@@ -53,20 +67,39 @@
     "copyCmdHint": "复制这条命令，粘进 Claude Code 直接回车",
     "colPairs": "配对",
     "pairsBefore": "先跑",
-    "pairsAfter": "接着跑"
+    "pairsAfter": "接着跑",
+    "freshness": {
+      "lead": "这页新不新，看这两个时间的差",
+      "upstreamLabel": "Claude Code 最新版",
+      "upstreamHint": "打开这页的时候现查 npm，实时的",
+      "pageLabel": "本页核对时间",
+      "pageHint": "照着左边那个版本，一条一条核过的",
+      "loading": "查询中…",
+      "versionPrefix": "v",
+      "releasedAt": "发布于",
+      "checkedAgainst": "核到 v{version}",
+      "offlineNote": "查不到最新版（网络被挡了或 npm 没应答），下面用的是最后一次核对的结果。",
+      "verdictFresh": "**对得上。** 本页就是照着当前最新版整理的，不用等更新。",
+      "verdictBehind": "**上游已经往前走了。** 本页核到 v{checked}，现在是 v{latest}（{gap}）—— 中间新增/改动的命令这页可能还没有。",
+      "verdictUnknown": "**没查到上游版本。** 只能看本页自己的核对时间，请自行对一下官方 changelog。",
+      "gapDays": "隔了 {n} 天",
+      "gapSameDay": "同一天发的",
+      "gapToday": "今天",
+      "changelogLink": "看这中间改了什么 →"
+    }
   },
   "sections": [
     {
       "id": "builtin",
       "index": "",
       "title": "Claude Code 内置命令",
-      "subtitle": "111 条 + 19 个别名",
+      "subtitle": "106 条 + 19 个别名",
       "kind": "table"
     }
   ],
   "builtins": {
     "status": "filled",
-    "reason": "共 111 条（内置 97 · bundled skill 13 · workflow 1），另含 19 个别名、2 个旧名。其中 7 条**不在官方「All commands」表里** —— 是翻遍 129 个文档页面才找到的。",
+    "reason": "共 106 条（内置 92 · bundled skill 13 · workflow 1），另含 19 个别名、2 个旧名。**已经被官方移除的命令不收** —— 这里每一条都是当前版本敲下去有反应的。其中 5 条**不在官方「All commands」表里**。",
     "officialDocs": "https://code.claude.com/docs/en/commands",
     "items": [
       {
@@ -1184,63 +1217,26 @@
         "command": "/radio",
         "purpose": "在浏览器打开 Claude FM lo-fi 电台",
         "kind": "builtin",
-        "group": "杂项 · 已移除",
+        "group": "彩蛋 · 周边",
         "source": "table"
       },
       {
         "command": "/stickers",
         "purpose": "订购 Claude Code 贴纸",
         "kind": "builtin",
-        "group": "杂项 · 已移除",
+        "group": "彩蛋 · 周边",
         "source": "table"
       },
       {
         "command": "/buddy",
         "purpose": "愚人节彩蛋：孵一只小生物看着你写代码。",
         "kind": "builtin",
-        "group": "杂项 · 已移除",
+        "group": "彩蛋 · 周边",
         "source": "changelog"
-      },
-      {
-        "command": "/output-style",
-        "purpose": "【已废弃 v2.1.73，已移除 v2.1.91】改用 `/config` 或直接改 `outputStyle` 设置。",
-        "kind": "builtin",
-        "group": "杂项 · 已移除",
-        "source": "changelog"
-      },
-      {
-        "command": "/tag",
-        "purpose": "【已移除 v2.1.92】原本用于给会话打标签。",
-        "kind": "builtin",
-        "group": "杂项 · 已移除",
-        "source": "changelog"
-      },
-      {
-        "command": "/pr-comments",
-        "args": "[PR]",
-        "purpose": "【已移除 v2.1.91】",
-        "kind": "builtin",
-        "group": "杂项 · 已移除",
-        "source": "table"
-      },
-      {
-        "command": "/vim",
-        "purpose": "【已移除 v2.1.92】",
-        "kind": "builtin",
-        "group": "杂项 · 已移除",
-        "source": "table"
-      },
-      {
-        "command": "/ultraplan",
-        "args": "<prompt>",
-        "purpose": "【已移除】",
-        "kind": "builtin",
-        "group": "杂项 · 已移除",
-        "source": "table"
       }
     ],
-    "basedOn": "code.claude.com 全部 129 个文档页面（含 changelog），快照日 2026-08-06",
-    "caveat": "官方那张「All commands」表并不完整 —— /update、/todos、/env、/buddy 只在 changelog 里出现过。内置命令随版本、套餐和平台变化，以你本地 /help 输出为准。",
+    "basedOn": "code.claude.com 全部 129 个文档页面 + 官方 CHANGELOG（357 个版本），核到 v2.1.224",
+    "caveat": "官方那张「All commands」表并不完整 —— /update、/todos、/env、/buddy 只在 changelog 里出现过；表里同时留着 /vim 这种「已于 v2.1.92 移除」的墓碑行，本页把它们清掉了。内置命令随版本、套餐和平台变化，以你本地 /help 输出为准。",
     "groups": [
       {
         "title": "写代码 · 改代码",
@@ -1299,8 +1295,8 @@
         "why": "查外部资料、报 bug、看更新日志"
       },
       {
-        "title": "杂项 · 已移除",
-        "why": "彩蛋，以及已经没了的（网上老文章还在提）"
+        "title": "彩蛋 · 周边",
+        "why": "不干活，但确实还在"
       }
     ]
   }
