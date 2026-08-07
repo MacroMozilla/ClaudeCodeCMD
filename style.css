@@ -432,8 +432,8 @@ table.builtins td:first-child { width: 17rem; }
 /* ── ① 内置命令主表 ─────────────────────────────────── */
 
 col.w-bicmd   { width: 21rem; }
+col.w-bicopy  { width: 4.5rem; }
 col.w-bipairs { width: 15rem; }
-col.w-bicopy  { width: 5rem; }
 
 /* 卡片各有一张表，必须都用固定布局 + 同一套列宽，列才对得齐 */
 table.bi-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -441,7 +441,7 @@ table.bi-table td { vertical-align: top; }
 /* 超长参数串（/code-review 那种）单行省略，鼠标悬停看全，避免把行撑成四行 */
 td.c-bicmd { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 td.c-bipairs { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .76rem; }
-td.c-bicopy { text-align: right; }
+td.c-bicopy, th.c-bicopy { text-align: left; padding-left: .3rem; }
 .bi-alias-wrap { margin-left: .3rem; }
 tr.bi-row td { padding: .22rem .6rem; }
 tr.bi-row:hover { background: var(--bg-hover); }
@@ -483,14 +483,29 @@ tr.group-row { scroll-margin-top: 7rem; }
   .bi-args { display: block; margin-left: 0; }
 }
 
-/* 配对跳转：111 行里跳过去必须闪得够明显，否则根本找不到落在哪 */
-tr.bi-row.flash { animation: biflash 2s ease-out; }
-@keyframes biflash {
-  0%   { background: var(--flash-strong); box-shadow: inset 4px 0 0 var(--accent); }
-  20%  { background: transparent;         box-shadow: inset 4px 0 0 var(--accent); }
-  40%  { background: var(--flash-strong); box-shadow: inset 4px 0 0 var(--accent); }
-  75%  { background: var(--flash-strong); box-shadow: inset 4px 0 0 var(--accent); }
-  100% { background: transparent;         box-shadow: none; }
+/* 配对跳转高亮：整行反色 —— 浅灰底 + 黑字。
+   深色模式下这是彻底的明暗反转，扫一眼就知道落在哪一行。 */
+tr.bi-row { transition: background-color .45s ease; }
+tr.bi-row.flash {
+  background: var(--flash-bg) !important;
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+tr.bi-row.flash td,
+tr.bi-row.flash code,
+tr.bi-row.flash a,
+tr.bi-row.flash span {
+  color: var(--flash-fg) !important;
+  transition: color .45s ease;
+}
+tr.bi-row.flash .bi-alias,
+tr.bi-row.flash .kind-tag {
+  background: rgba(0, 0, 0, .07) !important;
+  border-color: rgba(0, 0, 0, .18) !important;
+}
+tr.bi-row.flash .mini-btn {
+  background: rgba(0, 0, 0, .06) !important;
+  border-color: rgba(0, 0, 0, .25) !important;
+}
 }
 .pair-mini {
   font-family: var(--mono); color: var(--fg-muted); text-decoration: none;
@@ -501,9 +516,14 @@ tr.bi-row.flash { animation: biflash 2s ease-out; }
 
 /* ── 每个任务一张卡片 ───────────────────────────────── */
 
-:root { --flash-strong: #fbdcc6; --card-shadow: 0 1px 2px rgba(28,27,25,.05), 0 2px 10px rgba(28,27,25,.05); }
+:root {
+  --flash-bg: #eceae5;   /* 不是纯白，带一点灰 */
+  --flash-fg: #141312;   /* 字翻成黑 */
+  --card-shadow: 0 1px 2px rgba(28,27,25,.05), 0 2px 10px rgba(28,27,25,.05);
+}
 @media (prefers-color-scheme: dark) {
-  :root { --flash-strong: #4a3020; --card-shadow: 0 1px 2px rgba(0,0,0,.35), 0 2px 12px rgba(0,0,0,.25); }
+  /* 深色模式下同一组浅底黑字 = 彻底反色，最醒目 */
+  :root { --card-shadow: 0 1px 2px rgba(0,0,0,.35), 0 2px 12px rgba(0,0,0,.25); }
 }
 
 .group-cards { display: flex; flex-direction: column; gap: 1.15rem; }
@@ -553,7 +573,7 @@ table.bi-table thead th {
   position: sticky; top: 5.1rem; z-index: 5;
   background: var(--bg); border-bottom: 1px solid var(--border-strong);
 }
-th.c-bicopy { text-align: right; }
+
 /* 卡片内边距和列名对齐 */
 tr.bi-row td { padding-inline: .85rem; }
 
