@@ -431,13 +431,16 @@ table.builtins td:first-child { width: 17rem; }
 
 /* ── ① 内置命令主表 ─────────────────────────────────── */
 
-col.w-bicmd    { width: 15rem; }
-col.w-bialias  { width: 14rem; }
-col.w-bikind   { width: 7rem; }
+col.w-bicmd   { width: 21rem; }
+col.w-bipairs { width: 15rem; }
+col.w-bicopy  { width: 5rem; }
 
 table.bi-table td { vertical-align: top; }
 /* 超长参数串（/code-review 那种）单行省略，鼠标悬停看全，避免把行撑成四行 */
 td.c-bicmd { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+td.c-bipairs { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .76rem; }
+td.c-bicopy { text-align: right; }
+.bi-alias-wrap { margin-left: .3rem; }
 tr.bi-row td { padding: .22rem .6rem; }
 tr.bi-row:hover { background: var(--bg-hover); }
 .bi-name { font-size: .84rem; font-weight: 600; color: var(--fg); }
@@ -458,12 +461,12 @@ tr.group-row { scroll-margin-top: 7rem; }
 
 #builtin-authority { margin-top: 1rem; font-size: .78rem; }
 
-@media (max-width: 60rem) {
-  col.w-bialias, th.c-bialias, td.c-bialias { display: none; }
+@media (max-width: 62rem) {
+  col.w-bipairs, th.c-bipairs, td.c-bipairs { display: none; }
 }
 @media (max-width: 44rem) {
-  col.w-bikind, th.c-bikind, td.c-bikind { display: none; }
   table.bi-table { table-layout: auto; }
+  col.w-bicopy, th.c-bicopy, td.c-bicopy { display: none; }
 }
 
 @media (max-width: 40rem) {
@@ -477,3 +480,16 @@ tr.group-row { scroll-margin-top: 7rem; }
   td.c-bicmd { white-space: normal; word-break: break-word; }
   .bi-args { display: block; margin-left: 0; }
 }
+
+/* 配对跳转：111 行里跳过去必须闪一下，否则找不到落在哪 */
+tr.bi-row.flash { animation: biflash 1.6s ease-out; }
+@keyframes biflash {
+  0%, 55% { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+  100%    { background: transparent; box-shadow: none; }
+}
+.pair-mini {
+  font-family: var(--mono); color: var(--fg-muted); text-decoration: none;
+  white-space: nowrap; margin-right: .3rem;
+}
+.pair-mini:hover { color: var(--accent); }
+.pair-mini .arr { color: var(--fg-faint); margin-right: .1rem; }
