@@ -6,6 +6,7 @@
 
   var DATA = null;
   var STATE = { kind: "all", query: "" };
+  var flashTimer = null;
 
   // ── 工具 ────────────────────────────────────────────
 
@@ -68,12 +69,12 @@
 
   // ── ① 内置命令主表 ─────────────────────────────────
 
-  /* 类型标签并进命令列，腾出的位置给「配对」—— 配对是这张表最有用的一列 */
+  /* 复制紧挨着命令名 —— 看到哪条就在原地复制，不用把视线甩到行尾 */
   var BI_COLS = [
     { key: "colCommand", cls: "c-bicmd" },
+    { key: "colCopy",    cls: "c-bicopy" },
     { key: "colPairs",   cls: "c-bipairs" },
-    { key: "colPurpose", cls: "c-bipurpose" },
-    { key: "colCopy",    cls: "c-bicopy" }
+    { key: "colPurpose", cls: "c-bipurpose" }
   ];
 
   function kindLabel(k) {
@@ -124,12 +125,12 @@
           '<code class="bi-name">' + esc(it.command) + "</code>" +
           (it.args ? '<span class="bi-args">' + esc(it.args) + "</span>" : "") +
           kind + offtable + (aliases ? '<span class="bi-alias-wrap">' + aliases + "</span>" : "") + "</td>" +
-        '<td class="c-bipairs">' + pairCell(it) + "</td>" +
-        '<td class="c-bipurpose">' + inline(it.purpose) + "</td>" +
         '<td class="c-bicopy">' +
           '<button type="button" class="mini-btn" data-copy="' + esc(it.command) +
             '" title="' + esc(ui.copyCmdHint) + '" data-label="' + esc(ui.copyCmd) + '">' +
             esc(ui.copyCmd) + "</button></td>" +
+        '<td class="c-bipairs">' + pairCell(it) + "</td>" +
+        '<td class="c-bipurpose">' + inline(it.purpose) + "</td>" +
       "</tr>"
     );
   }
@@ -152,7 +153,7 @@
             '<span class="gc-why">' + esc(g.why) + "</span>" +
           "</header>" +
           '<table class="bi-table"><colgroup>' +
-            '<col class="w-bicmd"><col class="w-bipairs"><col class="w-bipurpose"><col class="w-bicopy">' +
+            '<col class="w-bicmd"><col class="w-bicopy"><col class="w-bipairs"><col class="w-bipurpose">' +
           "</colgroup><tbody></tbody></table>" +
         "</section>"
       );
@@ -293,9 +294,10 @@
       }
       history.replaceState(null, "", "#" + id);
       target.scrollIntoView({ block: "center" });
-      target.classList.remove("flash");
-      void target.offsetWidth;
+      $$("tr.flash").forEach(function (n) { n.classList.remove("flash"); });
       target.classList.add("flash");
+      clearTimeout(flashTimer);
+      flashTimer = setTimeout(function () { target.classList.remove("flash"); }, 2600);
     });
 
     var search = $("#search"), t;
