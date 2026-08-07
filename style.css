@@ -582,3 +582,68 @@ tr.bi-row td { padding-inline: .85rem; }
   .gc-head { padding: .5rem .6rem .45rem; }
   .gc-why { flex-basis: 100%; margin-left: 0; }
 }
+
+/* ── 新鲜度：上游最新版 vs 本页核对时间 ──────────────
+   两张卡片摆在页面最上面，中间那块写差多少 —— 一眼看出这页有没有落后。 */
+
+:root {
+  --fresh-fg: #2f6b3d;  --fresh-bg: #eaf3ea;  --fresh-bd: #b9d7bd;
+  --stale-fg: #8a5a10;  --stale-bg: #fbf1dc;  --stale-bd: #e3c98c;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fresh-fg: #8cc088;  --fresh-bg: #1b2820;  --fresh-bd: #2f4a35;
+    --stale-fg: #d8ab52;  --stale-bg: #2b2416;  --stale-bd: #4a3d1d;
+  }
+}
+
+.freshness {
+  margin: .9rem 0 1.1rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-raised); padding: .7rem .85rem .75rem;
+  box-shadow: var(--card-shadow);
+}
+.fr-lead {
+  margin: 0 0 .55rem; font-size: .72rem; font-weight: 600;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--fg-faint);
+}
+.fr-row { display: flex; align-items: stretch; gap: .7rem; }
+.fr-card {
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; gap: .12rem;
+  background: var(--bg-sunken); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .55rem .7rem;
+}
+.fr-label { font-size: .72rem; color: var(--fg-muted); }
+.fr-value {
+  font-family: var(--mono); font-size: 1.15rem; font-weight: 700;
+  line-height: 1.25; font-variant-numeric: tabular-nums; color: var(--fg);
+}
+.fr-sub { font-size: .76rem; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.fr-hint { font-size: .72rem; color: var(--fg-faint); margin-top: .15rem; }
+
+/* 中间这块就是「差多少」，颜色本身是结论 */
+.fr-gap {
+  flex: 0 0 auto; align-self: center;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 4.2rem; padding: .3rem .6rem;
+  border: 1px solid var(--border-strong); border-radius: 999px;
+  font-size: .78rem; font-weight: 700; white-space: nowrap;
+  color: var(--fg-muted); background: var(--bg);
+}
+.fr-gap.s-fresh  { color: var(--fresh-fg); background: var(--fresh-bg); border-color: var(--fresh-bd); }
+.fr-gap.s-behind { color: var(--stale-fg); background: var(--stale-bg); border-color: var(--stale-bd); }
+
+.fr-verdict {
+  margin: .6rem 0 0; font-size: .84rem; color: var(--fg-muted);
+  padding-left: .6rem; border-left: 3px solid var(--border-strong);
+}
+.fr-verdict strong { color: var(--fg); }
+.freshness[data-state="fresh"]  .fr-verdict { border-left-color: var(--fresh-bd); }
+.freshness[data-state="behind"] .fr-verdict { border-left-color: var(--stale-bd); }
+.freshness[data-state="loading"] .fr-value { color: var(--fg-faint); font-weight: 500; }
+
+@media (max-width: 40rem) {
+  .fr-row { flex-direction: column; gap: .45rem; }
+  .fr-gap { align-self: flex-start; }
+}

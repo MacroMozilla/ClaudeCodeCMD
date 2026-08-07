@@ -4,7 +4,7 @@
 
 **https://macromozilla.github.io/ClaudeCodeCMD/**
 
-**111 条命令 + 19 个别名**，每条写清楚是干嘛的，标出**通常跟哪条配着用**，一键复制。
+**106 条命令 + 19 个别名**，每条写清楚是干嘛的，标出**通常跟哪条配着用**，一键复制。
 
 这些命令 Claude Code **自带**，敲一下就能用 —— 不用装。
 
@@ -33,9 +33,11 @@
 
 ---
 
-## 为什么是 111 条不是 104 条
+## 这张表和官方那张表哪里不一样
 
-官方文档那张「All commands」表列了 104 条，**那张表不完整**。把 code.claude.com 全部 129 个文档页面下载逐页扫描后，多找到 7 条：
+官方文档那张「All commands」表，**既漏了东西，又留着已经没用的东西**。
+
+**漏的：**把 code.claude.com 全部 129 个文档页面下载逐页扫描后，多找到 5 条表里没有的命令：
 
 | 命令 | 在哪找到的 |
 |---|---|
@@ -44,12 +46,12 @@
 | `/plugins` | vs-code 文档 |
 | `/update` | changelog |
 | `/buddy` | changelog |
-| `/output-style` | changelog |
-| `/tag` | changelog |
 
 另外 **19 个别名**（`/undo` `/checkup` `/proactive` `/settings` …）写在官方表格的描述文字里，只读表格首列会全漏。
 
-同时排除了约 40 个「看着像命令但不是」的：文档举例用的自定义 skill（`/deploy` `/commit`）、gateway 的 HTTP 接口（`/healthz` `/userinfo`）、权限文档里举例的机器人命令（`/merge`）。没往数字里凑。
+**多的：**官方表里还留着 `/vim`「Removed in v2.1.92」这样的墓碑行。本页把已经被移除的命令**整条删掉**了 —— `/output-style` `/tag` `/pr-comments` `/vim` `/ultraplan` 都不在这张表里。**这里每一条都是当前版本敲下去有反应的。**
+
+排除了约 40 个「看着像命令但不是」的：文档举例用的自定义 skill（`/deploy` `/commit`）、gateway 的 HTTP 接口（`/healthz` `/userinfo`）、权限文档里举例的机器人命令（`/merge`）。没往数字里凑。
 
 ---
 
@@ -258,31 +260,29 @@
 | `/team-onboarding` | — | 根据你的使用历史生成一份团队上手指南 |
 | `/help` | — | 显示帮助和可用命令 —— 你本地的这份才是最终依据 |
 
-### 杂项 · 已移除（8）
+### 彩蛋 · 周边（3）
 
-*彩蛋，以及已经没了的（网上老文章还在提）*
+*不干活，但确实还在*
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
 | `/radio` | — | 在浏览器打开 Claude FM lo-fi 电台 |
 | `/stickers` | — | 订购 Claude Code 贴纸 |
 | `/buddy` **`表外`** | — | 愚人节彩蛋：孵一只小生物看着你写代码。 |
-| `/output-style` **`表外`** | — | 【已废弃 v2.1.73，已移除 v2.1.91】改用 `/config` 或直接改 `outputStyle` 设置。 |
-| `/tag` **`表外`** | — | 【已移除 v2.1.92】原本用于给会话打标签。 |
-| `/pr-comments` `[PR]` | — | 【已移除 v2.1.91】 |
-| `/vim` | — | 【已移除 v2.1.92】 |
-| `/ultraplan` `<prompt>` | — | 【已移除】 |
 
 ---
 
 ## 准确性
 
-> **code.claude.com 全部 129 个文档页面（含 changelog），快照日 2026-08-06**
+> **code.claude.com 全部 129 个文档页面 + 官方 CHANGELOG（357 个版本），核到 v2.1.224**
 >
-> ⚠️ 官方那张「All commands」表并不完整 —— /update、/todos、/env、/buddy 只在 changelog 里出现过。内置命令随版本、套餐和平台变化，以你本地 /help 输出为准。
+> ⚠️ 官方那张「All commands」表并不完整 —— /update、/todos、/env、/buddy 只在 changelog 里出现过；表里同时留着 /vim 这种「已于 v2.1.92 移除」的墓碑行，本页把它们清掉了。内置命令随版本、套餐和平台变化，以你本地 /help 输出为准。
+
+页面最上面并排放着两个时间：**Claude Code 最新版**（打开页面时现查 npm registry，实时）和**本页核对时间**（2026-08-07，核到 v2.1.224）。两者一致就说明这页不用更新；上游往前走了，中间那块会写差了几天，并给出 changelog 链接。
 
 - [Claude Code — Commands reference](https://code.claude.com/docs/en/commands)
 - [Claude Code — Extend Claude with skills](https://code.claude.com/docs/en/skills)
+- [Claude Code — CHANGELOG](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
 
 ---
 
@@ -298,6 +298,8 @@ commands.json   ← 所有内容都在这，唯一需要手写的文件
 改文案 = 改 `commands.json` 推一下，Pages 直接生效，没有构建步骤。`app.js` 里不含任何具体命令内容。
 
 **改完要把 `meta.contentVersion` 加一位** —— `index.html` 用 `?v=<contentVersion>` 破缓存（Pages 对静态资源发 `max-age=600`，不换 URL 浏览器会继续用旧的 JS/CSS）。CI 会检查两者一致。
+
+**重新核过一遍命令之后，同时改 `meta.updated` 和 `meta.upstream.checkedVersion` / `checkedReleasedAt`** —— 页顶那两个时间就是拿这组快照跟实时查到的 npm 版本比的。实时那一侧走 `meta.upstream.api`（npm search 接口，1.8 KB，带 CORS，版本号和发布时间一次给全），失败退到 `apiFallback`（dist-tags，56 字节，只有版本号），再失败就整块退回快照并注明「查不到」。
 
 本地预览：`python3 -m http.server 8000`
 
