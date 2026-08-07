@@ -1,7 +1,7 @@
 name: Validate commands.json
 
 # 内容和代码分离的代价：commands.json 一旦语法错或引用不上，整站白屏。
-# 这个 workflow 只做校验，不部署 —— 部署由 Pages 的分支直发负责（§7：推送即上线，不需要 Actions）。
+# 这个 workflow 只做校验，不部署 —— 部署由 Pages 的分支直发负责。
 
 on:
   push:
@@ -18,67 +18,41 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Schema, references, and read-only guarantees
+      - name: Schema and grouping
         run: |
           python3 - <<'PY'
-          import json, sys
+          import json, sys, collections
           d = json.load(open('commands.json', encoding='utf-8'))
-          ids   = {c['id'] for c in d['commands']}
-          aps   = {a['id'] for a in d['antipatterns']}
-          risks = {r['id'] for r in d['taxonomy']['risk']}
-          cats  = {c['id'] for c in d['taxonomy']['category']}
-          errs  = []
+          b = d['builtins']
+          errs = []
+          titles = [g['title'] for g in b['groups']]
+          seen = collections.Counter()
 
-          # 每条命令必须恰好属于一个分组，分组里也不能出现不存在的命令
-          grouped = [cid for g in d['groups'] for cid in g['commands']]
-          for cid in grouped:
-              if cid not in ids: errs.append(f"分组引用了不存在的命令 {cid}")
-          for cid in ids:
-              n = grouped.count(cid)
-              if n == 0: errs.append(f"{cid}: 没有被分到任何组，页面上不会显示")
-              elif n > 1: errs.append(f"{cid}: 被分到了 {n} 个组")
+          for i in b['items']:
+              c = i.get('command', '?')
+              for k in ('command', 'purpose', 'kind', 'group'):
+                  if not i.get(k): errs.append(f"{c}: 缺字段 {k}")
+              if not str(i.get('command', '')).startswith('/'):
+                  errs.append(f"{c}: 命令名必须以 / 开头")
+              if i.get('kind') not in ('builtin', 'skill', 'workflow'):
+                  errs.append(f"{c}: kind 非法 {i.get('kind')}")
+              if i.get('group') not in titles:
+                  errs.append(f"{c}: 分组 {i.get('group')} 未定义")
+              seen[i['command']] += 1
+              for a in i.get('aliases', []):
+                  seen[a] += 1
 
-          for c in d['commands']:
-              t = c['id']
-              for k in ('id','name','summary','risk','category','prompt','commandFile'):
-                  if not c.get(k): errs.append(f"{t}: 缺字段 {k}")
-              if c['risk'] not in risks: errs.append(f"{t}: 风险等级 {c['risk']} 未定义")
-              if c['category'] not in cats: errs.append(f"{t}: 分类 {c['category']} 未定义")
-              if not 2 <= len(c['whenToUse']) <= 3:    errs.append(f"{t}: whenToUse 应 2-3 条")
-              if not 2 <= len(c['whenNotToUse']) <= 3: errs.append(f"{t}: whenNotToUse 应 2-3 条")
-              if not 1 <= len(c['pitfalls']) <= 2:     errs.append(f"{t}: pitfalls 应 1-2 条")
-              for side in ('before','after'):
-                  for p in c['pairs'][side]:
-                      if p['id'] not in ids: errs.append(f"{t}: 配对指向不存在的 {p['id']}")
-              for a in c.get('constraintsCovered', []):
-                  if a not in aps: errs.append(f"{t}: constraintsCovered 指向不存在的 {a}")
-              fm = c['commandFile']['frontmatter']
-              if not fm.get('description'): errs.append(f"{t}: commandFile 缺 description")
-              # ⑥ 第 5 条要在文件层面兜住：allowed-tools 是免批准，disallowed-tools 才是限制
-              if c['risk'] == 'readonly' and 'disallowed-tools' not in fm:
-                  errs.append(f"{t}: 只读命令必须有 disallowed-tools（allowed-tools 挡不住写文件）")
-              if c['risk'] != 'readonly' and 'disallowed-tools' in fm:
-                  errs.append(f"{t}: 非只读命令不该有 disallowed-tools")
-              if '$ARGUMENTS' in c['prompt'] and 'argument-hint' not in fm:
-                  errs.append(f"{t}: 提示词用了 $ARGUMENTS 但没写 argument-hint")
+          for name, n in seen.items():
+              if n > 1: errs.append(f"{name}: 重复出现 {n} 次（主名和别名不能撞）")
 
-          for a in d['antipatterns']:
-              for r in a['related']:
-                  if r not in ids: errs.append(f"{a['id']}: related 指向不存在的 {r}")
-          for s in d['flow']['steps']:
-              for cid in s['commands']:
-                  if cid not in ids: errs.append(f"flow 第 {s['n']} 步指向不存在的 {cid}")
-          for s in d['flow']['shortcuts']:
-              if s['id'] not in ids: errs.append(f"flow 快捷入口指向不存在的 {s['id']}")
-          if d['flow']['rail']['id'] not in ids:
-              errs.append("flow 节拍器指向不存在的命令")
-
-          uncovered = aps - {a for c in d['commands'] for a in c.get('constraintsCovered', [])}
-          if uncovered: errs.append(f"这些反模式没有任何提示词覆盖: {sorted(uncovered)}")
+          for g in b['groups']:
+              if not any(i['group'] == g['title'] for i in b['items']):
+                  errs.append(f"分组「{g['title']}」是空的，页面上会留一个空标题")
 
           if errs:
-              print('\n'.join('  ✗ ' + e for e in errs)); sys.exit(1)
-          print(f"OK — {len(d['commands'])} 条命令 / {len(d['antipatterns'])} 条反模式，引用全部可解析")
+              print('\n'.join('  \u2717 ' + e for e in errs)); sys.exit(1)
+          na = sum(len(i.get('aliases', [])) for i in b['items'])
+          print(f"OK — {len(b['items'])} 条命令 / {na} 个别名 / {len(b['groups'])} 个分组，无重名")
           PY
 
       - name: index.html asset versions match contentVersion
@@ -100,28 +74,7 @@ jobs:
           print(f"OK — style.css / app.js 都带 ?v={ver}，与 contentVersion 一致")
           PY
 
-      - name: commands/*.md still match commands.json
-        run: |
-          python3 - <<'PY'
-          import json, sys, pathlib
-          d = json.load(open('commands.json', encoding='utf-8'))
-          stale = []
-          for c in d['commands']:
-              fm = c['commandFile']['frontmatter']
-              lines = ['---']
-              for k, v in fm.items():
-                  lines.append(f"{k}: {'true' if v is True else 'false' if v is False else v}")
-              lines += ['---', '', c['prompt'], '']
-              p = pathlib.Path('commands') / f"{c['name']}.md"
-              if not p.exists() or p.read_text(encoding='utf-8') != "\n".join(lines):
-                  stale.append(str(p))
-          if stale:
-              print('这些文件和 commands.json 对不上，重新生成后再推：')
-              print('\n'.join('  ✗ ' + s for s in stale)); sys.exit(1)
-          print(f"OK — {len(d['commands'])} 个命令文件与 JSON 一致")
-          PY
-
-      - name: Page renders and every command row is present
+      - name: Page renders every command row
         run: |
           npm i --silent --no-fund --no-audit playwright >/dev/null 2>&1
           # runner 上没有预装浏览器，装包不等于装 chromium
@@ -137,14 +90,16 @@ jobs:
             p.on('pageerror', e => errs.push(e.message));
             p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
             await p.goto('http://127.0.0.1:8899/', { waitUntil: 'networkidle' });
-            const expected = require('./commands.json').commands.length;
-            const got = await p.locator('tr.cmd-row').count();
+            const data = require('./commands.json').builtins;
+            const got = await p.locator('tr.bi-row').count();
+            const groups = await p.locator('tr.group-row').count();
             const overflow = await p.evaluate(() =>
               document.documentElement.scrollWidth - document.documentElement.clientWidth);
             await b.close();
-            if (errs.length)      { console.error('页面报错:', errs.join(' | ')); process.exit(1); }
-            if (got !== expected) { console.error(\`应渲染 \${expected} 行，实际 \${got}\`); process.exit(1); }
-            if (overflow > 0)     { console.error('出现横向溢出:', overflow, 'px'); process.exit(1); }
-            console.log(\`OK — \${got} 行渲染正常，无报错，无横向溢出\`);
+            if (errs.length)  { console.error('页面报错:', errs.join(' | ')); process.exit(1); }
+            if (got !== data.items.length) { console.error(\`应渲染 \${data.items.length} 行，实际 \${got}\`); process.exit(1); }
+            if (groups !== data.groups.length) { console.error(\`应 \${data.groups.length} 个分组，实际 \${groups}\`); process.exit(1); }
+            if (overflow > 0) { console.error('出现横向溢出:', overflow, 'px'); process.exit(1); }
+            console.log(\`OK — \${got} 行 / \${groups} 组渲染正常，无报错，无横向溢出\`);
           })();
           "
