@@ -49,10 +49,24 @@ jobs:
               if not any(i['group'] == g['title'] for i in b['items']):
                   errs.append(f"分组「{g['title']}」是空的，页面上会留一个空标题")
 
+          # 配对指向不存在的命令 = 页面上一个点不动的死链
+          names = {i['command'] for i in b['items']}
+          npairs = 0
+          for i in b['items']:
+              for side in ('before', 'after'):
+                  for pr in i.get('pairs', {}).get(side, []):
+                      npairs += 1
+                      if pr.get('command') not in names:
+                          errs.append(f"{i['command']}: 配对指向不存在的 {pr.get('command')}")
+                      if not pr.get('why'):
+                          errs.append(f"{i['command']} -> {pr.get('command')}: 配对没写理由")
+                      if pr.get('command') == i['command']:
+                          errs.append(f"{i['command']}: 配对指向了自己")
+
           if errs:
               print('\n'.join('  \u2717 ' + e for e in errs)); sys.exit(1)
           na = sum(len(i.get('aliases', [])) for i in b['items'])
-          print(f"OK — {len(b['items'])} 条命令 / {na} 个别名 / {len(b['groups'])} 个分组，无重名")
+          print(f"OK — {len(b['items'])} 条命令 / {na} 个别名 / {len(b['groups'])} 个分组 / {npairs} 条配对，引用全部可解析")
           PY
 
       - name: index.html asset versions match contentVersion

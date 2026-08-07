@@ -33,13 +33,47 @@
   /* 命令名 -> DOM id，斜杠不能直接进 id */
   function slug(cmd) { return "bi-" + cmd.replace(/^\//, ""); }
 
+  function writeClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, ta.value.length);
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error("execCommand failed"));
+    });
+  }
+
+  /* 按钮自己变「已复制 ✓」，两秒后恢复。不弹 toast，不跳转。 */
+  function handleCopy(btn) {
+    if (btn.dataset.busy === "1") return;
+    var original = btn.dataset.label;
+    btn.dataset.busy = "1";
+    writeClipboard(btn.dataset.copy).then(function () {
+      btn.textContent = DATA.ui.copied; btn.classList.add("done");
+    }).catch(function () {
+      btn.textContent = DATA.ui.copyFailed; btn.classList.add("failed");
+    }).then(function () {
+      setTimeout(function () {
+        btn.textContent = original;
+        btn.classList.remove("done", "failed");
+        btn.dataset.busy = "0";
+      }, 2000);
+    });
+  }
+
   // ── ① 内置命令主表 ─────────────────────────────────
 
+  /* 类型标签并进命令列，腾出的位置给「配对」—— 配对是这张表最有用的一列 */
   var BI_COLS = [
     { key: "colCommand", cls: "c-bicmd" },
-    { key: "colAlias",   cls: "c-bialias" },
-    { key: "colKind",    cls: "c-bikind" },
-    { key: "colPurpose", cls: "c-bipurpose" }
+    { key: "colPairs",   cls: "c-bipairs" },
+    { key: "colPurpose", cls: "c-bipurpose" },
+    { key: "colCopy",    cls: "c-bicopy" }
   ];
 
   function kindLabel(k) {
@@ -55,29 +89,47 @@
     }).join("");
   }
 
+  function pairCell(it) {
+    var ui = DATA.ui, out = [];
+    ((it.pairs || {}).before || []).forEach(function (p) {
+      out.push('<a class="pair-mini" href="#' + esc(slug(p.command)) + '" title="' +
+        esc(ui.pairsBefore + "：" + p.why) + '"><span class="arr">←</span>' + esc(p.command) + "</a>");
+    });
+    ((it.pairs || {}).after || []).forEach(function (p) {
+      out.push('<a class="pair-mini" href="#' + esc(slug(p.command)) + '" title="' +
+        esc(ui.pairsAfter + "：" + p.why) + '"><span class="arr">→</span>' + esc(p.command) + "</a>");
+    });
+    return out.length ? out.join(" ") : '<span class="bi-dash">—</span>';
+  }
+
   function renderBuiltinRow(it) {
     var ui = DATA.ui;
     var aliases = (it.aliases || []).map(function (a) {
       return '<span class="bi-alias">' + esc(a) + "</span>";
-    }).join(" ");
+    }).join("");
     if (it.formerName) {
-      aliases += ' <span class="bi-alias former" title="' + esc(ui.formerLabel) + '">' +
+      aliases += '<span class="bi-alias former" title="' + esc(ui.formerLabel) + '">' +
                  esc(it.formerName) + "</span>";
     }
     var offtable = it.source && it.source !== "table"
-      ? ' <span class="bi-alias offtable" title="' + esc(it.source) + '">' + esc(ui.offTableLabel) + "</span>"
+      ? '<span class="bi-alias offtable" title="' + esc(it.source) + '">' + esc(ui.offTableLabel) + "</span>"
       : "";
+    var kind = it.kind !== "builtin"
+      ? '<span class="kind-tag k-' + esc(it.kind) + '">' + esc(kindLabel(it.kind)) + "</span>" : "";
 
     return el(
       '<tr class="cmd-row bi-row" id="' + esc(slug(it.command)) + '" data-kind="' + esc(it.kind) +
         '" data-off="' + (offtable ? "1" : "0") + '">' +
         '<td class="c-bicmd" title="' + esc(it.command + (it.args ? " " + it.args : "")) + '">' +
           '<code class="bi-name">' + esc(it.command) + "</code>" +
-          (it.args ? '<span class="bi-args">' + esc(it.args) + "</span>" : "") + "</td>" +
-        '<td class="c-bialias">' + (aliases || '<span class="bi-dash">—</span>') + "</td>" +
-        '<td class="c-bikind"><span class="kind-tag k-' + esc(it.kind) + '">' +
-          esc(kindLabel(it.kind)) + "</span>" + offtable + "</td>" +
+          (it.args ? '<span class="bi-args">' + esc(it.args) + "</span>" : "") +
+          kind + offtable + (aliases ? '<span class="bi-alias-wrap">' + aliases + "</span>" : "") + "</td>" +
+        '<td class="c-bipairs">' + pairCell(it) + "</td>" +
         '<td class="c-bipurpose">' + inline(it.purpose) + "</td>" +
+        '<td class="c-bicopy">' +
+          '<button type="button" class="mini-btn" data-copy="' + esc(it.command) +
+            '" title="' + esc(ui.copyCmdHint) + '" data-label="' + esc(ui.copyCmd) + '">' +
+            esc(ui.copyCmd) + "</button></td>" +
       "</tr>"
     );
   }
@@ -217,14 +269,25 @@
 
   function wireEvents() {
     document.addEventListener("click", function (e) {
+      var btn = e.target.closest("button[data-copy]");
+      if (btn) { handleCopy(btn); return; }
+
       var link = e.target.closest('a[href^="#"]');
       if (!link) return;
       var id = decodeURIComponent(link.getAttribute("href").slice(1));
       var target = id && document.getElementById(id);
       if (!target) return;
       e.preventDefault();
+      // 目标可能被筛选或搜索藏起来了，先清掉过滤再跳
+      if (target.hidden) {
+        STATE.kind = "all"; STATE.query = ""; $("#search").value = "";
+        apply();
+      }
       history.replaceState(null, "", "#" + id);
-      target.scrollIntoView({ block: "start" });
+      target.scrollIntoView({ block: "center" });
+      target.classList.remove("flash");
+      void target.offsetWidth;
+      target.classList.add("flash");
     });
 
     var search = $("#search"), t;
