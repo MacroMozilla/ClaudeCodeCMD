@@ -176,7 +176,7 @@
 | `/cd` `<path>` | — | 把当前会话切到另一个工作目录 |
 | `/env` **`表外`** | — | 设置环境变量，影响 Bash 与 PowerShell 工具执行的命令（v2.1.89 起也作用于 PowerShell）。 |
 | `/todos` **`表外`** | — | 打开待办列表浮层（changelog 里和 `/config` `/context` `/model` 并列为 command overlay）。 |
-| `/fewer-permission-prompts` `skill`<br>别名  （旧名 `/less-permission-prompts`） | ← `/permissions` | 扫描历史里常用的只读命令，写进项目 settings.json 的白名单，减少批准弹窗 |
+| `/fewer-permission-prompts` `skill`<br>旧名 `/less-permission-prompts` | ← `/permissions` | 扫描历史里常用的只读命令，写进项目 settings.json 的白名单，减少批准弹窗 |
 
 ### 扩展：skill / plugin / MCP（11）
 
@@ -225,7 +225,7 @@
 | `/usage` | → `/usage-credits` | 查看会话花费、套餐额度和活动统计 |
 | `/cost` | — | /usage 的别名 |
 | `/stats` | — | /usage 的别名 |
-| `/usage-credits`<br>别名  （旧名 `/extra-usage`） | — | 配置用量额度，或在触顶时向管理员申请 |
+| `/usage-credits`<br>旧名 `/extra-usage` | — | 配置用量额度，或在触顶时向管理员申请 |
 | `/upgrade` | — | 在浏览器打开升级页，切换到更高套餐 |
 | `/passes` | — | 送朋友一周免费 Claude Code |
 | `/privacy-settings` | — | 查看和修改隐私设置 |
