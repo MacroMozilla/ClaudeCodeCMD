@@ -46,7 +46,8 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 7rem; }
+/* --header-h 由 app.js 实测顶栏高度写入；顶栏摊满宽度后高度会随视口变，不能写死 */
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h, 5.1rem) + 1.9rem); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { transition: none !important; animation: none !important; }
@@ -62,7 +63,11 @@ code, kbd, pre { font-family: var(--mono); }
 a { color: var(--accent); text-underline-offset: 2px; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 3px; }
 
-.wrap { max-width: 78rem; margin-inline: auto; padding-inline: 1.1rem; }
+/* .wrap = 收窄居中，给命令表用（一行读到底太长反而难扫）
+   .bleed = 摊满整个浏览器宽度，给顶栏和时间条用 —— 宽屏上那两条本来就该铺开 */
+.wrap  { max-width: 78rem; margin-inline: auto; padding-inline: 1.1rem; }
+.bleed { max-width: none; margin-inline: 0; padding-inline: 1.6rem; }
+@media (max-width: 40rem) { .bleed { padding-inline: .7rem; } }
 
 .skip-link { position: absolute; left: -9999px; background: var(--bg-raised); padding: .6rem 1rem; z-index: 100; }
 .skip-link:focus { left: 1rem; top: 1rem; }
@@ -156,7 +161,7 @@ table.cmd-table thead th {
   text-align: left; font-size: .7rem; font-weight: 600;
   letter-spacing: .05em; text-transform: uppercase; color: var(--fg-faint);
   padding: .2rem .6rem; border-bottom: 1px solid var(--border-strong);
-  position: sticky; top: 5.1rem; background: var(--bg); z-index: 5;
+  position: sticky; top: var(--header-h, 5.1rem); background: var(--bg); z-index: 5;
 }
 th.c-copy, td.c-copy { text-align: right; }
 
@@ -361,7 +366,7 @@ table.builtins td:first-child { font-family: var(--mono); white-space: nowrap; }
 }
 @media (max-width: 40rem) {
   body { font-size: 14px; }
-  html { scroll-padding-top: 9rem; }
+  html { scroll-padding-top: calc(var(--header-h, 7rem) + 2rem); }
   .brand { gap: .35rem; }
   .controls { margin-left: 0; width: 100%; }
   #search { width: 100%; }
@@ -459,7 +464,7 @@ td.c-bialias { white-space: normal; }
   background: var(--accent-soft); color: var(--accent);
   font-size: .68rem; font-weight: 700; font-variant-numeric: tabular-nums;
 }
-tr.group-row { scroll-margin-top: 7rem; }
+tr.group-row { scroll-margin-top: calc(var(--header-h, 5.1rem) + 1.9rem); }
 
 #builtin-authority { margin-top: 1rem; font-size: .78rem; }
 
@@ -534,7 +539,7 @@ tr.bi-row.flash .mini-btn {
   border-radius: 10px;
   box-shadow: var(--card-shadow);
   overflow: hidden;
-  scroll-margin-top: 7.5rem;
+  scroll-margin-top: calc(var(--header-h, 5.1rem) + 2.4rem);
 }
 .group-card[hidden] { display: none; }
 
@@ -570,7 +575,7 @@ table.bi-table thead th {
   padding: .2rem .85rem;
 }
 .legend-table thead th {
-  position: sticky; top: 5.1rem; z-index: 5;
+  position: sticky; top: var(--header-h, 5.1rem); z-index: 5;
   background: var(--bg); border-bottom: 1px solid var(--border-strong);
 }
 
@@ -597,19 +602,19 @@ tr.bi-row td { padding-inline: .85rem; }
   }
 }
 
+/* 整条横幅贴着浏览器两边走，不跟着表格收窄 */
 .freshness {
-  margin: .9rem 0 1.1rem;
-  border: 1px solid var(--border); border-radius: var(--radius);
-  background: var(--bg-raised); padding: .7rem .85rem .75rem;
-  box-shadow: var(--card-shadow);
+  margin: 0 0 1.1rem; padding-block: .7rem .75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raised);
 }
 .fr-lead {
   margin: 0 0 .55rem; font-size: .72rem; font-weight: 600;
   letter-spacing: .05em; text-transform: uppercase; color: var(--fg-faint);
 }
-.fr-row { display: flex; align-items: stretch; gap: .7rem; }
+.fr-row { display: flex; align-items: stretch; gap: .7rem; flex-wrap: wrap; }
 .fr-card {
-  flex: 1 1 0; min-width: 0;
+  flex: 1 1 16rem; min-width: 0; max-width: 34rem;
   display: flex; flex-direction: column; gap: .12rem;
   background: var(--bg-sunken); border: 1px solid var(--border);
   border-radius: var(--radius); padding: .55rem .7rem;
@@ -634,16 +639,26 @@ tr.bi-row td { padding-inline: .85rem; }
 .fr-gap.s-fresh  { color: var(--fresh-fg); background: var(--fresh-bg); border-color: var(--fresh-bd); }
 .fr-gap.s-behind { color: var(--stale-fg); background: var(--stale-bg); border-color: var(--stale-bd); }
 
+/* 结论跟着两张卡片排在同一行，把顶栏剩下的横向空间吃掉 */
 .fr-verdict {
-  margin: .6rem 0 0; font-size: .84rem; color: var(--fg-muted);
-  padding-left: .6rem; border-left: 3px solid var(--border-strong);
+  flex: 1 1 22rem; align-self: center; min-width: 0;
+  margin: 0; font-size: .86rem; color: var(--fg-muted);
+  padding-left: .7rem; border-left: 3px solid var(--border-strong);
 }
 .fr-verdict strong { color: var(--fg); }
 .freshness[data-state="fresh"]  .fr-verdict { border-left-color: var(--fresh-bd); }
 .freshness[data-state="behind"] .fr-verdict { border-left-color: var(--stale-bd); }
 .freshness[data-state="loading"] .fr-value { color: var(--fg-faint); font-weight: 500; }
 
+/* 空间不够就把结论掉到下一行，卡片仍并排 */
+@media (max-width: 78rem) {
+  .fr-verdict {
+    flex-basis: 100%; align-self: stretch;
+    margin-top: .1rem; padding-left: .6rem;
+  }
+}
 @media (max-width: 40rem) {
   .fr-row { flex-direction: column; gap: .45rem; }
+  .fr-card { max-width: none; }
   .fr-gap { align-self: flex-start; }
 }
