@@ -3,7 +3,7 @@
     "name": "ClaudeCodeCMD",
     "tagline": "Claude Code 内置命令速查 · 106 条全收录",
     "schemaVersion": "0.1.0",
-    "contentVersion": "4.4.0",
+    "contentVersion": "4.5.0",
     "updated": "2026-08-07",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",
@@ -25,17 +25,7 @@
         "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
         "checkedOn": "2026-08-07"
       }
-    ],
-    "upstream": {
-      "name": "Claude Code",
-      "channel": "npm · @anthropic-ai/claude-code",
-      "api": "https://registry.npmjs.org/-/v1/search?text=%40anthropic-ai%2Fclaude-code&size=1",
-      "apiFallback": "https://registry.npmjs.org/-/package/@anthropic-ai/claude-code/dist-tags",
-      "packageName": "@anthropic-ai/claude-code",
-      "changelog": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
-      "checkedVersion": "2.1.224",
-      "checkedReleasedAt": "2026-08-07T01:36:32.682Z"
-    }
+    ]
   },
   "ui": {
     "searchPlaceholder": "搜命令名、别名、说明…",
@@ -67,26 +57,7 @@
     "copyCmdHint": "复制这条命令，粘进 Claude Code 直接回车",
     "colPairs": "配对",
     "pairsBefore": "先跑",
-    "pairsAfter": "接着跑",
-    "freshness": {
-      "lead": "这页新不新，看这两个时间的差",
-      "upstreamLabel": "Claude Code 最新版",
-      "upstreamHint": "打开这页的时候现查 npm，实时的",
-      "pageLabel": "本页核对时间",
-      "pageHint": "照着左边那个版本，一条一条核过的",
-      "loading": "查询中…",
-      "versionPrefix": "v",
-      "releasedAt": "发布于",
-      "checkedAgainst": "核到 v{version}",
-      "offlineNote": "查不到最新版（网络被挡了或 npm 没应答），下面用的是最后一次核对的结果。",
-      "verdictFresh": "**对得上。** 本页就是照着当前最新版整理的，不用等更新。",
-      "verdictBehind": "**上游已经往前走了。** 本页核到 v{checked}，现在是 v{latest}（{gap}）—— 中间新增/改动的命令这页可能还没有。",
-      "verdictUnknown": "**没查到上游版本。** 只能看本页自己的核对时间，请自行对一下官方 changelog。",
-      "gapDays": "隔了 {n} 天",
-      "gapSameDay": "同一天发的",
-      "gapToday": "今天",
-      "changelogLink": "看这中间改了什么 →"
-    }
+    "pairsAfter": "接着跑"
   },
   "sections": [
     {
