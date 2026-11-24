@@ -68,25 +68,13 @@ jobs:
               if any(w in i['purpose'] for w in ('已移除', '已废弃', 'Removed in', 'Deprecated')):
                   errs.append(f"{i['command']}: 说明里写着已移除/已废弃，这类命令应该整条删掉")
 
-          # 页顶那两个时间：快照和实时查询的接口都得在，缺一个横幅就画不出来
-          up = d['meta'].get('upstream') or {}
-          for k in ('api', 'apiFallback', 'packageName', 'changelog', 'channel',
-                    'checkedVersion', 'checkedReleasedAt'):
-              if not up.get(k): errs.append(f"meta.upstream 缺字段 {k}")
-          fr = d['ui'].get('freshness') or {}
-          for k in ('lead', 'upstreamLabel', 'upstreamHint', 'pageLabel', 'pageHint', 'loading',
-                    'versionPrefix', 'releasedAt', 'checkedAgainst', 'offlineNote',
-                    'verdictFresh', 'verdictBehind', 'verdictUnknown',
-                    'gapDays', 'gapSameDay', 'changelogLink'):
-              if not fr.get(k): errs.append(f"ui.freshness 缺字段 {k}")
           if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', d['meta'].get('updated', '')):
-              errs.append("meta.updated 必须是 YYYY-MM-DD —— 页面拿它当「本页核对时间」")
+              errs.append("meta.updated 必须是 YYYY-MM-DD")
 
           if errs:
               print('\n'.join('  ✗ ' + e for e in errs)); sys.exit(1)
           na = sum(len(i.get('aliases', [])) for i in b['items'])
           print(f"OK — {len(b['items'])} 条命令 / {na} 个别名 / {len(b['groups'])} 个分组 / {npairs} 条配对，引用全部可解析")
-          print(f"     核到 v{up['checkedVersion']}（{up['checkedReleasedAt']}），本页 {d['meta']['updated']}")
           PY
 
       - name: index.html asset versions match contentVersion
@@ -118,60 +106,33 @@ jobs:
           node -e "
           const { chromium } = require('playwright');
           const data = require('./commands.json');
-          const up = data.meta.upstream;
-
-          // 三种上游应答都得走通：一样 / 落后 / 查不到
-          const pkg = (version, date) => JSON.stringify({ objects: [{ package: {
-            name: up.packageName, version, date } }] });
-          const CASES = [
-            ['同版本',  1280, r => r.fulfill({ status: 200, contentType: 'application/json',
-                                 body: pkg(up.checkedVersion, up.checkedReleasedAt) }), 'fresh'],
-            ['上游更新', 1280, r => r.fulfill({ status: 200, contentType: 'application/json',
-                                 body: pkg('9.9.9', '2099-01-01T00:00:00.000Z') }),      'behind'],
-            ['查不到',   1280, r => r.abort(),                                            'unknown'],
-            ['宽屏',     2560, r => r.fulfill({ status: 200, contentType: 'application/json',
-                                 body: pkg('9.9.9', '2099-01-01T00:00:00.000Z') }),      'behind'],
-            ['窄屏',      390, r => r.fulfill({ status: 200, contentType: 'application/json',
-                                 body: pkg('9.9.9', '2099-01-01T00:00:00.000Z') }),      'behind'],
-          ];
+          const WIDTHS = [['窄屏', 390], ['常规', 1280], ['宽屏', 2560]];
 
           (async () => {
             const b = await chromium.launch();
             const fails = [];
-            for (const [label, width, handler, want] of CASES) {
+            for (const [label, width] of WIDTHS) {
               const p = await b.newPage({ viewport: { width, height: 900 } });
               const errs = [];
               p.on('pageerror', e => errs.push('pageerror: ' + e.message));
-              p.on('console', m => {
-                if (m.type() !== 'error') return;
-                // 查不到最新版只是降级到快照，浏览器为此打的 net::ERR 不算页面 bug
-                if (((m.location() || {}).url || '').includes('registry.npmjs.org')) return;
-                errs.push('console: ' + m.text());
-              });
-              await p.route('**registry.npmjs.org/**', handler);
+              p.on('console', m => { if (m.type() === 'error') errs.push('console: ' + m.text()); });
               await p.goto('http://127.0.0.1:8899/', { waitUntil: 'networkidle' });
-              await p.waitForFunction(
-                () => document.querySelector('#freshness').dataset.state !== 'loading',
+              await p.waitForFunction(() => document.querySelectorAll('tr.bi-row').length > 0,
                 null, { timeout: 15000 });
               const o = await p.evaluate(() => {
                 const box = s => document.querySelector(s).getBoundingClientRect();
                 const vw = document.documentElement.clientWidth;
-                const hdr = box('.header-inner'), fresh = box('#freshness'), tbl = box('#builtin-body');
+                const hdr = box('.header-inner'), tbl = box('#builtin-body');
                 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
                 return {
-                  state: document.querySelector('#freshness').dataset.state,
-                  upValue: document.querySelector('#fr-up-value').textContent,
                   rows: document.querySelectorAll('tr.bi-row').length,
                   cards: document.querySelectorAll('section.group-card').length,
                   overflow: document.documentElement.scrollWidth - vw,
                   // 每张卡片一张表，第一列宽度必须一致，否则各卡片的列会错开
                   colWidths: [...new Set([...document.querySelectorAll('table.bi-table')].map(
                     t => Math.round(t.querySelector('col.w-bicmd').getBoundingClientRect().width)))].length,
-                  freshTop: fresh.top,
-                  firstCardTop: box('section.group-card').top,
-                  // 顶栏和时间条要摊满浏览器；命令表要收在 78rem 里居中
+                  // 顶栏要摊满浏览器；命令表要收在 78rem 里居中
                   headerSlackL: hdr.left, headerSlackR: vw - hdr.right,
-                  freshSlackL: fresh.left, freshSlackR: vw - fresh.right,
                   tableWidth: tbl.width, tableOffCenterBy: Math.abs((tbl.left + tbl.right) / 2 - vw / 2),
                   maxTable: 78 * rem,
                   // 顶栏高度随视口变，sticky 的列名行必须正好贴在顶栏底下
@@ -185,18 +146,13 @@ jobs:
               if (o.rows !== data.builtins.items.length) add(\`应渲染 \${data.builtins.items.length} 行，实际 \${o.rows}\`);
               if (o.cards !== data.builtins.groups.length) add(\`应 \${data.builtins.groups.length} 张分组卡片，实际 \${o.cards}\`);
               if (o.overflow > 0) add('出现横向溢出 ' + o.overflow + 'px');
-              if (o.state !== want) add(\`新鲜度状态应为 \${want}，实际 \${o.state}\`);
-              if (o.freshTop >= o.firstCardTop) add('两个时间没排在命令表上面');
               // 窄屏故意退回 table-layout:auto，只在宽屏要求列对齐
               if (width >= 1280 && o.colWidths !== 1) add('各卡片列宽没对齐');
-              if (want === 'unknown' && !o.upValue.includes(up.checkedVersion)) add('查不到时没退回 meta.upstream 快照');
 
-              // 顶栏和时间条铺满整个浏览器（只留侧边留白），不跟着表格收窄
+              // 顶栏铺满整个浏览器（只留侧边留白），不跟着表格收窄
               const SIDE = 40;
-              for (const [what, l, r] of [['顶栏', o.headerSlackL, o.headerSlackR],
-                                          ['时间条', o.freshSlackL, o.freshSlackR]]) {
-                if (l > SIDE || r > SIDE) add(\`\${what}没铺满，两侧空了 \${Math.round(l)}/\${Math.round(r)}px\`);
-              }
+              if (o.headerSlackL > SIDE || o.headerSlackR > SIDE)
+                add(\`顶栏没铺满，两侧空了 \${Math.round(o.headerSlackL)}/\${Math.round(o.headerSlackR)}px\`);
               // 命令表反过来必须收窄居中，不能跟着一起摊开
               if (o.tableWidth > o.maxTable + 1) add(\`命令表宽 \${Math.round(o.tableWidth)}px，超过 78rem\`);
               if (o.tableOffCenterBy > 2) add(\`命令表没居中，偏 \${Math.round(o.tableOffCenterBy)}px\`);
@@ -204,11 +160,11 @@ jobs:
               if (Math.abs(parseFloat(o.headerVar) - o.headerH) > 1) {
                 add(\`--header-h=\${o.headerVar} 和实测顶栏高 \${Math.round(o.headerH)}px 对不上\`);
               }
-              console.log(\`  \${fails.length ? '·' : '✓'} \${label}（\${width}px）→ \${o.state}，\${o.rows} 行 / \${o.cards} 张卡片，\` +
+              console.log(\`  \${fails.length ? '·' : '✓'} \${label}（\${width}px）→ \${o.rows} 行 / \${o.cards} 张卡片，\` +
                 \`顶栏满宽 · 表 \${Math.round(o.tableWidth)}px 居中 · --header-h=\${o.headerVar}\`);
             }
             await b.close();
             if (fails.length) { console.error(fails.join('\n')); process.exit(1); }
-            console.log('OK — 渲染、分组、新鲜度横幅（在线/落后/离线）全部正常');
+            console.log('OK — 渲染、分组、版面在三档宽度下全部正常');
           })();
           "
