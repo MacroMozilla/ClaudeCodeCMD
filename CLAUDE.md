@@ -20,5 +20,6 @@ Claude Code 内置命令速查页，GitHub Pages 从 `master` 直发：https://m
   - 切换工作方式的（`/plan` `/model` `/effort`）一组；只看不改的（`/status` `/usage`）一组。
 - **别名不单独占一行**（2026-11-25 他定）：官方说是别名的（`/review` `/ultrareview` → `/code-review`，`/cost` `/stats` → `/usage` 等）并进主命令的 `aliases`，页面上写在说明后面。
 - **配对写成一串**（2026-11-25 他定）：`前面的 → 自己（高亮）→ 后面的`，不要只写箭头加命令名。
+- **说明要短**（2026-11-25 他定）：每条在电脑宽度下不超过两行（连别名）；照官方 Commands 文档的意思写，不堆细节、不重复别名里已有的东西。说明里提到别的命令就写成 `` `/xxx` ``，页面会自动变成可跳转的链接（带 ↗）。
 - 已被官方移除的命令不收；对照官方 Commands 文档和 CHANGELOG 核，核到的版本写进 `builtins.basedOn`。
 - 改了任何文件都把 `meta.contentVersion` 加一位，同步 `index.html` 里 `style.css` / `app.js` 的 `?v=`（CI 查）。

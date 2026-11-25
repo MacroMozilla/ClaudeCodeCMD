@@ -575,3 +575,21 @@ tr.bi-row td { padding-inline: .85rem; }
 .bi-aka { color: var(--fg-faint); font-size: .76rem; white-space: nowrap; margin-left: .2rem; }
 .bi-aka .bi-alias { margin-left: .15rem; }
 .pair-chain .pair-mini, .pair-self { white-space: nowrap; }
+
+/* 说明里提到的其他命令：可点，带个 ↗ 表示会跳过去 */
+a.cmd-link { color: var(--accent); text-decoration: none; white-space: nowrap; }
+a.cmd-link:hover code { text-decoration: underline; }
+a.cmd-link::after { content: "↗"; font-size: .7em; margin-left: .1em; opacity: .8; }
+
+/* 窄屏：别名那串允许折行，命令列留住最小宽度 —— 否则 auto 布局会把命令名挤成一字一行 */
+@media (max-width: 44rem) {
+  /* 手机上不排成列：命令一行，说明（连别名）紧跟在下面占满整行 */
+  table.bi-table:not(.legend-table), table.bi-table:not(.legend-table) tbody,
+  table.bi-table:not(.legend-table) tr.bi-row { display: block; width: 100%; }
+  tr.bi-row td.c-bicmd, tr.bi-row td.c-bipurpose { display: block; width: auto; }
+  tr.bi-row td.c-bicmd { padding-bottom: 0; }
+  tr.bi-row td.c-bipurpose { padding-top: .1rem; }
+  .bi-args { display: inline; margin-left: .35rem; }
+  .bi-aka { white-space: normal; }
+  table.legend-table { display: none; }
+}
