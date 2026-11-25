@@ -14,14 +14,16 @@
 
 ## 排序逻辑
 
-**先按「对项目起什么作用」分组，组内再按使用频率从高到低排。**
+**先按「这条命令在干哪一类事」分组，组内再按使用频率从高到低排。**
 
-作用不一样的命令不混在一起：`/verify` `/debug` 这类是真去找问题、改项目的；`/status` `/usage` 只是看一眼，什么都不动 —— 所以它们分在两个组里。
+- 对**已有改动**下手的 —— 审（`/code-review`）、精简（`/simplify`）、跑起来验（`/verify`）、查安全（`/security-review`）—— 放在一起，排最上面。
+- **切换工作方式**的 —— `/plan` 进规划模式、`/model` 换模型、`/effort` 调思考深浅 —— 是另一回事，单独一组。
+- **只是看一眼**的 —— `/status` `/usage` —— 不动项目也不动设置，又是一组。
 
 ```
-动手改代码 → 审查 · 验证 · 找 bug → 提交 · 盯 PR → 改坏了回退 → 上下文 · 对话 → 后台 · 并行 · 定时 → …
+审查 · 验证已有改动 → 提交 · 盯 PR → 改坏了回退 → 模式 · 模型 → 上下文 · 对话 → 后台 · 并行 · 定时 → …
 ```
-组的先后也大致按写代码时碰到的频率排，最前面几组是编程时真正会敲的。
+组的先后也大致按写代码时碰到的频率排。
 
 **43 条配对关系**标在「配对」列：`←` 是先跑什么，`→` 是接着跑什么。比如：
 
@@ -60,28 +62,19 @@
 
 `skill` = bundled skill（本质是提示词，Claude 可能自己触发，会被同名自定义文件覆盖）· `workflow` = 多 agent 编排 · **`表外`** = 官方表未收录。别名和主名效果一样。每组内按使用频率从高到低排。
 
-### 动手改代码（3）
+### 审查 · 验证已有改动（9）
 
-*让 Claude 直接改你的项目：先定方案，再改、批量改、清理*
-
-| 命令 | 配对 | 说明 |
-|---|---|---|
-| `/plan` `[description]` | → `/verify` | 直接从输入栏进入 plan 模式 |
-| `/simplify` `[target]` `skill` | ← `/code-review` → `/verify` | 四个 agent 并行看复用/精简/效率/抽象层次，然后直接改。不找 bug |
-| `/batch` `<instruction>` `skill` | → `/verify` | 把大规模改动拆成 5-30 个独立单元并行做，每个单元一个 worktree + 一个 PR |
-
-### 审查 · 验证 · 找 bug（8）
-
-*找出项目里的问题：审改动、跑起来验、查漏洞*
+*改完之后对这批改动下手：审、精简、跑起来验、查安全漏洞*
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
 | `/code-review` `[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [--max-findings n|all|default] [pr#|branch|path]` `skill`<br>别名 `/ship:review` | ← `/diff` → `/simplify` → `/verify` | 审当前 diff（或指定 PR / 分支 / 路径）的正确性 bug 与可清理处，支持 --fix |
+| `/simplify` `[target]` `skill` | ← `/code-review` → `/verify` | 四个 agent 并行看复用/精简/效率/抽象层次，然后直接改。不找 bug |
 | `/verify` `skill` | ← `/run` → `/debug` | 把项目真的构建并跑起来看结果，而不是只跑测试和类型检查 |
 | `/diff` | → `/code-review` | 打开交互式 diff 查看器，看未提交改动和每轮的改动 |
+| `/security-review` | ← `/diff` → `/verify` | 分析当前分支的改动有没有安全漏洞 |
 | `/run` `skill` | ← `/run-skill-generator` → `/verify` | 启动并操作你的项目，亲眼看改动生效，而不只是测试通过 |
 | `/review` `[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [pr#|branch|path]` | → `/code-review` | /code-review 的别名，用法和分档完全一样 |
-| `/security-review` | ← `/diff` → `/verify` | 分析当前分支的改动有没有安全漏洞 |
 | `/ultrareview` `[PR or branch]` | ← `/code-review` | 在云端沙箱跑一次深度多 agent 代码审查。现在推荐写成 `/code-review ultra`，这条是它的别名 |
 | `/run-skill-generator` `skill` | → `/run` | 写一个项目专属 skill，教会 /run 和 /verify 怎么构建和启动你的项目 |
 
@@ -105,6 +98,20 @@
 | `/branch` `[name]` | → `/rewind` | 在当前这一点分叉出一条对话，换个方向试而不丢原来的 |
 | `/fork` `[prompt]` | — | 把当前对话复制到一个新的后台会话，两边从此独立 |
 
+### 模式 · 模型（7）
+
+*切换工作方式：先规划再动手、换模型、调思考深浅、换回答风格、开沙箱*
+
+| 命令 | 配对 | 说明 |
+|---|---|---|
+| `/plan` `[description]` | → `/verify` | 直接从输入栏进入 plan 模式 |
+| `/model` `[model]` | → `/effort` | 切换模型，并存为新会话的默认 |
+| `/effort` `[level|auto|status|ultracode [on|off]]` | ← `/model` | 设置思考力度（low 到 xhigh、max、auto）；`status` 看当前档，`ultracode` 开关 ultracode |
+| `/fast` `[on|off]` | — | 开关快速模式（仍是 Opus，只是输出更快，不降级到小模型） |
+| `/output-style` `[style]` | — | 列出或切换输出风格，比如 `/output-style concise`（v2.1.269 起重新上线） |
+| `/advisor` `[model|off]` | — | 开关顾问工具：在关键节点让第二个模型给建议 |
+| `/sandbox` | — | 开关沙箱模式 |
+
 ### 上下文 · 对话（8）
 
 *写着写着变慢变笨，用这几条腾地方；顺手问一句、把回复拿走*
@@ -120,15 +127,16 @@
 | `/autocompact` `[auto|<tokens>]` | → `/context` | 设置自动压缩的触发点（上下文占到多满时自动压） |
 | `/export` `[filename]` | — | 把当前对话导出成纯文本 |
 
-### 后台 · 并行 · 定时（9）
+### 后台 · 并行 · 定时（10）
 
-*把活丢出去，你继续干别的*
+*把活丢出去并行跑，你继续干别的*
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
 | `/background` `[prompt]`<br>别名 `/bg` | → `/tasks` | 把当前会话转成后台 agent，腾出这个终端 |
 | `/tasks`<br>别名 `/bashes` | → `/stop` | 查看和管理本会话的后台任务，含已完成的子 agent |
 | `/subtask` `<task>` | → `/tasks` | 派一个继承完整对话的后台子 agent 去干活，你继续干你的 |
+| `/batch` `<instruction>` `skill` | → `/verify` | 把大规模改动拆成 5-30 个独立单元并行做，每个单元一个 worktree + 一个 PR |
 | `/loop` `[interval] [prompt]` `skill`<br>别名 `/proactive` | — | 让一个提示词按间隔反复跑；不给间隔则由 Claude 自己掌握节奏 |
 | `/goal` `[condition|clear]` | — | 设一个目标，Claude 会跨多轮一直做到条件满足 |
 | `/schedule` `[description]`<br>别名 `/routines` | — | 创建 / 更新 / 列出 / 立即运行云端定时任务（以前叫 Routine） |
@@ -150,19 +158,6 @@
 | `/remote-control`<br>别名 `/rc` | — | 让这个会话可以从 claude.ai 远程控制 |
 | `/desktop`<br>别名 `/app` | — | 把当前会话转到 Claude Code 桌面版继续 |
 | `/mobile`<br>别名 `/ios` `/android` | — | 显示下载 Claude 手机 App 的二维码 |
-
-### 模型 · 模式（6）
-
-*调快慢、调深浅、换回答风格、开沙箱*
-
-| 命令 | 配对 | 说明 |
-|---|---|---|
-| `/model` `[model]` | → `/effort` | 切换模型，并存为新会话的默认 |
-| `/effort` `[level|auto|status|ultracode [on|off]]` | ← `/model` | 设置思考力度（low 到 xhigh、max、auto）；`status` 看当前档，`ultracode` 开关 ultracode |
-| `/fast` `[on|off]` | — | 开关快速模式（仍是 Opus，只是输出更快，不降级到小模型） |
-| `/output-style` `[style]` | — | 列出或切换输出风格，比如 `/output-style concise`（v2.1.269 起重新上线） |
-| `/advisor` `[model|off]` | — | 开关顾问工具：在关键节点让第二个模型给建议 |
-| `/sandbox` | — | 开关沙箱模式 |
 
 ### 只看不改：状态 · 用量（8）
 
