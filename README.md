@@ -330,7 +330,7 @@
 
 ```
 index.html      页面结构
-style.css       样式（跟随系统深浅色）
+style.css       样式（固定深色）
 app.js          渲染 / 筛选 / 搜索 / 复制 / 配对跳转
 commands.json   ← 所有内容都在这，唯一需要手写的文件
 ```

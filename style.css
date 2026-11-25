@@ -1,22 +1,23 @@
-/* ClaudeCodeCMD — 一屏大表，跟随系统深浅色，无构建步骤 */
+/* ClaudeCodeCMD — 一屏大表，固定深色，无构建步骤 */
 
 :root {
-  --bg:            #fbfaf8;
-  --bg-raised:     #ffffff;
-  --bg-sunken:     #f2f0ec;
-  --bg-hover:      #f6f4f0;
-  --fg:            #1c1b19;
-  --fg-muted:      #63605a;
-  --fg-faint:      #8b877f;
-  --border:        #e6e2db;
-  --border-strong: #cdc7bd;
-  --accent:        #b5501f;
-  --accent-soft:   #fdf1e9;
+  color-scheme: dark;
+  --bg:            #17161a;
+  --bg-raised:     #201f24;
+  --bg-sunken:     #131216;
+  --bg-hover:      #26252b;
+  --fg:            #e9e6e1;
+  --fg-muted:      #a29d95;
+  --fg-faint:      #7a756d;
+  --border:        #2c2a31;
+  --border-strong: #45424b;
+  --accent:        #e5895c;
+  --accent-soft:   #2b211c;
 
-  --risk-readonly-fg: #3a6b8a;  --risk-readonly-bg: #e8f1f7;
-  --risk-low-fg:      #40693f;  --risk-low-bg:      #eaf3e9;
-  --risk-medium-fg:   #8a6410;  --risk-medium-bg:   #fbf1dc;
-  --risk-high-fg:     #a33a2a;  --risk-high-bg:     #fbeae7;
+  --risk-readonly-fg: #86b6d4;  --risk-readonly-bg: #1c2831;
+  --risk-low-fg:      #8cc088;  --risk-low-bg:      #1b2820;
+  --risk-medium-fg:   #d8ab52;  --risk-medium-bg:   #2b2416;
+  --risk-high-fg:     #e88b78;  --risk-high-bg:     #2f1d1a;
 
   --radius: 8px;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
@@ -24,26 +25,6 @@
           "Microsoft YaHei", "Noto Sans CJK SC", Roboto, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:            #17161a;
-    --bg-raised:     #201f24;
-    --bg-sunken:     #131216;
-    --bg-hover:      #26252b;
-    --fg:            #e9e6e1;
-    --fg-muted:      #a29d95;
-    --fg-faint:      #7a756d;
-    --border:        #2c2a31;
-    --border-strong: #45424b;
-    --accent:        #e5895c;
-    --accent-soft:   #2b211c;
-
-    --risk-readonly-fg: #86b6d4;  --risk-readonly-bg: #1c2831;
-    --risk-low-fg:      #8cc088;  --risk-low-bg:      #1b2820;
-    --risk-medium-fg:   #d8ab52;  --risk-medium-bg:   #2b2416;
-    --risk-high-fg:     #e88b78;  --risk-high-bg:     #2f1d1a;
-  }
-}
 
 *, *::before, *::after { box-sizing: border-box; }
 /* --header-h 由 app.js 实测顶栏高度写入；顶栏摊满宽度后高度会随视口变，不能写死 */
@@ -524,11 +505,7 @@ tr.bi-row.flash .mini-btn {
 :root {
   --flash-bg: #eceae5;   /* 不是纯白，带一点灰 */
   --flash-fg: #141312;   /* 字翻成黑 */
-  --card-shadow: 0 1px 2px rgba(28,27,25,.05), 0 2px 10px rgba(28,27,25,.05);
-}
-@media (prefers-color-scheme: dark) {
-  /* 深色模式下同一组浅底黑字 = 彻底反色，最醒目 */
-  :root { --card-shadow: 0 1px 2px rgba(0,0,0,.35), 0 2px 12px rgba(0,0,0,.25); }
+  --card-shadow: 0 1px 2px rgba(0,0,0,.35), 0 2px 12px rgba(0,0,0,.25);
 }
 
 .group-cards { display: flex; flex-direction: column; gap: 1.15rem; }
