@@ -16,7 +16,7 @@
 
 **先按「这条命令在干哪一类事」分组，组内再按使用频率从高到低排。**
 
-- 对**已有改动**下手的 —— 审（`/code-review`）、精简（`/simplify`）、跑起来验（`/verify`）、查安全（`/security-review`）—— 放在一起，排最上面。
+- 对**已有改动**下手的 —— 审（`/code-review`）、精简（`/simplify`）、跑起来验（`/verify`）、查安全（`/security-review`）、排查（`/debug` `/doctor`）—— 放在一起，排最上面。
 - **切换工作方式**的 —— `/plan` 进规划模式、`/model` 换模型、`/effort` 调思考深浅 —— 是另一回事，单独一组。
 - **只是看一眼**的 —— `/status` `/usage` —— 不动项目也不动设置，又是一组。
 
@@ -62,9 +62,9 @@
 
 `skill` = bundled skill（本质是提示词，Claude 可能自己触发，会被同名自定义文件覆盖）· `workflow` = 多 agent 编排 · **`表外`** = 官方表未收录。别名和主名效果一样。每组内按使用频率从高到低排。
 
-### 审查 · 验证已有改动（9）
+### 审查 · 验证已有改动（11）
 
-*改完之后对这批改动下手：审、精简、跑起来验、查安全漏洞*
+*改完之后对这批改动下手：审、精简、跑起来验、查安全漏洞、排查出的问题*
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
@@ -73,7 +73,9 @@
 | `/verify` `skill` | ← `/run` → `/debug` | 把项目真的构建并跑起来看结果，而不是只跑测试和类型检查 |
 | `/diff` | → `/code-review` | 打开交互式 diff 查看器，看未提交改动和每轮的改动 |
 | `/security-review` | ← `/diff` → `/verify` | 分析当前分支的改动有没有安全漏洞 |
+| `/debug` `[description]` `skill` | ← `/verify` → `/rewind` | 打开本会话的 debug 日志并读日志排查问题（从敲下这一刻开始记录），可以顺带描述你遇到的现象让它聚焦 |
 | `/run` `skill` | ← `/run-skill-generator` → `/verify` | 启动并操作你的项目，亲眼看改动生效，而不只是测试通过 |
+| `/doctor` `[prompt-audit [path]]` `skill`<br>别名 `/checkup` | → `/status` | 体检安装、设置、扩展和 CLAUDE.md，给出修法，你点头后 Claude 动手改；`prompt-audit` 专查指令里给老模型写的过时写法 |
 | `/review` `[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [pr#|branch|path]` | → `/code-review` | /code-review 的别名，用法和分档完全一样 |
 | `/ultrareview` `[PR or branch]` | ← `/code-review` | 在云端沙箱跑一次深度多 agent 代码审查。现在推荐写成 `/code-review ultra`，这条是它的别名 |
 | `/run-skill-generator` `skill` | → `/run` | 写一个项目专属 skill，教会 /run 和 /verify 怎么构建和启动你的项目 |
@@ -229,14 +231,12 @@
 | `/design-sync` `[hint]` `skill` | — | 把仓库里的 React 设计系统同步到 Claude Design，让产出的设计用你的真实组件 |
 | `/design-login` | — | 为 /design-sync 授权 claude.ai 账号的设计系统访问 |
 
-### Claude Code 出毛病了（5）
+### 报问题 · 内存诊断（3）
 
-*它自己装坏了、卡了、吃内存了 —— 诊断它，再报给官方*
+*把 Claude Code 自己的问题报给官方，或者导出内存快照*
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/doctor` `[prompt-audit [path]]` `skill`<br>别名 `/checkup` | → `/status` | 体检安装、设置、扩展和 CLAUDE.md，给出修法，你点头后 Claude 动手改；`prompt-audit` 专查指令里给老模型写的过时写法 |
-| `/debug` `[description]` `skill` | ← `/verify` → `/rewind` | 打开本会话的 debug 日志并读日志，排查 **Claude Code 自己**出的毛病（从敲下这一刻开始记录） |
 | `/bug` `[report]`<br>别名 `/share` | — | 报 bug 或分享你的对话 |
 | `/feedback` `[report]` | — | 提交对 Claude Code 的产品反馈 |
 | `/heapdump` | — | 导出 JS 堆快照和内存分解，用于排查内存占用过高 |

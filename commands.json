@@ -3,7 +3,7 @@
     "name": "ClaudeCodeCMD",
     "tagline": "Claude Code 内置命令速查 · 126 条全收录",
     "schemaVersion": "0.1.0",
-    "contentVersion": "4.8.0",
+    "contentVersion": "4.9.0",
     "updated": "2026-11-25",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",
@@ -182,6 +182,28 @@
         }
       },
       {
+        "command": "/debug",
+        "args": "[description]",
+        "purpose": "打开本会话的 debug 日志并读日志排查问题（从敲下这一刻开始记录），可以顺带描述你遇到的现象让它聚焦",
+        "kind": "skill",
+        "group": "审查 · 验证已有改动",
+        "source": "table",
+        "pairs": {
+          "before": [
+            {
+              "command": "/verify",
+              "why": "先让它复现失败"
+            }
+          ],
+          "after": [
+            {
+              "command": "/rewind",
+              "why": "查出来是自己改坏的，直接回退"
+            }
+          ]
+        }
+      },
+      {
         "command": "/run",
         "purpose": "启动并操作你的项目，亲眼看改动生效，而不只是测试通过",
         "kind": "skill",
@@ -198,6 +220,25 @@
             {
               "command": "/verify",
               "why": "跑起来之后确认改动真生效"
+            }
+          ]
+        }
+      },
+      {
+        "command": "/doctor",
+        "args": "[prompt-audit [path]]",
+        "purpose": "体检安装、设置、扩展和 CLAUDE.md，给出修法，你点头后 Claude 动手改；`prompt-audit` 专查指令里给老模型写的过时写法",
+        "kind": "skill",
+        "group": "审查 · 验证已有改动",
+        "aliases": [
+          "/checkup"
+        ],
+        "source": "table",
+        "pairs": {
+          "after": [
+            {
+              "command": "/status",
+              "why": "看修完之后的状态"
             }
           ]
         }
@@ -1104,52 +1145,11 @@
         "source": "table"
       },
       {
-        "command": "/doctor",
-        "args": "[prompt-audit [path]]",
-        "purpose": "体检安装、设置、扩展和 CLAUDE.md，给出修法，你点头后 Claude 动手改；`prompt-audit` 专查指令里给老模型写的过时写法",
-        "kind": "skill",
-        "group": "Claude Code 出毛病了",
-        "aliases": [
-          "/checkup"
-        ],
-        "source": "table",
-        "pairs": {
-          "after": [
-            {
-              "command": "/status",
-              "why": "看修完之后的状态"
-            }
-          ]
-        }
-      },
-      {
-        "command": "/debug",
-        "args": "[description]",
-        "purpose": "打开本会话的 debug 日志并读日志，排查 **Claude Code 自己**出的毛病（从敲下这一刻开始记录）",
-        "kind": "skill",
-        "group": "Claude Code 出毛病了",
-        "source": "table",
-        "pairs": {
-          "before": [
-            {
-              "command": "/verify",
-              "why": "先让它复现失败"
-            }
-          ],
-          "after": [
-            {
-              "command": "/rewind",
-              "why": "查出来是自己改坏的，直接回退"
-            }
-          ]
-        }
-      },
-      {
         "command": "/bug",
         "args": "[report]",
         "purpose": "报 bug 或分享你的对话",
         "kind": "builtin",
-        "group": "Claude Code 出毛病了",
+        "group": "报问题 · 内存诊断",
         "aliases": [
           "/share"
         ],
@@ -1160,14 +1160,14 @@
         "args": "[report]",
         "purpose": "提交对 Claude Code 的产品反馈",
         "kind": "builtin",
-        "group": "Claude Code 出毛病了",
+        "group": "报问题 · 内存诊断",
         "source": "table"
       },
       {
         "command": "/heapdump",
         "purpose": "导出 JS 堆快照和内存分解，用于排查内存占用过高",
         "kind": "builtin",
-        "group": "Claude Code 出毛病了",
+        "group": "报问题 · 内存诊断",
         "source": "table"
       },
       {
@@ -1407,7 +1407,7 @@
     "groups": [
       {
         "title": "审查 · 验证已有改动",
-        "why": "改完之后对这批改动下手：审、精简、跑起来验、查安全漏洞"
+        "why": "改完之后对这批改动下手：审、精简、跑起来验、查安全漏洞、排查出的问题"
       },
       {
         "title": "提交 · 盯 PR",
@@ -1450,8 +1450,8 @@
         "why": "产出给人看的东西：页面、设计稿、幻灯片、白板、图表"
       },
       {
-        "title": "Claude Code 出毛病了",
-        "why": "它自己装坏了、卡了、吃内存了 —— 诊断它，再报给官方"
+        "title": "报问题 · 内存诊断",
+        "why": "把 Claude Code 自己的问题报给官方，或者导出内存快照"
       },
       {
         "title": "界面 · 外观 · 快捷键",
