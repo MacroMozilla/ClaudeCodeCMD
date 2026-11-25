@@ -3,7 +3,7 @@
     "name": "ClaudeCodeCMD",
     "tagline": "Claude Code 内置命令速查 · 126 条全收录",
     "schemaVersion": "0.1.0",
-    "contentVersion": "4.7.0",
+    "contentVersion": "4.8.0",
     "updated": "2026-11-25",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",
@@ -49,7 +49,7 @@
     "colPurpose": "说明",
     "kindBuiltin": "内置",
     "groupJumpLead": "你现在要干什么",
-    "builtinLead": "Claude Code **自带**的命令，敲一下就能用。**先按「对项目起什么作用」分组，组内按使用频率从高到低排** —— 真去改项目、找问题的，和只是看一眼状态的，分在不同组。「配对」列写了这条命令**通常跟哪条一起用** —— 点一下跳过去。**已被官方移除的命令一条都没有**，敲下去没反应的不占地方。",
+    "builtinLead": "Claude Code **自带**的命令，敲一下就能用。**先按「对项目起什么作用」分组，组内按使用频率从高到低排** —— 审查已有改动的、切换工作模式的、只是看一眼状态的，各在各的组。「配对」列写了这条命令**通常跟哪条一起用** —— 点一下跳过去。**已被官方移除的命令一条都没有**，敲下去没反应的不占地方。",
     "colCopy": "复制",
     "copyCmd": "复制",
     "copied": "已复制 ✓",
@@ -74,65 +74,11 @@
     "officialDocs": "https://code.claude.com/docs/en/commands",
     "items": [
       {
-        "command": "/plan",
-        "args": "[description]",
-        "purpose": "直接从输入栏进入 plan 模式",
-        "kind": "builtin",
-        "group": "动手改代码",
-        "source": "table",
-        "pairs": {
-          "after": [
-            {
-              "command": "/verify",
-              "why": "按计划做完，逐条验"
-            }
-          ]
-        }
-      },
-      {
-        "command": "/simplify",
-        "args": "[target]",
-        "purpose": "四个 agent 并行看复用/精简/效率/抽象层次，然后直接改。不找 bug",
-        "kind": "skill",
-        "group": "动手改代码",
-        "source": "table",
-        "pairs": {
-          "before": [
-            {
-              "command": "/code-review",
-              "why": "先知道哪些该清理"
-            }
-          ],
-          "after": [
-            {
-              "command": "/verify",
-              "why": "它直接改代码，改完立刻验"
-            }
-          ]
-        }
-      },
-      {
-        "command": "/batch",
-        "args": "<instruction>",
-        "purpose": "把大规模改动拆成 5-30 个独立单元并行做，每个单元一个 worktree + 一个 PR",
-        "kind": "skill",
-        "group": "动手改代码",
-        "source": "table",
-        "pairs": {
-          "after": [
-            {
-              "command": "/verify",
-              "why": "并行改完统一验一遍"
-            }
-          ]
-        }
-      },
-      {
         "command": "/code-review",
         "args": "[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [--max-findings n|all|default] [pr#|branch|path]",
         "purpose": "审当前 diff（或指定 PR / 分支 / 路径）的正确性 bug 与可清理处，支持 --fix",
         "kind": "skill",
-        "group": "审查 · 验证 · 找 bug",
+        "group": "审查 · 验证已有改动",
         "aliases": [
           "/ship:review"
         ],
@@ -157,10 +103,32 @@
         }
       },
       {
+        "command": "/simplify",
+        "args": "[target]",
+        "purpose": "四个 agent 并行看复用/精简/效率/抽象层次，然后直接改。不找 bug",
+        "kind": "skill",
+        "group": "审查 · 验证已有改动",
+        "source": "table",
+        "pairs": {
+          "before": [
+            {
+              "command": "/code-review",
+              "why": "先知道哪些该清理"
+            }
+          ],
+          "after": [
+            {
+              "command": "/verify",
+              "why": "它直接改代码，改完立刻验"
+            }
+          ]
+        }
+      },
+      {
         "command": "/verify",
         "purpose": "把项目真的构建并跑起来看结果，而不是只跑测试和类型检查",
         "kind": "skill",
-        "group": "审查 · 验证 · 找 bug",
+        "group": "审查 · 验证已有改动",
         "source": "table",
         "pairs": {
           "before": [
@@ -181,7 +149,7 @@
         "command": "/diff",
         "purpose": "打开交互式 diff 查看器，看未提交改动和每轮的改动",
         "kind": "builtin",
-        "group": "审查 · 验证 · 找 bug",
+        "group": "审查 · 验证已有改动",
         "source": "table",
         "pairs": {
           "after": [
@@ -193,10 +161,31 @@
         }
       },
       {
+        "command": "/security-review",
+        "purpose": "分析当前分支的改动有没有安全漏洞",
+        "kind": "builtin",
+        "group": "审查 · 验证已有改动",
+        "source": "table",
+        "pairs": {
+          "before": [
+            {
+              "command": "/diff",
+              "why": "它只审 diff，先确认 diff 是你要的"
+            }
+          ],
+          "after": [
+            {
+              "command": "/verify",
+              "why": "安全修完照样要验"
+            }
+          ]
+        }
+      },
+      {
         "command": "/run",
         "purpose": "启动并操作你的项目，亲眼看改动生效，而不只是测试通过",
         "kind": "skill",
-        "group": "审查 · 验证 · 找 bug",
+        "group": "审查 · 验证已有改动",
         "source": "table",
         "pairs": {
           "before": [
@@ -218,7 +207,7 @@
         "args": "[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [pr#|branch|path]",
         "purpose": "/code-review 的别名，用法和分档完全一样",
         "kind": "builtin",
-        "group": "审查 · 验证 · 找 bug",
+        "group": "审查 · 验证已有改动",
         "source": "table",
         "pairs": {
           "after": [
@@ -230,32 +219,11 @@
         }
       },
       {
-        "command": "/security-review",
-        "purpose": "分析当前分支的改动有没有安全漏洞",
-        "kind": "builtin",
-        "group": "审查 · 验证 · 找 bug",
-        "source": "table",
-        "pairs": {
-          "before": [
-            {
-              "command": "/diff",
-              "why": "它只审 diff，先确认 diff 是你要的"
-            }
-          ],
-          "after": [
-            {
-              "command": "/verify",
-              "why": "安全修完照样要验"
-            }
-          ]
-        }
-      },
-      {
         "command": "/ultrareview",
         "args": "[PR or branch]",
         "purpose": "在云端沙箱跑一次深度多 agent 代码审查。现在推荐写成 `/code-review ultra`，这条是它的别名",
         "kind": "builtin",
-        "group": "审查 · 验证 · 找 bug",
+        "group": "审查 · 验证已有改动",
         "source": "table",
         "pairs": {
           "before": [
@@ -270,7 +238,7 @@
         "command": "/run-skill-generator",
         "purpose": "写一个项目专属 skill，教会 /run 和 /verify 怎么构建和启动你的项目",
         "kind": "skill",
-        "group": "审查 · 验证 · 找 bug",
+        "group": "审查 · 验证已有改动",
         "source": "table",
         "pairs": {
           "after": [
@@ -365,6 +333,85 @@
         "purpose": "把当前对话复制到一个新的后台会话，两边从此独立",
         "kind": "builtin",
         "group": "改坏了回退",
+        "source": "table"
+      },
+      {
+        "command": "/plan",
+        "args": "[description]",
+        "purpose": "直接从输入栏进入 plan 模式",
+        "kind": "builtin",
+        "group": "模式 · 模型",
+        "source": "table",
+        "pairs": {
+          "after": [
+            {
+              "command": "/verify",
+              "why": "按计划做完，逐条验"
+            }
+          ]
+        }
+      },
+      {
+        "command": "/model",
+        "args": "[model]",
+        "purpose": "切换模型，并存为新会话的默认",
+        "kind": "builtin",
+        "group": "模式 · 模型",
+        "source": "table",
+        "pairs": {
+          "after": [
+            {
+              "command": "/effort",
+              "why": "换完模型顺手调思考力度"
+            }
+          ]
+        }
+      },
+      {
+        "command": "/effort",
+        "args": "[level|auto|status|ultracode [on|off]]",
+        "purpose": "设置思考力度（low 到 xhigh、max、auto）；`status` 看当前档，`ultracode` 开关 ultracode",
+        "kind": "builtin",
+        "group": "模式 · 模型",
+        "source": "table",
+        "pairs": {
+          "before": [
+            {
+              "command": "/model",
+              "why": "先定模型再定力度"
+            }
+          ]
+        }
+      },
+      {
+        "command": "/fast",
+        "args": "[on|off]",
+        "purpose": "开关快速模式（仍是 Opus，只是输出更快，不降级到小模型）",
+        "kind": "builtin",
+        "group": "模式 · 模型",
+        "source": "table"
+      },
+      {
+        "command": "/output-style",
+        "args": "[style]",
+        "purpose": "列出或切换输出风格，比如 `/output-style concise`（v2.1.269 起重新上线）",
+        "kind": "builtin",
+        "group": "模式 · 模型",
+        "source": "table"
+      },
+      {
+        "command": "/advisor",
+        "args": "[model|off]",
+        "purpose": "开关顾问工具：在关键节点让第二个模型给建议",
+        "kind": "builtin",
+        "group": "模式 · 模型",
+        "source": "table"
+      },
+      {
+        "command": "/sandbox",
+        "purpose": "开关沙箱模式",
+        "kind": "builtin",
+        "group": "模式 · 模型",
         "source": "table"
       },
       {
@@ -526,6 +573,22 @@
         }
       },
       {
+        "command": "/batch",
+        "args": "<instruction>",
+        "purpose": "把大规模改动拆成 5-30 个独立单元并行做，每个单元一个 worktree + 一个 PR",
+        "kind": "skill",
+        "group": "后台 · 并行 · 定时",
+        "source": "table",
+        "pairs": {
+          "after": [
+            {
+              "command": "/verify",
+              "why": "并行改完统一验一遍"
+            }
+          ]
+        }
+      },
+      {
         "command": "/loop",
         "args": "[interval] [prompt]",
         "purpose": "让一个提示词按间隔反复跑；不给间隔则由 Claude 自己掌握节奏",
@@ -657,69 +720,6 @@
           "/ios",
           "/android"
         ],
-        "source": "table"
-      },
-      {
-        "command": "/model",
-        "args": "[model]",
-        "purpose": "切换模型，并存为新会话的默认",
-        "kind": "builtin",
-        "group": "模型 · 模式",
-        "source": "table",
-        "pairs": {
-          "after": [
-            {
-              "command": "/effort",
-              "why": "换完模型顺手调思考力度"
-            }
-          ]
-        }
-      },
-      {
-        "command": "/effort",
-        "args": "[level|auto|status|ultracode [on|off]]",
-        "purpose": "设置思考力度（low 到 xhigh、max、auto）；`status` 看当前档，`ultracode` 开关 ultracode",
-        "kind": "builtin",
-        "group": "模型 · 模式",
-        "source": "table",
-        "pairs": {
-          "before": [
-            {
-              "command": "/model",
-              "why": "先定模型再定力度"
-            }
-          ]
-        }
-      },
-      {
-        "command": "/fast",
-        "args": "[on|off]",
-        "purpose": "开关快速模式（仍是 Opus，只是输出更快，不降级到小模型）",
-        "kind": "builtin",
-        "group": "模型 · 模式",
-        "source": "table"
-      },
-      {
-        "command": "/output-style",
-        "args": "[style]",
-        "purpose": "列出或切换输出风格，比如 `/output-style concise`（v2.1.269 起重新上线）",
-        "kind": "builtin",
-        "group": "模型 · 模式",
-        "source": "table"
-      },
-      {
-        "command": "/advisor",
-        "args": "[model|off]",
-        "purpose": "开关顾问工具：在关键节点让第二个模型给建议",
-        "kind": "builtin",
-        "group": "模型 · 模式",
-        "source": "table"
-      },
-      {
-        "command": "/sandbox",
-        "purpose": "开关沙箱模式",
-        "kind": "builtin",
-        "group": "模型 · 模式",
         "source": "table"
       },
       {
@@ -1406,12 +1406,8 @@
     "caveat": "官方那张「All commands」表并不完整 —— /todos、/env、/buddy 只在 changelog 里出现过；表里同时留着 /vim 这种「已于 v2.1.92 移除」的墓碑行，本页把它们清掉了。内置命令随版本、套餐和平台变化，以你本地 /help 输出为准。",
     "groups": [
       {
-        "title": "动手改代码",
-        "why": "让 Claude 直接改你的项目：先定方案，再改、批量改、清理"
-      },
-      {
-        "title": "审查 · 验证 · 找 bug",
-        "why": "找出项目里的问题：审改动、跑起来验、查漏洞"
+        "title": "审查 · 验证已有改动",
+        "why": "改完之后对这批改动下手：审、精简、跑起来验、查安全漏洞"
       },
       {
         "title": "提交 · 盯 PR",
@@ -1422,20 +1418,20 @@
         "why": "后悔药：回到某个点，或者另开一条路试"
       },
       {
+        "title": "模式 · 模型",
+        "why": "切换工作方式：先规划再动手、换模型、调思考深浅、换回答风格、开沙箱"
+      },
+      {
         "title": "上下文 · 对话",
         "why": "写着写着变慢变笨，用这几条腾地方；顺手问一句、把回复拿走"
       },
       {
         "title": "后台 · 并行 · 定时",
-        "why": "把活丢出去，你继续干别的"
+        "why": "把活丢出去并行跑，你继续干别的"
       },
       {
         "title": "会话 · 换设备",
         "why": "同一段对话换个时间、换台机器接着聊"
-      },
-      {
-        "title": "模型 · 模式",
-        "why": "调快慢、调深浅、换回答风格、开沙箱"
       },
       {
         "title": "只看不改：状态 · 用量",
