@@ -1,9 +1,9 @@
 {
   "meta": {
     "name": "ClaudeCodeCMD",
-    "tagline": "Claude Code 内置命令速查 · 126 条全收录",
+    "tagline": "Claude Code 内置命令速查 · 122 条全收录",
     "schemaVersion": "0.1.0",
-    "contentVersion": "4.10.0",
+    "contentVersion": "4.11.0",
     "updated": "2026-11-25",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",
@@ -49,7 +49,7 @@
     "colPurpose": "说明",
     "kindBuiltin": "内置",
     "groupJumpLead": "你现在要干什么",
-    "builtinLead": "Claude Code **自带**的命令，敲一下就能用。**同一类的放一组，组内按使用频率排**；最上面那 4 条是改完代码推荐的检查顺序。「配对」列写了这条命令**通常跟哪条一起用** —— 点一下跳过去。**已被官方移除的命令一条都没有**，敲下去没反应的不占地方。",
+    "builtinLead": "Claude Code **自带**的命令，敲一下就能用。**同一类的放一组，组内按使用频率排**；最上面那 4 条是改完代码推荐的检查顺序。「配对」列是这条命令通常所在的那一串，**高亮的就是它自己** —— 点别的命令跳过去。别名写在说明后面。**已被官方移除的命令一条都没有**。",
     "colCopy": "复制",
     "copyCmd": "复制",
     "copied": "已复制 ✓",
@@ -64,22 +64,24 @@
       "id": "builtin",
       "index": "",
       "title": "Claude Code 内置命令",
-      "subtitle": "126 条 + 23 个别名",
+      "subtitle": "122 条 + 27 个别名",
       "kind": "table"
     }
   ],
   "builtins": {
     "status": "filled",
-    "reason": "共 126 条（内置 99 · bundled skill 26 · workflow 1），另含 23 个别名、2 个旧名。**已经被官方移除的命令不收** —— 这里每一条都是当前版本敲下去有反应的。其中 4 条**不在官方「All commands」表里**。",
+    "reason": "共 122 条（内置 95 · bundled skill 26 · workflow 1），另含 27 个别名、2 个旧名。别名不单独占一行，写在主命令的说明后面。**已经被官方移除的命令不收** —— 这里每一条都是当前版本敲下去有反应的。其中 4 条**不在官方「All commands」表里**。",
     "officialDocs": "https://code.claude.com/docs/en/commands",
     "items": [
       {
         "command": "/code-review",
         "args": "[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [--max-findings n|all|default] [pr#|branch|path]",
-        "purpose": "审当前 diff（或指定 PR / 分支 / 路径）的正确性 bug 与可清理处，支持 --fix",
+        "purpose": "审当前 diff（或指定 PR / 分支 / 路径）的正确性 bug 与可清理处，`--fix` 直接改；`ultra` 档在云端沙箱跑深度多 agent 审查（`/ultrareview` 就是 `/code-review ultra`）",
         "kind": "skill",
         "group": "审查改动：推荐按这个顺序跑",
         "aliases": [
+          "/review",
+          "/ultrareview",
           "/ship:review"
         ],
         "source": "table",
@@ -177,38 +179,6 @@
             {
               "command": "/code-review",
               "why": "看完改了啥，再让它挑毛病"
-            }
-          ]
-        }
-      },
-      {
-        "command": "/review",
-        "args": "[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [pr#|branch|path]",
-        "purpose": "/code-review 的别名，用法和分档完全一样",
-        "kind": "builtin",
-        "group": "审查的其他方式 · 跑起来看",
-        "source": "table",
-        "pairs": {
-          "after": [
-            {
-              "command": "/code-review",
-              "why": "要更深就换多 agent 版"
-            }
-          ]
-        }
-      },
-      {
-        "command": "/ultrareview",
-        "args": "[PR or branch]",
-        "purpose": "在云端沙箱跑一次深度多 agent 代码审查。现在推荐写成 `/code-review ultra`，这条是它的别名",
-        "kind": "builtin",
-        "group": "审查的其他方式 · 跑起来看",
-        "source": "table",
-        "pairs": {
-          "before": [
-            {
-              "command": "/code-review",
-              "why": "本地先过一遍，别拿云端跑显然的问题"
             }
           ]
         }
@@ -798,7 +768,7 @@
       },
       {
         "command": "/usage",
-        "purpose": "查看会话花费、套餐额度和活动统计",
+        "purpose": "查看会话花费、套餐额度和活动统计（`/stats` 直接打开统计页）",
         "kind": "builtin",
         "group": "只看不改：状态 · 用量",
         "source": "table",
@@ -809,21 +779,11 @@
               "why": "额度不够时申请"
             }
           ]
-        }
-      },
-      {
-        "command": "/cost",
-        "purpose": "/usage 的别名",
-        "kind": "builtin",
-        "group": "只看不改：状态 · 用量",
-        "source": "table"
-      },
-      {
-        "command": "/stats",
-        "purpose": "/usage 的别名",
-        "kind": "builtin",
-        "group": "只看不改：状态 · 用量",
-        "source": "table"
+        },
+        "aliases": [
+          "/cost",
+          "/stats"
+        ]
       },
       {
         "command": "/help",

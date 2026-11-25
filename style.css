@@ -417,16 +417,16 @@ table.builtins td:first-child { width: 17rem; }
 
 /* ── ① 内置命令主表 ─────────────────────────────────── */
 
-col.w-bicmd   { width: 21rem; }
+col.w-bicmd   { width: 18rem; }
 col.w-bicopy  { width: 4.5rem; }
-col.w-bipairs { width: 15rem; }
+col.w-bipairs { width: 21rem; }
 
 /* 卡片各有一张表，必须都用固定布局 + 同一套列宽，列才对得齐 */
 table.bi-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 table.bi-table td { vertical-align: top; }
 /* 超长参数串（/code-review 那种）单行省略，鼠标悬停看全，避免把行撑成四行 */
 td.c-bicmd { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-td.c-bipairs { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .76rem; }
+td.c-bipairs { white-space: normal; font-size: .76rem; line-height: 1.55; }
 td.c-bicopy, th.c-bicopy { text-align: left; padding-left: .3rem; }
 .bi-alias-wrap { margin-left: .3rem; }
 tr.bi-row td { padding: .22rem .6rem; }
@@ -565,3 +565,13 @@ tr.bi-row td { padding-inline: .85rem; }
   .gc-why { flex-basis: 100%; margin-left: 0; }
 }
 
+
+/* ── 配对写成一串，自己高亮；别名跟在说明后面 ───────── */
+.pair-chain .arr, .pair-chain .pair-or { color: var(--fg-faint); }
+.pair-self {
+  color: var(--accent); font-weight: 700; font-family: var(--mono);
+  background: var(--accent-soft); border-radius: 4px; padding: 0 .25rem;
+}
+.bi-aka { color: var(--fg-faint); font-size: .76rem; white-space: nowrap; margin-left: .2rem; }
+.bi-aka .bi-alias { margin-left: .15rem; }
+.pair-chain .pair-mini, .pair-self { white-space: nowrap; }
