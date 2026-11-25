@@ -4,7 +4,7 @@
 
 **https://macromozilla.github.io/ClaudeCodeCMD/**
 
-**126 条命令 + 23 个别名**，每条写清楚是干嘛的，标出**通常跟哪条配着用**，一键复制。
+**122 条命令 + 27 个别名**，每条写清楚是干嘛的，标出**通常跟哪条配着用**，一键复制。
 
 这些命令 Claude Code **自带**，敲一下就能用 —— 不用装。
 
@@ -25,13 +25,13 @@
 ```
 组的先后也大致按写代码时碰到的频率排。
 
-**43 条配对关系**标在「配对」列：`←` 是先跑什么，`→` 是接着跑什么。比如：
+**41 条配对关系**写在「配对」列，是这条命令通常所在的那一串，**加粗的就是它自己**，`/` 表示几条里任选一条：
 
 ```
-  /code-review     ←/diff →/simplify
-  /simplify        ←/code-review →/security-review
-  /security-review ←/simplify →/verify
-  /verify          ←/security-review ←/run-skill-generator →/ship
+/diff → */code-review* → /simplify
+/code-review → */simplify* → /security-review
+/simplify → */security-review* → /verify
+/security-review / /run-skill-generator → */verify* → /ship
 ```
 鼠标悬停在配对上能看到**为什么**要这么配。
 
@@ -50,7 +50,7 @@
 | `/plugins` | vs-code 文档 |
 | `/buddy` | changelog |
 
-另外 **23 个别名**（`/undo` `/checkup` `/proactive` `/settings` …）写在官方表格的描述文字里，只读表格首列会全漏。
+另外 **27 个别名**（`/undo` `/checkup` `/proactive` `/settings` …）写在官方表格的描述文字里，只读表格首列会全漏。
 
 **多的：**官方表里还留着 `/vim`「Removed in v2.1.92」这样的墓碑行。本页把已经被移除的命令**整条删掉**了 —— `/tag` `/pr-comments` `/vim` `/ultraplan` 都不在这张表里（`/output-style` 在 v2.1.269 重新上线了，所以又收回来了）。**这里每一条都是当前版本敲下去有反应的。**
 
@@ -60,7 +60,7 @@
 
 ## 全部命令
 
-`skill` = bundled skill（本质是提示词，Claude 可能自己触发，会被同名自定义文件覆盖）· `workflow` = 多 agent 编排 · **`表外`** = 官方表未收录。别名和主名效果一样。每组内按使用频率从高到低排。
+`skill` = bundled skill（本质是提示词，Claude 可能自己触发，会被同名自定义文件覆盖）· `workflow` = 多 agent 编排 · **`表外`** = 官方表未收录。别名和主名效果一样，写在说明后面。「配对」里加粗的是这条命令自己。每组内按使用频率从高到低排。
 
 ### 审查改动：推荐按这个顺序跑（4）
 
@@ -68,22 +68,20 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/code-review` `[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [--max-findings n|all|default] [pr#|branch|path]` `skill`<br>别名 `/ship:review` | ← `/diff` → `/simplify` | 审当前 diff（或指定 PR / 分支 / 路径）的正确性 bug 与可清理处，支持 --fix |
-| `/simplify` `[target]` `skill` | ← `/code-review` → `/security-review` | 四个 agent 并行看复用/精简/效率/抽象层次，然后直接改。不找 bug |
-| `/security-review` | ← `/simplify` → `/verify` | 分析当前分支的改动有没有安全漏洞 |
-| `/verify` `skill` | ← `/security-review` ← `/run-skill-generator` → `/ship` | 把项目真的构建并跑起来看结果，而不是只跑测试和类型检查 |
+| `/code-review` `[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [--max-findings n|all|default] [pr#|branch|path]` `skill` | `/diff` → **`/code-review`** → `/simplify` | 审当前 diff（或指定 PR / 分支 / 路径）的正确性 bug 与可清理处，`--fix` 直接改；`ultra` 档在云端沙箱跑深度多 agent 审查（`/ultrareview` 就是 `/code-review ultra`） · 别名 `/review` `/ultrareview` `/ship:review` |
+| `/simplify` `[target]` `skill` | `/code-review` → **`/simplify`** → `/security-review` | 四个 agent 并行看复用/精简/效率/抽象层次，然后直接改。不找 bug |
+| `/security-review` | `/simplify` → **`/security-review`** → `/verify` | 分析当前分支的改动有没有安全漏洞 |
+| `/verify` `skill` | `/security-review` / `/run-skill-generator` → **`/verify`** → `/ship` | 把项目真的构建并跑起来看结果，而不是只跑测试和类型检查 |
 
-### 审查的其他方式 · 跑起来看（5）
+### 审查的其他方式 · 跑起来看（3）
 
 *看改了什么、换一种审法、把项目跑起来*
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/diff` | → `/code-review` | 打开交互式 diff 查看器，看未提交改动和每轮的改动 |
-| `/review` `[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [pr#|branch|path]` | → `/code-review` | /code-review 的别名，用法和分档完全一样 |
-| `/ultrareview` `[PR or branch]` | ← `/code-review` | 在云端沙箱跑一次深度多 agent 代码审查。现在推荐写成 `/code-review ultra`，这条是它的别名 |
-| `/run` `skill` | ← `/run-skill-generator` → `/verify` | 启动并操作你的项目，亲眼看改动生效，而不只是测试通过 |
-| `/run-skill-generator` `skill` | → `/run` | 写一个项目专属 skill，教会 /run 和 /verify 怎么构建和启动你的项目 |
+| `/diff` | **`/diff`** → `/code-review` | 打开交互式 diff 查看器，看未提交改动和每轮的改动 |
+| `/run` `skill` | `/run-skill-generator` → **`/run`** → `/verify` | 启动并操作你的项目，亲眼看改动生效，而不只是测试通过 |
+| `/run-skill-generator` `skill` | **`/run-skill-generator`** → `/run` | 写一个项目专属 skill，教会 /run 和 /verify 怎么构建和启动你的项目 |
 
 ### 提交 · 盯 PR（3）
 
@@ -91,8 +89,8 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/ship` `[level] [pr] [+bot]` `skill` | ← `/verify` | 一条龙：提交推送、没有 PR 就开一个、先审一遍，然后在本会话盯着 PR，评审意见和挂掉的 CI 自动推修复。`/ship stop` 停止 |
-| `/steward` `[pr] [+bot]` `skill`<br>别名 `/ship:steward` | ← `/code-review` | 只盯 PR：评审意见和挂掉的 CI 自动推修复，不像 `/ship` 那样先审一遍。`/steward stop` 停止 |
+| `/ship` `[level] [pr] [+bot]` `skill` | `/verify` → **`/ship`** | 一条龙：提交推送、没有 PR 就开一个、先审一遍，然后在本会话盯着 PR，评审意见和挂掉的 CI 自动推修复。`/ship stop` 停止 |
+| `/steward` `[pr] [+bot]` `skill` | `/code-review` → **`/steward`** | 只盯 PR：评审意见和挂掉的 CI 自动推修复，不像 `/ship` 那样先审一遍。`/steward stop` 停止 · 别名 `/ship:steward` |
 | `/autofix-pr` `[prompt]` | — | 开一个云端会话盯着当前分支的 PR，CI 挂了或有评论就自动推修复 |
 
 ### 排查 · 报问题（5）
@@ -101,10 +99,10 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/debug` `[description]` `skill` | ← `/verify` → `/rewind` | 打开本会话的 debug 日志并读日志排查问题（从敲下这一刻开始记录），可以顺带描述你遇到的现象让它聚焦 |
-| `/doctor` `[prompt-audit [path]]` `skill`<br>别名 `/checkup` | → `/status` | 体检安装、设置、扩展和 CLAUDE.md，给出修法，你点头后 Claude 动手改；`prompt-audit` 专查指令里给老模型写的过时写法 |
+| `/debug` `[description]` `skill` | `/verify` → **`/debug`** → `/rewind` | 打开本会话的 debug 日志并读日志排查问题（从敲下这一刻开始记录），可以顺带描述你遇到的现象让它聚焦 |
+| `/doctor` `[prompt-audit [path]]` `skill` | **`/doctor`** → `/status` | 体检安装、设置、扩展和 CLAUDE.md，给出修法，你点头后 Claude 动手改；`prompt-audit` 专查指令里给老模型写的过时写法 · 别名 `/checkup` |
 | `/heapdump` | — | 导出 JS 堆快照和内存分解，用于排查内存占用过高 |
-| `/bug` `[report]`<br>别名 `/share` | — | 报 bug 或分享你的对话 |
+| `/bug` `[report]` | — | 报 bug 或分享你的对话 · 别名 `/share` |
 | `/feedback` `[report]` | — | 提交对 Claude Code 的产品反馈 |
 
 ### 改坏了回退（3）
@@ -113,8 +111,8 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/rewind`<br>别名 `/checkpoint` `/undo` | → `/diff` | 把对话和/或代码回滚到之前某个检查点 |
-| `/branch` `[name]` | → `/rewind` | 在当前这一点分叉出一条对话，换个方向试而不丢原来的 |
+| `/rewind` | **`/rewind`** → `/diff` | 把对话和/或代码回滚到之前某个检查点 · 别名 `/checkpoint` `/undo` |
+| `/branch` `[name]` | **`/branch`** → `/rewind` | 在当前这一点分叉出一条对话，换个方向试而不丢原来的 |
 | `/fork` `[prompt]` | — | 把当前对话复制到一个新的后台会话，两边从此独立 |
 
 ### 模式 · 模型（7）
@@ -123,9 +121,9 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/plan` `[description]` | → `/verify` | 直接从输入栏进入 plan 模式 |
-| `/model` `[model]` | → `/effort` | 切换模型，并存为新会话的默认 |
-| `/effort` `[level|auto|status|ultracode [on|off]]` | ← `/model` | 设置思考力度（low 到 xhigh、max、auto）；`status` 看当前档，`ultracode` 开关 ultracode |
+| `/plan` `[description]` | **`/plan`** → `/verify` | 直接从输入栏进入 plan 模式 |
+| `/model` `[model]` | **`/model`** → `/effort` | 切换模型，并存为新会话的默认 |
+| `/effort` `[level|auto|status|ultracode [on|off]]` | `/model` → **`/effort`** | 设置思考力度（low 到 xhigh、max、auto）；`status` 看当前档，`ultracode` 开关 ultracode |
 | `/fast` `[on|off]` | — | 开关快速模式（仍是 Opus，只是输出更快，不降级到小模型） |
 | `/advisor` `[model|off]` | — | 开关顾问工具：在关键节点让第二个模型给建议 |
 | `/output-style` `[style]` | — | 列出或切换输出风格，比如 `/output-style concise`（v2.1.269 起重新上线） |
@@ -137,10 +135,10 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/clear` `[name]`<br>别名 `/reset` `/new` | ← `/recap` | 清空上下文，开一段新对话 |
-| `/compact` `[instructions]` | ← `/context` → `/clear` | 把已有对话总结压缩，腾出上下文空间 |
-| `/context` `[all]` | → `/compact` | 用彩色方格图看当前上下文占用情况 |
-| `/autocompact` `[auto|<tokens>]` | → `/context` | 设置自动压缩的触发点（上下文占到多满时自动压） |
+| `/clear` `[name]` | `/recap` → **`/clear`** | 清空上下文，开一段新对话 · 别名 `/reset` `/new` |
+| `/compact` `[instructions]` | `/context` → **`/compact`** → `/clear` | 把已有对话总结压缩，腾出上下文空间 |
+| `/context` `[all]` | **`/context`** → `/compact` | 用彩色方格图看当前上下文占用情况 |
+| `/autocompact` `[auto|<tokens>]` | **`/autocompact`** → `/context` | 设置自动压缩的触发点（上下文占到多满时自动压） |
 | `/btw` `[question]` | — | 问个不进入对话历史的临时问题 |
 | `/recap` | — | 生成当前会话的一行摘要 |
 | `/copy` `[N]` | — | 复制上一条回复到剪贴板 |
@@ -152,16 +150,16 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/background` `[prompt]`<br>别名 `/bg` | → `/tasks` | 把当前会话转成后台 agent，腾出这个终端 |
-| `/tasks`<br>别名 `/bashes` | → `/stop` | 查看和管理本会话的后台任务，含已完成的子 agent |
+| `/background` `[prompt]` | **`/background`** → `/tasks` | 把当前会话转成后台 agent，腾出这个终端 · 别名 `/bg` |
+| `/tasks` | **`/tasks`** → `/stop` | 查看和管理本会话的后台任务，含已完成的子 agent · 别名 `/bashes` |
 | `/stop` | — | 停掉当前挂着的后台会话，对话记录和 worktree 都保留 |
-| `/list-agents`<br>别名 `/peers` | — | 列出 Claude 能发消息的子 agent、团队队友和其他 Claude Code 会话，以及各自的名字 |
-| `/subtask` `<task>` | → `/tasks` | 派一个继承完整对话的后台子 agent 去干活，你继续干你的 |
-| `/batch` `<instruction>` `skill` | → `/verify` | 把大规模改动拆成 5-30 个独立单元并行做，每个单元一个 worktree + 一个 PR |
+| `/list-agents` | — | 列出 Claude 能发消息的子 agent、团队队友和其他 Claude Code 会话，以及各自的名字 · 别名 `/peers` |
+| `/subtask` `<task>` | **`/subtask`** → `/tasks` | 派一个继承完整对话的后台子 agent 去干活，你继续干你的 |
+| `/batch` `<instruction>` `skill` | **`/batch`** → `/verify` | 把大规模改动拆成 5-30 个独立单元并行做，每个单元一个 worktree + 一个 PR |
 | `/workflows` | — | 打开 workflow 进度视图，可暂停/恢复/保存正在跑的编排 |
-| `/loop` `[interval] [prompt]` `skill`<br>别名 `/proactive` | — | 让一个提示词按间隔反复跑；不给间隔则由 Claude 自己掌握节奏 |
+| `/loop` `[interval] [prompt]` `skill` | — | 让一个提示词按间隔反复跑；不给间隔则由 Claude 自己掌握节奏 · 别名 `/proactive` |
 | `/goal` `[condition|clear]` | — | 设一个目标，Claude 会跨多轮一直做到条件满足 |
-| `/schedule` `[description]`<br>别名 `/routines` | — | 创建 / 更新 / 列出 / 立即运行云端定时任务（以前叫 Routine） |
+| `/schedule` `[description]` | — | 创建 / 更新 / 列出 / 立即运行云端定时任务（以前叫 Routine） · 别名 `/routines` |
 
 ### 会话 · 换设备（8）
 
@@ -169,25 +167,23 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/resume` `[session]`<br>别名 `/continue` | — | 按 ID 或名字恢复之前的对话，或打开会话选择器 |
+| `/resume` `[session]` | — | 按 ID 或名字恢复之前的对话，或打开会话选择器 · 别名 `/continue` |
 | `/rename` `[name]` | — | 给当前会话改名，名字会显示在输入栏上 |
-| `/exit`<br>别名 `/quit` | — | 退出 CLI |
-| `/restart`<br>别名 `/update` | — | 重启 Claude Code 并接着这个会话，用来装上已下好的更新。**别和 `/upgrade` 搞混** —— 那个是升套餐 |
-| `/teleport`<br>别名 `/tp` | — | 把一个 Claude Code on the web 会话拉到这个终端里继续 |
-| `/remote-control`<br>别名 `/rc` | — | 让这个会话可以从 claude.ai 远程控制 |
-| `/desktop`<br>别名 `/app` | — | 把当前会话转到 Claude Code 桌面版继续 |
-| `/mobile`<br>别名 `/ios` `/android` | — | 显示下载 Claude 手机 App 的二维码 |
+| `/exit` | — | 退出 CLI · 别名 `/quit` |
+| `/restart` | — | 重启 Claude Code 并接着这个会话，用来装上已下好的更新。**别和 `/upgrade` 搞混** —— 那个是升套餐 · 别名 `/update` |
+| `/teleport` | — | 把一个 Claude Code on the web 会话拉到这个终端里继续 · 别名 `/tp` |
+| `/remote-control` | — | 让这个会话可以从 claude.ai 远程控制 · 别名 `/rc` |
+| `/desktop` | — | 把当前会话转到 Claude Code 桌面版继续 · 别名 `/app` |
+| `/mobile` | — | 显示下载 Claude 手机 App 的二维码 · 别名 `/ios` `/android` |
 
-### 只看不改：状态 · 用量（8）
+### 只看不改：状态 · 用量（6）
 
 *只是查看，不动项目，也不动设置*
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
 | `/status` | — | 打开设置的状态页：版本、模型、账号、连通性 |
-| `/usage` | → `/usage-credits` | 查看会话花费、套餐额度和活动统计 |
-| `/cost` | — | /usage 的别名 |
-| `/stats` | — | /usage 的别名 |
+| `/usage` | **`/usage`** → `/usage-credits` | 查看会话花费、套餐额度和活动统计（`/stats` 直接打开统计页） · 别名 `/cost` `/stats` |
 | `/help` | — | 显示帮助和可用命令 —— 你本地的这份才是最终依据 |
 | `/release-notes` | — | 在交互式版本选择器里看更新日志 |
 | `/insights` | — | 分析你的使用记录，生成项目领域、交互模式、卡点报告 |
@@ -199,12 +195,12 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/init` | → `/memory` | 为项目生成 CLAUDE.md 指南 |
+| `/init` | **`/init`** → `/memory` | 为项目生成 CLAUDE.md 指南 |
 | `/memory` | — | 编辑 CLAUDE.md 记忆文件，开关自动记忆并查看条目 |
-| `/permissions`<br>别名 `/allowed-tools` | → `/fewer-permission-prompts` | 管理工具权限的 allow / ask / deny 规则 |
-| `/fewer-permission-prompts` `skill`<br>旧名 `/less-permission-prompts` | ← `/permissions` | 扫描历史里常用的只读命令，写进项目 settings.json 的白名单，减少批准弹窗 |
+| `/permissions` | **`/permissions`** → `/fewer-permission-prompts` | 管理工具权限的 allow / ask / deny 规则 · 别名 `/allowed-tools` |
+| `/fewer-permission-prompts` `skill` | `/permissions` → **`/fewer-permission-prompts`** | 扫描历史里常用的只读命令，写进项目 settings.json 的白名单，减少批准弹窗 · 旧名 `/less-permission-prompts` |
 | `/auto-mode-setup` | — | 读你的项目和最近的会话，起草 auto mode 的环境说明，你审过后存进用户设置 |
-| `/config` `[key=value ...]`<br>别名 `/settings` | — | 打开设置界面，调主题、模型、输出风格等 |
+| `/config` `[key=value ...]` | — | 打开设置界面，调主题、模型、输出风格等 · 别名 `/settings` |
 | `/update-config` `[request]` `skill` | — | 用一句话描述设置改动（放行某条命令、设环境变量、加 hook），Claude 去改对应的 settings.json |
 | `/env` **`表外`** | — | 设置环境变量，影响 Bash 与 PowerShell 工具执行的命令（v2.1.89 起也作用于 PowerShell）。 |
 | `/hooks` | — | 查看工具事件的 hook 配置 |
@@ -218,11 +214,11 @@
 
 | 命令 | 配对 | 说明 |
 |---|---|---|
-| `/mcp` `[reconnect <server>|enable|disable [<server>|all]]` | → `/reload-plugins` | 管理 MCP 服务连接与 OAuth 授权 |
-| `/skills` | → `/reload-skills` | 列出可用的 skill |
+| `/mcp` `[reconnect <server>|enable|disable [<server>|all]]` | **`/mcp`** → `/reload-plugins` | 管理 MCP 服务连接与 OAuth 授权 |
+| `/skills` | **`/skills`** → `/reload-skills` | 列出可用的 skill |
 | `/reload-skills` | — | 重新扫描 skill 和命令目录，让会话中新增/改动的 skill 立即生效 |
-| `/skill-doctor` | → `/skills` | 看每个 skill 占多少上下文、用得多不多，找出该关掉的 |
-| `/plugin` `[subcommand]` | → `/reload-plugins` | 管理 Claude Code 插件 |
+| `/skill-doctor` | **`/skill-doctor`** → `/skills` | 看每个 skill 占多少上下文、用得多不多，找出该关掉的 |
+| `/plugin` `[subcommand]` | **`/plugin`** → `/reload-plugins` | 管理 Claude Code 插件 |
 | `/plugins` **`表外`** | — | 在 VS Code 扩展里打开「Manage plugins」图形界面。和 `/plugin` 不是一回事 —— 那个是在 CLI 里管插件。 |
 | `/reload-plugins` `[--force]` | — | 重载所有活跃插件以应用改动，不用重启 |
 | `/plugin-authoring` `skill` | — | 加载写 mod（改 Claude Code 界面或行为的插件）的参考资料 |
@@ -274,7 +270,7 @@
 | `/logout` | — | 退出登录 |
 | `/upgrade` | — | 在浏览器打开升级页，切换到更高套餐 |
 | `/rate-limit-options` | — | 撞到 claude.ai 用量上限时列出办法：等重置后自动继续、加额度、升套餐 |
-| `/usage-credits`<br>旧名 `/extra-usage` | — | 配置用量额度，或在触顶时向管理员申请 |
+| `/usage-credits` | — | 配置用量额度，或在触顶时向管理员申请 · 旧名 `/extra-usage` |
 | `/privacy-settings` | — | 查看和修改隐私设置 |
 | `/passes` | — | 送朋友一周免费 Claude Code |
 
@@ -286,7 +282,7 @@
 |---|---|---|
 | `/ide` | — | 管理 IDE 集成并查看状态 |
 | `/chrome` | — | 配置 Claude in Chrome |
-| `/claude-in-chrome` `[task]` `skill` | ← `/chrome` | 让 Claude 在你的浏览器里干活：测页面、填表单、读控制台日志 |
+| `/claude-in-chrome` `[task]` `skill` | `/chrome` → **`/claude-in-chrome`** | 让 Claude 在你的浏览器里干活：测页面、填表单、读控制台日志 |
 | `/install-github-app` | — | 为仓库安装 Claude GitHub App，可选配置 Actions 与 secrets |
 | `/web-setup` | — | 用本地 gh CLI 凭据把 GitHub 账号连到 Claude Code on the web |
 | `/remote-env` | — | 选择云端 agent 的默认环境 |

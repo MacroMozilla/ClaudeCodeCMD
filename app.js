@@ -90,27 +90,39 @@
     }).join("");
   }
 
+  /* 配对写成一串：前面的 → 自己（高亮）→ 后面的。同一侧有几条就用「/」并列。
+     悬停看为什么这么配，点别的命令跳过去。 */
   function pairCell(it) {
-    var ui = DATA.ui, out = [];
-    ((it.pairs || {}).before || []).forEach(function (p) {
-      out.push('<a class="pair-mini" href="#' + esc(slug(p.command)) + '" title="' +
-        esc(ui.pairsBefore + "：" + p.why) + '"><span class="arr">←</span>' + esc(p.command) + "</a>");
-    });
-    ((it.pairs || {}).after || []).forEach(function (p) {
-      out.push('<a class="pair-mini" href="#' + esc(slug(p.command)) + '" title="' +
-        esc(ui.pairsAfter + "：" + p.why) + '"><span class="arr">→</span>' + esc(p.command) + "</a>");
-    });
-    return out.length ? out.join(" ") : '<span class="bi-dash">—</span>';
+    var ui = DATA.ui, p = it.pairs || {};
+    var before = p.before || [], after = p.after || [];
+    if (!before.length && !after.length) return '<span class="bi-dash">—</span>';
+    var link = function (x, label) {
+      return '<a class="pair-mini" href="#' + esc(slug(x.command)) + '" title="' +
+        esc(label + "：" + x.why) + '">' + esc(x.command) + "</a>";
+    };
+    var side = function (list, label) {
+      return list.map(function (x) { return link(x, label); }).join('<span class="pair-or"> / </span>');
+    };
+    var arr = '<span class="arr"> → </span>';
+    var out = "";
+    if (before.length) out += side(before, ui.pairsBefore) + arr;
+    out += '<span class="pair-self">' + esc(it.command) + "</span>";
+    if (after.length) out += arr + side(after, ui.pairsAfter);
+    return '<span class="pair-chain">' + out + "</span>";
   }
 
   function renderBuiltinRow(it) {
     var ui = DATA.ui;
-    var aliases = (it.aliases || []).map(function (a) {
-      return '<span class="bi-alias">' + esc(a) + "</span>";
-    }).join("");
+    // 别名和旧名不单独占一行，写在说明后面
+    var extra = [];
+    if ((it.aliases || []).length) {
+      extra.push('<span class="bi-aka">' + esc(ui.aliasLabel) + " " + it.aliases.map(function (a) {
+        return '<code class="bi-alias">' + esc(a) + "</code>";
+      }).join(" ") + "</span>");
+    }
     if (it.formerName) {
-      aliases += '<span class="bi-alias former" title="' + esc(ui.formerLabel) + '">' +
-                 esc(it.formerName) + "</span>";
+      extra.push('<span class="bi-aka">' + esc(ui.formerLabel) + ' <code class="bi-alias former">' +
+                 esc(it.formerName) + "</code></span>");
     }
     var offtable = it.source && it.source !== "table"
       ? '<span class="bi-alias offtable" title="' + esc(it.source) + '">' + esc(ui.offTableLabel) + "</span>"
@@ -124,13 +136,13 @@
         '<td class="c-bicmd" title="' + esc(it.command + (it.args ? " " + it.args : "")) + '">' +
           '<code class="bi-name">' + esc(it.command) + "</code>" +
           (it.args ? '<span class="bi-args">' + esc(it.args) + "</span>" : "") +
-          kind + offtable + (aliases ? '<span class="bi-alias-wrap">' + aliases + "</span>" : "") + "</td>" +
+          kind + offtable + "</td>" +
         '<td class="c-bicopy">' +
           '<button type="button" class="mini-btn" data-copy="' + esc(it.command) +
             '" title="' + esc(ui.copyCmdHint) + '" data-label="' + esc(ui.copyCmd) + '">' +
             esc(ui.copyCmd) + "</button></td>" +
         '<td class="c-bipairs">' + pairCell(it) + "</td>" +
-        '<td class="c-bipurpose">' + inline(it.purpose) + "</td>" +
+        '<td class="c-bipurpose">' + inline(it.purpose) + (extra.length ? " " + extra.join(" ") : "") + "</td>" +
       "</tr>"
     );
   }
