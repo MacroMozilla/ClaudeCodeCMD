@@ -3,7 +3,7 @@
     "name": "ClaudeCodeCMD",
     "tagline": "Claude Code 内置命令速查 · 122 条全收录",
     "schemaVersion": "0.1.0",
-    "contentVersion": "4.11.0",
+    "contentVersion": "4.12.0",
     "updated": "2026-11-25",
     "uiLanguage": "zh-CN",
     "promptLanguage": "en",
@@ -75,8 +75,8 @@
     "items": [
       {
         "command": "/code-review",
-        "args": "[low|medium|high|xhigh|max|ultra] [--fix] [--comment] [--max-findings n|all|default] [pr#|branch|path]",
-        "purpose": "审当前 diff（或指定 PR / 分支 / 路径）的正确性 bug 与可清理处，`--fix` 直接改；`ultra` 档在云端沙箱跑深度多 agent 审查（`/ultrareview` 就是 `/code-review ultra`）",
+        "args": "[level] [--fix] [--comment] [target]",
+        "purpose": "审改动里的正确性 bug；`--fix` 直接改，`ultra` 上云端深审",
         "kind": "skill",
         "group": "审查改动：推荐按这个顺序跑",
         "aliases": [
@@ -103,7 +103,7 @@
       {
         "command": "/simplify",
         "args": "[target]",
-        "purpose": "四个 agent 并行看复用/精简/效率/抽象层次，然后直接改。不找 bug",
+        "purpose": "4 个 agent 并行查复用、精简、效率和抽象层次，直接改；不找 bug",
         "kind": "skill",
         "group": "审查改动：推荐按这个顺序跑",
         "source": "table",
@@ -124,7 +124,7 @@
       },
       {
         "command": "/security-review",
-        "purpose": "分析当前分支的改动有没有安全漏洞",
+        "purpose": "审当前分支相对默认分支的改动有没有安全漏洞",
         "kind": "builtin",
         "group": "审查改动：推荐按这个顺序跑",
         "source": "table",
@@ -145,7 +145,7 @@
       },
       {
         "command": "/verify",
-        "purpose": "把项目真的构建并跑起来看结果，而不是只跑测试和类型检查",
+        "purpose": "构建并运行项目，亲眼确认改动生效，不只看测试",
         "kind": "skill",
         "group": "审查改动：推荐按这个顺序跑",
         "source": "table",
@@ -170,7 +170,7 @@
       },
       {
         "command": "/diff",
-        "purpose": "打开交互式 diff 查看器，看未提交改动和每轮的改动",
+        "purpose": "查看工作区改动，包括 Claude 这一轮改的",
         "kind": "builtin",
         "group": "审查的其他方式 · 跑起来看",
         "source": "table",
@@ -185,7 +185,7 @@
       },
       {
         "command": "/run",
-        "purpose": "启动并操作你的项目，亲眼看改动生效，而不只是测试通过",
+        "purpose": "启动并操作你的项目，看改动实际跑起来",
         "kind": "skill",
         "group": "审查的其他方式 · 跑起来看",
         "source": "table",
@@ -206,7 +206,7 @@
       },
       {
         "command": "/run-skill-generator",
-        "purpose": "写一个项目专属 skill，教会 /run 和 /verify 怎么构建和启动你的项目",
+        "purpose": "生成项目专属 skill，教 `/run` `/verify` 怎么构建和启动",
         "kind": "skill",
         "group": "审查的其他方式 · 跑起来看",
         "source": "table",
@@ -222,7 +222,7 @@
       {
         "command": "/ship",
         "args": "[level] [pr] [+bot]",
-        "purpose": "一条龙：提交推送、没有 PR 就开一个、先审一遍，然后在本会话盯着 PR，评审意见和挂掉的 CI 自动推修复。`/ship stop` 停止",
+        "purpose": "提交推送、开 PR、先审一遍，再盯着 PR 自动修；`stop` 结束",
         "kind": "skill",
         "group": "提交 · 盯 PR",
         "source": "table",
@@ -238,7 +238,7 @@
       {
         "command": "/steward",
         "args": "[pr] [+bot]",
-        "purpose": "只盯 PR：评审意见和挂掉的 CI 自动推修复，不像 `/ship` 那样先审一遍。`/steward stop` 停止",
+        "purpose": "只盯 PR，自动修评审意见和挂掉的 CI，不先审；`stop` 结束",
         "kind": "skill",
         "group": "提交 · 盯 PR",
         "aliases": [
@@ -257,7 +257,7 @@
       {
         "command": "/autofix-pr",
         "args": "[prompt]",
-        "purpose": "开一个云端会话盯着当前分支的 PR，CI 挂了或有评论就自动推修复",
+        "purpose": "开云端会话盯当前分支的 PR，CI 挂了或有评论就推修复",
         "kind": "builtin",
         "group": "提交 · 盯 PR",
         "source": "table"
@@ -265,7 +265,7 @@
       {
         "command": "/debug",
         "args": "[description]",
-        "purpose": "打开本会话的 debug 日志并读日志排查问题（从敲下这一刻开始记录），可以顺带描述你遇到的现象让它聚焦",
+        "purpose": "开启本会话 debug 日志并读日志排查问题",
         "kind": "skill",
         "group": "排查 · 报问题",
         "source": "table",
@@ -286,8 +286,8 @@
       },
       {
         "command": "/doctor",
-        "args": "[prompt-audit [path]]",
-        "purpose": "体检安装、设置、扩展和 CLAUDE.md，给出修法，你点头后 Claude 动手改；`prompt-audit` 专查指令里给老模型写的过时写法",
+        "args": "[prompt-audit]",
+        "purpose": "体检安装、设置、扩展和 CLAUDE.md，你确认后帮你修",
         "kind": "skill",
         "group": "排查 · 报问题",
         "aliases": [
@@ -305,7 +305,7 @@
       },
       {
         "command": "/heapdump",
-        "purpose": "导出 JS 堆快照和内存分解，用于排查内存占用过高",
+        "purpose": "导出堆快照和内存分解，排查内存占用过高",
         "kind": "builtin",
         "group": "排查 · 报问题",
         "source": "table"
@@ -313,7 +313,7 @@
       {
         "command": "/bug",
         "args": "[report]",
-        "purpose": "报 bug 或分享你的对话",
+        "purpose": "报 bug 或分享对话，发送前会让你确认",
         "kind": "builtin",
         "group": "排查 · 报问题",
         "aliases": [
@@ -324,14 +324,14 @@
       {
         "command": "/feedback",
         "args": "[report]",
-        "purpose": "提交对 Claude Code 的产品反馈",
+        "purpose": "给 Claude Code 提产品反馈",
         "kind": "builtin",
         "group": "排查 · 报问题",
         "source": "table"
       },
       {
         "command": "/rewind",
-        "purpose": "把对话和/或代码回滚到之前某个检查点",
+        "purpose": "把对话和/或代码退回到之前某个点",
         "kind": "builtin",
         "group": "改坏了回退",
         "aliases": [
@@ -351,7 +351,7 @@
       {
         "command": "/branch",
         "args": "[name]",
-        "purpose": "在当前这一点分叉出一条对话，换个方向试而不丢原来的",
+        "purpose": "在当前点分叉出一条对话，原来的保留，可用 `/resume` 回去",
         "kind": "builtin",
         "group": "改坏了回退",
         "source": "table",
@@ -367,7 +367,7 @@
       {
         "command": "/fork",
         "args": "[prompt]",
-        "purpose": "把当前对话复制到一个新的后台会话，两边从此独立",
+        "purpose": "把对话复制进一个新的后台会话，这边继续干",
         "kind": "builtin",
         "group": "改坏了回退",
         "source": "table"
@@ -375,7 +375,7 @@
       {
         "command": "/plan",
         "args": "[description]",
-        "purpose": "直接从输入栏进入 plan 模式",
+        "purpose": "进入 plan 模式；带上描述就直接开始规划",
         "kind": "builtin",
         "group": "模式 · 模型",
         "source": "table",
@@ -391,7 +391,7 @@
       {
         "command": "/model",
         "args": "[model]",
-        "purpose": "切换模型，并存为新会话的默认",
+        "purpose": "切换模型并存为默认；在列表里按 `s` 只改本会话",
         "kind": "builtin",
         "group": "模式 · 模型",
         "source": "table",
@@ -406,8 +406,8 @@
       },
       {
         "command": "/effort",
-        "args": "[level|auto|status|ultracode [on|off]]",
-        "purpose": "设置思考力度（low 到 xhigh、max、auto）；`status` 看当前档，`ultracode` 开关 ultracode",
+        "args": "[level|auto|status]",
+        "purpose": "设思考力度：low～xhigh、max 或 auto；`status` 看当前档",
         "kind": "builtin",
         "group": "模式 · 模型",
         "source": "table",
@@ -423,7 +423,7 @@
       {
         "command": "/fast",
         "args": "[on|off]",
-        "purpose": "开关快速模式（仍是 Opus，只是输出更快，不降级到小模型）",
+        "purpose": "开关快速模式",
         "kind": "builtin",
         "group": "模式 · 模型",
         "source": "table"
@@ -431,7 +431,7 @@
       {
         "command": "/advisor",
         "args": "[model|off]",
-        "purpose": "开关顾问工具：在关键节点让第二个模型给建议",
+        "purpose": "开关顾问：关键节点请第二个模型给建议",
         "kind": "builtin",
         "group": "模式 · 模型",
         "source": "table"
@@ -439,7 +439,7 @@
       {
         "command": "/output-style",
         "args": "[style]",
-        "purpose": "列出或切换输出风格，比如 `/output-style concise`（v2.1.269 起重新上线）",
+        "purpose": "列出或切换输出风格",
         "kind": "builtin",
         "group": "模式 · 模型",
         "source": "table"
@@ -454,7 +454,7 @@
       {
         "command": "/clear",
         "args": "[name]",
-        "purpose": "清空上下文，开一段新对话",
+        "purpose": "清空上下文，开新对话；只想腾地方用 `/compact`",
         "kind": "builtin",
         "group": "上下文 · 对话",
         "aliases": [
@@ -474,7 +474,7 @@
       {
         "command": "/compact",
         "args": "[instructions]",
-        "purpose": "把已有对话总结压缩，腾出上下文空间",
+        "purpose": "把已有对话总结压缩，腾出上下文",
         "kind": "builtin",
         "group": "上下文 · 对话",
         "source": "table",
@@ -496,7 +496,7 @@
       {
         "command": "/context",
         "args": "[all]",
-        "purpose": "用彩色方格图看当前上下文占用情况",
+        "purpose": "用彩色方格图看上下文占用，附优化建议",
         "kind": "builtin",
         "group": "上下文 · 对话",
         "source": "table",
@@ -511,8 +511,8 @@
       },
       {
         "command": "/autocompact",
-        "args": "[auto|<tokens>]",
-        "purpose": "设置自动压缩的触发点（上下文占到多满时自动压）",
+        "args": "[auto|size]",
+        "purpose": "设自动压缩的触发点；`auto` 恢复默认",
         "kind": "builtin",
         "group": "上下文 · 对话",
         "source": "table",
@@ -528,14 +528,14 @@
       {
         "command": "/btw",
         "args": "[question]",
-        "purpose": "问个不进入对话历史的临时问题",
+        "purpose": "问个旁支问题，不进对话历史",
         "kind": "builtin",
         "group": "上下文 · 对话",
         "source": "table"
       },
       {
         "command": "/recap",
-        "purpose": "生成当前会话的一行摘要",
+        "purpose": "生成本会话的一行摘要",
         "kind": "builtin",
         "group": "上下文 · 对话",
         "source": "table"
@@ -543,7 +543,7 @@
       {
         "command": "/copy",
         "args": "[N]",
-        "purpose": "复制上一条回复到剪贴板",
+        "purpose": "复制上一条回复；`/copy 2` 复制倒数第二条",
         "kind": "builtin",
         "group": "上下文 · 对话",
         "source": "table"
@@ -551,7 +551,7 @@
       {
         "command": "/export",
         "args": "[filename]",
-        "purpose": "把当前对话导出成纯文本",
+        "purpose": "把对话导出成纯文本",
         "kind": "builtin",
         "group": "上下文 · 对话",
         "source": "table"
@@ -559,7 +559,7 @@
       {
         "command": "/background",
         "args": "[prompt]",
-        "purpose": "把当前会话转成后台 agent，腾出这个终端",
+        "purpose": "把当前会话转到后台跑，腾出终端",
         "kind": "builtin",
         "group": "后台 · 并行 · 定时",
         "aliases": [
@@ -577,7 +577,7 @@
       },
       {
         "command": "/tasks",
-        "purpose": "查看和管理本会话的后台任务，含已完成的子 agent",
+        "purpose": "查看和管理本会话的后台任务",
         "kind": "builtin",
         "group": "后台 · 并行 · 定时",
         "aliases": [
@@ -595,14 +595,14 @@
       },
       {
         "command": "/stop",
-        "purpose": "停掉当前挂着的后台会话，对话记录和 worktree 都保留",
+        "purpose": "停掉挂着的后台会话，记录和 worktree 保留",
         "kind": "builtin",
         "group": "后台 · 并行 · 定时",
         "source": "table"
       },
       {
         "command": "/list-agents",
-        "purpose": "列出 Claude 能发消息的子 agent、团队队友和其他 Claude Code 会话，以及各自的名字",
+        "purpose": "列出 Claude 能发消息的子 agent、队友和其他会话",
         "kind": "builtin",
         "group": "后台 · 并行 · 定时",
         "aliases": [
@@ -613,7 +613,7 @@
       {
         "command": "/subtask",
         "args": "<task>",
-        "purpose": "派一个继承完整对话的后台子 agent 去干活，你继续干你的",
+        "purpose": "派一个继承完整对话的后台子 agent，结果回到这里",
         "kind": "builtin",
         "group": "后台 · 并行 · 定时",
         "source": "table",
@@ -629,7 +629,7 @@
       {
         "command": "/batch",
         "args": "<instruction>",
-        "purpose": "把大规模改动拆成 5-30 个独立单元并行做，每个单元一个 worktree + 一个 PR",
+        "purpose": "把大改动拆成 5–30 块并行做，每块一个 worktree 和 PR",
         "kind": "skill",
         "group": "后台 · 并行 · 定时",
         "source": "table",
@@ -644,7 +644,7 @@
       },
       {
         "command": "/workflows",
-        "purpose": "打开 workflow 进度视图，可暂停/恢复/保存正在跑的编排",
+        "purpose": "查看 workflow 进度，可暂停、恢复、保存",
         "kind": "builtin",
         "group": "后台 · 并行 · 定时",
         "source": "table"
@@ -652,7 +652,7 @@
       {
         "command": "/loop",
         "args": "[interval] [prompt]",
-        "purpose": "让一个提示词按间隔反复跑；不给间隔则由 Claude 自己掌握节奏",
+        "purpose": "让提示词按间隔反复跑；不给间隔就由 Claude 自己定节奏",
         "kind": "skill",
         "group": "后台 · 并行 · 定时",
         "aliases": [
@@ -663,7 +663,7 @@
       {
         "command": "/goal",
         "args": "[condition|clear]",
-        "purpose": "设一个目标，Claude 会跨多轮一直做到条件满足",
+        "purpose": "设一个目标，Claude 跨多轮一直做到达成",
         "kind": "builtin",
         "group": "后台 · 并行 · 定时",
         "source": "table"
@@ -671,7 +671,7 @@
       {
         "command": "/schedule",
         "args": "[description]",
-        "purpose": "创建 / 更新 / 列出 / 立即运行云端定时任务（以前叫 Routine）",
+        "purpose": "创建、修改、列出或立即运行云端定时任务",
         "kind": "builtin",
         "group": "后台 · 并行 · 定时",
         "aliases": [
@@ -682,7 +682,7 @@
       {
         "command": "/resume",
         "args": "[session]",
-        "purpose": "按 ID 或名字恢复之前的对话，或打开会话选择器",
+        "purpose": "按 ID 或名字恢复对话，或打开会话列表",
         "kind": "builtin",
         "group": "会话 · 换设备",
         "aliases": [
@@ -693,14 +693,14 @@
       {
         "command": "/rename",
         "args": "[name]",
-        "purpose": "给当前会话改名，名字会显示在输入栏上",
+        "purpose": "给当前会话改名；不给名字就自动起一个",
         "kind": "builtin",
         "group": "会话 · 换设备",
         "source": "table"
       },
       {
         "command": "/exit",
-        "purpose": "退出 CLI",
+        "purpose": "退出 CLI；在后台会话里是脱离，会话继续跑",
         "kind": "builtin",
         "group": "会话 · 换设备",
         "aliases": [
@@ -710,7 +710,7 @@
       },
       {
         "command": "/restart",
-        "purpose": "重启 Claude Code 并接着这个会话，用来装上已下好的更新。**别和 `/upgrade` 搞混** —— 那个是升套餐",
+        "purpose": "重启并接着本会话，装上已下好的更新",
         "kind": "builtin",
         "group": "会话 · 换设备",
         "aliases": [
@@ -720,7 +720,7 @@
       },
       {
         "command": "/teleport",
-        "purpose": "把一个 Claude Code on the web 会话拉到这个终端里继续",
+        "purpose": "把一个云端会话拉到这个终端继续",
         "kind": "builtin",
         "group": "会话 · 换设备",
         "aliases": [
@@ -730,7 +730,7 @@
       },
       {
         "command": "/remote-control",
-        "purpose": "让这个会话可以从 claude.ai 远程控制",
+        "purpose": "让本会话能从 claude.ai 远程控制",
         "kind": "builtin",
         "group": "会话 · 换设备",
         "aliases": [
@@ -740,7 +740,7 @@
       },
       {
         "command": "/desktop",
-        "purpose": "把当前会话转到 Claude Code 桌面版继续",
+        "purpose": "把本会话转到桌面版继续",
         "kind": "builtin",
         "group": "会话 · 换设备",
         "aliases": [
@@ -761,14 +761,14 @@
       },
       {
         "command": "/status",
-        "purpose": "打开设置的状态页：版本、模型、账号、连通性",
+        "purpose": "看版本、模型、账号和连通性",
         "kind": "builtin",
         "group": "只看不改：状态 · 用量",
         "source": "table"
       },
       {
         "command": "/usage",
-        "purpose": "查看会话花费、套餐额度和活动统计（`/stats` 直接打开统计页）",
+        "purpose": "看花费、套餐额度和活动统计",
         "kind": "builtin",
         "group": "只看不改：状态 · 用量",
         "source": "table",
@@ -787,35 +787,35 @@
       },
       {
         "command": "/help",
-        "purpose": "显示帮助和可用命令 —— 你本地的这份才是最终依据",
+        "purpose": "显示帮助和可用命令；`/help <命令>` 看单条用法",
         "kind": "builtin",
         "group": "只看不改：状态 · 用量",
         "source": "table"
       },
       {
         "command": "/release-notes",
-        "purpose": "在交互式版本选择器里看更新日志",
+        "purpose": "按版本看更新日志",
         "kind": "builtin",
         "group": "只看不改：状态 · 用量",
         "source": "table"
       },
       {
         "command": "/insights",
-        "purpose": "分析你的使用记录，生成项目领域、交互模式、卡点报告",
+        "purpose": "分析你最近的会话，生成使用报告",
         "kind": "builtin",
         "group": "只看不改：状态 · 用量",
         "source": "table"
       },
       {
         "command": "/todos",
-        "purpose": "打开待办列表浮层（changelog 里和 `/config` `/context` `/model` 并列为 command overlay）。",
+        "purpose": "打开待办列表浮层",
         "kind": "builtin",
         "group": "只看不改：状态 · 用量",
         "source": "changelog"
       },
       {
         "command": "/init",
-        "purpose": "为项目生成 CLAUDE.md 指南",
+        "purpose": "为项目生成 CLAUDE.md",
         "kind": "builtin",
         "group": "项目配置 · 权限",
         "source": "table",
@@ -830,7 +830,7 @@
       },
       {
         "command": "/memory",
-        "purpose": "编辑 CLAUDE.md 记忆文件，开关自动记忆并查看条目",
+        "purpose": "编辑 CLAUDE.md，开关自动记忆",
         "kind": "builtin",
         "group": "项目配置 · 权限",
         "source": "table"
@@ -855,7 +855,7 @@
       },
       {
         "command": "/fewer-permission-prompts",
-        "purpose": "扫描历史里常用的只读命令，写进项目 settings.json 的白名单，减少批准弹窗",
+        "purpose": "把常用只读命令加进项目白名单，少弹批准框",
         "kind": "skill",
         "group": "项目配置 · 权限",
         "formerName": "/less-permission-prompts",
@@ -871,7 +871,7 @@
       },
       {
         "command": "/auto-mode-setup",
-        "purpose": "读你的项目和最近的会话，起草 auto mode 的环境说明，你审过后存进用户设置",
+        "purpose": "根据项目起草 auto mode 的环境说明，审过后保存",
         "kind": "builtin",
         "group": "项目配置 · 权限",
         "source": "table"
@@ -879,7 +879,7 @@
       {
         "command": "/config",
         "args": "[key=value ...]",
-        "purpose": "打开设置界面，调主题、模型、输出风格等",
+        "purpose": "打开设置；也可 `/config key=value` 直接改",
         "kind": "builtin",
         "group": "项目配置 · 权限",
         "aliases": [
@@ -890,21 +890,21 @@
       {
         "command": "/update-config",
         "args": "[request]",
-        "purpose": "用一句话描述设置改动（放行某条命令、设环境变量、加 hook），Claude 去改对应的 settings.json",
+        "purpose": "一句话说要改什么设置，Claude 去改 settings.json",
         "kind": "skill",
         "group": "项目配置 · 权限",
         "source": "table"
       },
       {
         "command": "/env",
-        "purpose": "设置环境变量，影响 Bash 与 PowerShell 工具执行的命令（v2.1.89 起也作用于 PowerShell）。",
+        "purpose": "设置 Bash / PowerShell 工具用的环境变量",
         "kind": "builtin",
         "group": "项目配置 · 权限",
         "source": "changelog"
       },
       {
         "command": "/hooks",
-        "purpose": "查看工具事件的 hook 配置",
+        "purpose": "查看 hook 配置",
         "kind": "builtin",
         "group": "项目配置 · 权限",
         "source": "table"
@@ -912,7 +912,7 @@
       {
         "command": "/add-dir",
         "args": "<path>",
-        "purpose": "给当前会话临时加一个可访问的工作目录",
+        "purpose": "给会话加一个可访问的目录",
         "kind": "builtin",
         "group": "项目配置 · 权限",
         "source": "table"
@@ -920,23 +920,23 @@
       {
         "command": "/cd",
         "args": "<path>",
-        "purpose": "把当前会话切到另一个工作目录",
+        "purpose": "把会话移到另一个工作目录，对话保留",
         "kind": "builtin",
         "group": "项目配置 · 权限",
         "source": "table"
       },
       {
         "command": "/import",
-        "args": "[codex|gemini|cursor] [--dry-run] [--yes]",
-        "purpose": "把 Codex / Gemini CLI / Cursor 的配置搬进 Claude Code：指令文件、MCP、命令、子 agent、skill",
+        "args": "[codex|gemini|cursor]",
+        "purpose": "把 Codex、Gemini CLI 或 Cursor 的配置搬进来",
         "kind": "builtin",
         "group": "项目配置 · 权限",
         "source": "table"
       },
       {
         "command": "/mcp",
-        "args": "[reconnect <server>|enable|disable [<server>|all]]",
-        "purpose": "管理 MCP 服务连接与 OAuth 授权",
+        "args": "[reconnect|enable|disable] [server|all]",
+        "purpose": "管理 MCP 服务的连接和授权",
         "kind": "builtin",
         "group": "扩展：MCP / skill / plugin",
         "source": "table",
@@ -951,7 +951,7 @@
       },
       {
         "command": "/skills",
-        "purpose": "列出可用的 skill",
+        "purpose": "列出可用 skill，可调整哪些对 Claude 可见",
         "kind": "builtin",
         "group": "扩展：MCP / skill / plugin",
         "source": "table",
@@ -966,14 +966,14 @@
       },
       {
         "command": "/reload-skills",
-        "purpose": "重新扫描 skill 和命令目录，让会话中新增/改动的 skill 立即生效",
+        "purpose": "重新扫描 skill 目录，改动不用重启就生效",
         "kind": "builtin",
         "group": "扩展：MCP / skill / plugin",
         "source": "table"
       },
       {
         "command": "/skill-doctor",
-        "purpose": "看每个 skill 占多少上下文、用得多不多，找出该关掉的",
+        "purpose": "看每个 skill 占多少上下文、用得多不多",
         "kind": "builtin",
         "group": "扩展：MCP / skill / plugin",
         "source": "table",
@@ -989,7 +989,7 @@
       {
         "command": "/plugin",
         "args": "[subcommand]",
-        "purpose": "管理 Claude Code 插件",
+        "purpose": "管理插件：安装、启用、停用",
         "kind": "builtin",
         "group": "扩展：MCP / skill / plugin",
         "source": "table",
@@ -1004,7 +1004,7 @@
       },
       {
         "command": "/plugins",
-        "purpose": "在 VS Code 扩展里打开「Manage plugins」图形界面。和 `/plugin` 不是一回事 —— 那个是在 CLI 里管插件。",
+        "purpose": "VS Code 扩展里的插件管理界面",
         "kind": "builtin",
         "group": "扩展：MCP / skill / plugin",
         "source": "vs-code 文档"
@@ -1012,21 +1012,21 @@
       {
         "command": "/reload-plugins",
         "args": "[--force]",
-        "purpose": "重载所有活跃插件以应用改动，不用重启",
+        "purpose": "重载插件，改动不用重启就生效",
         "kind": "builtin",
         "group": "扩展：MCP / skill / plugin",
         "source": "table"
       },
       {
         "command": "/plugin-authoring",
-        "purpose": "加载写 mod（改 Claude Code 界面或行为的插件）的参考资料",
+        "purpose": "加载写 mod 的参考资料",
         "kind": "skill",
         "group": "扩展：MCP / skill / plugin",
         "source": "table"
       },
       {
         "command": "/agents",
-        "purpose": "提示你去让 Claude 创建/管理子 agent，或直接改 .claude/agents/",
+        "purpose": "提示你怎么创建和管理子 agent",
         "kind": "builtin",
         "group": "扩展：MCP / skill / plugin",
         "source": "table"
@@ -1034,29 +1034,29 @@
       {
         "command": "/claude-api",
         "args": "[subcommand]",
-        "purpose": "加载 Claude API 与 Managed Agents 参考资料（按项目语言）；子命令可做迁移、升级 SDK、省钱、提速、写评测等",
+        "purpose": "加载 Claude API 与 Managed Agents 参考资料",
         "kind": "skill",
         "group": "扩展：MCP / skill / plugin",
         "source": "table"
       },
       {
         "command": "/workflow-authoring",
-        "purpose": "加载写 workflow 编排脚本的参考：脚本 API、续跑、写法和范例",
+        "purpose": "加载写 workflow 脚本的参考资料",
         "kind": "skill",
         "group": "扩展：MCP / skill / plugin",
         "source": "table"
       },
       {
         "command": "/claude-approvals",
-        "args": "[what to change or explain]",
-        "purpose": "编辑、解释或调整 Claude Approvals 的策略文件和分类器",
+        "args": "[request]",
+        "purpose": "编辑、解释或调整 Claude Approvals 策略",
         "kind": "skill",
         "group": "扩展：MCP / skill / plugin",
         "source": "table"
       },
       {
         "command": "/artifacts",
-        "purpose": "列出你的 artifact（含别人分享给你的），挂到会话里、在浏览器打开或复制链接",
+        "purpose": "列出你的 artifact，挂到会话、打开或复制链接",
         "kind": "builtin",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
@@ -1064,7 +1064,7 @@
       {
         "command": "/design",
         "args": "[brief]",
-        "purpose": "在一张画布上画 UI 稿、页面流程、落地页或海报，发布成 Claude Design artifact。`/design consent` / `/design revoke` 授权或收回",
+        "purpose": "在画布上出 UI 稿、页面流程、落地页或海报",
         "kind": "skill",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
@@ -1072,14 +1072,14 @@
       {
         "command": "/design-sync",
         "args": "[hint]",
-        "purpose": "把仓库里的 React 设计系统同步到 Claude Design，让产出的设计用你的真实组件",
+        "purpose": "把仓库的 React 设计系统同步到 Claude Design",
         "kind": "skill",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
       },
       {
         "command": "/design-login",
-        "purpose": "为 /design-sync 授权 claude.ai 账号的设计系统访问",
+        "purpose": "为 `/design-sync` 登录授权",
         "kind": "builtin",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
@@ -1087,7 +1087,7 @@
       {
         "command": "/slides",
         "args": "[brief]",
-        "purpose": "按你的简述做一份 Claude Slides 演示稿",
+        "purpose": "按你的简述做一份演示稿",
         "kind": "skill",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
@@ -1095,7 +1095,7 @@
       {
         "command": "/whiteboard",
         "args": "[brief]",
-        "purpose": "按你的简述做一块 Claude Whiteboards 白板",
+        "purpose": "按你的简述做一块白板",
         "kind": "skill",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
@@ -1103,7 +1103,7 @@
       {
         "command": "/motion",
         "args": "[brief]",
-        "purpose": "按你的简述做一段 Claude Motion 动画（只在桌面版和云端会话，Team / Enterprise）",
+        "purpose": "按你的简述做一段动画",
         "kind": "skill",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
@@ -1111,21 +1111,21 @@
       {
         "command": "/dataviz",
         "args": "[request]",
-        "purpose": "图表/仪表盘的设计指导：选图形、配色、校验色盲安全与对比度",
+        "purpose": "图表、仪表盘的设计指导：选图形、配色、可读性",
         "kind": "skill",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
       },
       {
         "command": "/artifact-diagramming",
-        "purpose": "在 artifact 里画示意图的指引：什么时候值得画、画什么、内联 SVG 深浅色都看得清",
+        "purpose": "在 artifact 里画示意图的指引",
         "kind": "skill",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
       },
       {
         "command": "/artifact-capabilities",
-        "purpose": "加载已发布 artifact 能用的运行时能力参考（调用连接器、提供文件下载等）",
+        "purpose": "加载 artifact 运行时能力的参考",
         "kind": "skill",
         "group": "做文档 · 做图 · 做演示",
         "source": "table"
@@ -1140,14 +1140,14 @@
       {
         "command": "/color",
         "args": "[color|default]",
-        "purpose": "设置当前会话输入栏的颜色",
+        "purpose": "设置本会话输入栏的颜色",
         "kind": "builtin",
         "group": "界面 · 外观 · 快捷键",
         "source": "table"
       },
       {
         "command": "/focus",
-        "purpose": "切换精简视图：只显示你的提问、一行工具摘要和最终回复（仅全屏渲染下可用）",
+        "purpose": "精简视图：只显示提问、工具摘要和最终回复",
         "kind": "builtin",
         "group": "界面 · 外观 · 快捷键",
         "source": "table"
@@ -1155,14 +1155,14 @@
       {
         "command": "/tui",
         "args": "[classic|fullscreen]",
-        "purpose": "切换终端 UI 渲染器（经典 / 全屏无闪烁），并带着对话重启进去",
+        "purpose": "切换经典 / 全屏渲染，带着对话重启",
         "kind": "builtin",
         "group": "界面 · 外观 · 快捷键",
         "source": "table"
       },
       {
         "command": "/scroll-speed",
-        "purpose": "交互式调滚轮速度，调的时候能实时预览",
+        "purpose": "调滚轮速度（仅全屏渲染）",
         "kind": "builtin",
         "group": "界面 · 外观 · 快捷键",
         "source": "table"
@@ -1176,14 +1176,14 @@
       },
       {
         "command": "/keybindings",
-        "purpose": "打开你的快捷键配置文件",
+        "purpose": "打开快捷键配置文件",
         "kind": "builtin",
         "group": "界面 · 外观 · 快捷键",
         "source": "table"
       },
       {
         "command": "/terminal-setup",
-        "purpose": "配置 Shift+Enter 等终端快捷键",
+        "purpose": "配好 Shift+Enter 换行等终端设置",
         "kind": "builtin",
         "group": "界面 · 外观 · 快捷键",
         "source": "table"
@@ -1212,21 +1212,21 @@
       },
       {
         "command": "/upgrade",
-        "purpose": "在浏览器打开升级页，切换到更高套餐",
+        "purpose": "打开升级页，换更高套餐",
         "kind": "builtin",
         "group": "账号 · 额度",
         "source": "table"
       },
       {
         "command": "/rate-limit-options",
-        "purpose": "撞到 claude.ai 用量上限时列出办法：等重置后自动继续、加额度、升套餐",
+        "purpose": "撞到用量上限时，看还能怎么继续",
         "kind": "builtin",
         "group": "账号 · 额度",
         "source": "table"
       },
       {
         "command": "/usage-credits",
-        "purpose": "配置用量额度，或在触顶时向管理员申请",
+        "purpose": "配置用量额度，或向管理员申请",
         "kind": "builtin",
         "group": "账号 · 额度",
         "formerName": "/extra-usage",
@@ -1263,7 +1263,7 @@
       {
         "command": "/claude-in-chrome",
         "args": "[task]",
-        "purpose": "让 Claude 在你的浏览器里干活：测页面、填表单、读控制台日志",
+        "purpose": "让 Claude 在你的浏览器里测页面、填表、读日志",
         "kind": "skill",
         "group": "接 IDE · 浏览器 · 云服务",
         "source": "table",
@@ -1278,21 +1278,21 @@
       },
       {
         "command": "/install-github-app",
-        "purpose": "为仓库安装 Claude GitHub App，可选配置 Actions 与 secrets",
+        "purpose": "给仓库装 Claude GitHub App，可顺带配 Actions",
         "kind": "builtin",
         "group": "接 IDE · 浏览器 · 云服务",
         "source": "table"
       },
       {
         "command": "/web-setup",
-        "purpose": "用本地 gh CLI 凭据把 GitHub 账号连到 Claude Code on the web",
+        "purpose": "用本地 gh 凭据把 GitHub 连到云端会话",
         "kind": "builtin",
         "group": "接 IDE · 浏览器 · 云服务",
         "source": "table"
       },
       {
         "command": "/remote-env",
-        "purpose": "选择云端 agent 的默认环境",
+        "purpose": "选云端会话的默认环境",
         "kind": "builtin",
         "group": "接 IDE · 浏览器 · 云服务",
         "source": "table"
@@ -1306,14 +1306,14 @@
       },
       {
         "command": "/setup-bedrock",
-        "purpose": "交互式向导配置 Amazon Bedrock 的认证、区域和模型",
+        "purpose": "向导配置 Amazon Bedrock",
         "kind": "builtin",
         "group": "接 IDE · 浏览器 · 云服务",
         "source": "table"
       },
       {
         "command": "/setup-vertex",
-        "purpose": "交互式向导配置 Google Cloud Agent Platform 的认证、项目、区域和模型",
+        "purpose": "向导配置 Google Cloud Agent Platform",
         "kind": "builtin",
         "group": "接 IDE · 浏览器 · 云服务",
         "source": "table"
@@ -1321,42 +1321,42 @@
       {
         "command": "/deep-research",
         "args": "<question>",
-        "purpose": "对一个问题扇出网络搜索、交叉验证来源，产出带引用的报告",
+        "purpose": "多路搜索、交叉核对，产出带引用的报告",
         "kind": "workflow",
         "group": "查资料 · 学用法",
         "source": "table"
       },
       {
         "command": "/powerup",
-        "purpose": "用带动画的小课程快速了解 Claude Code 的功能",
+        "purpose": "用带动画的小课程了解功能",
         "kind": "builtin",
         "group": "查资料 · 学用法",
         "source": "table"
       },
       {
         "command": "/team-onboarding",
-        "purpose": "根据你的使用历史生成一份团队上手指南",
+        "purpose": "根据使用历史生成团队上手指南",
         "kind": "builtin",
         "group": "查资料 · 学用法",
         "source": "table"
       },
       {
         "command": "/radio",
-        "purpose": "在浏览器打开 Claude FM lo-fi 电台",
+        "purpose": "在浏览器打开 Claude FM 电台",
         "kind": "builtin",
         "group": "彩蛋 · 周边",
         "source": "table"
       },
       {
         "command": "/stickers",
-        "purpose": "看 Claude Code 贴纸现在还能不能领",
+        "purpose": "看贴纸还能不能领",
         "kind": "builtin",
         "group": "彩蛋 · 周边",
         "source": "table"
       },
       {
         "command": "/buddy",
-        "purpose": "愚人节彩蛋：孵一只小生物看着你写代码。",
+        "purpose": "愚人节彩蛋：一只陪你写代码的小生物",
         "kind": "builtin",
         "group": "彩蛋 · 周边",
         "source": "changelog"

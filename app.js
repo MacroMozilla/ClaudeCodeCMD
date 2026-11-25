@@ -17,10 +17,28 @@
   }
 
   /* 先转义再做行内标记，内容里的尖括号不会变成标签 */
+  /* 命令名（含别名）→ 它所在那一行的锚点。说明里提到别的命令就能点过去。 */
+  var CMD_INDEX = null;
+  function cmdIndex() {
+    if (CMD_INDEX) return CMD_INDEX;
+    CMD_INDEX = {};
+    ((DATA && DATA.builtins && DATA.builtins.items) || []).forEach(function (it) {
+      CMD_INDEX[it.command] = it.command;
+      (it.aliases || []).forEach(function (a) { CMD_INDEX[a] = it.command; });
+    });
+    return CMD_INDEX;
+  }
+
   function inline(s) {
+    var idx = cmdIndex();
     return esc(s)
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-      .replace(/`([^`]+)`/g, "<code>$1</code>");
+      .replace(/`([^`]+)`/g, function (_, t) {
+        var to = idx[t];
+        return to
+          ? '<a class="cmd-link" href="#' + slug(to) + '" title="跳到 ' + to + '"><code>' + t + "</code></a>"
+          : "<code>" + t + "</code>";
+      });
   }
 
   function el(html) {
